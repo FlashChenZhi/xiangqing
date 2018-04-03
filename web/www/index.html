@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" type="text/css" href="./global.css"/>
+    <!--<link rel="stylesheet" type="text/css" href="./dist/index.css"/>-->
+    <!--[if lt IE 10]>
+    <script src="https://as.alipayobjects.com/g/component/??console-polyfill/0.2.2/index.js,es5-shim/4.5.7/es5-shim.min.js,es5-shim/4.5.7/es5-sham.min.js,html5shiv/3.7.2/html5shiv.min.js,media-match/2.0.2/media.match.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+        var win = window;
+        var doc = win.document;
+        var input = doc.createElement("input");
+
+        function getIEVersion() {
+            if (win.ActiveXObject === undefined) return null;
+            if (!win.XMLHttpRequest) return 6;
+            if (!doc.querySelector) return 7;
+            if (!doc.addEventListener) return 8;
+            if (!win.atob) return 9;
+            if (!input.dataset) return 10;
+            return 11;
+        }
+
+        var ieVersion = getIEVersion();
+        if (ieVersion <= 8) {
+            document.body.innerText = '暂不支持IE8及以下浏览器,请升级您的IE浏览器版本或使用Chrome浏览器';
+        }
+    </script>
+</head>
+<body>
+<div  id="root"></div>
+</body>
+<script src="./global.js"></script>
+<script src="./dist/bundle.js"></script>
+</html>

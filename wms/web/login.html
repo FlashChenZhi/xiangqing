@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WMS</title>
+    <link rel="stylesheet" type="text/css" href="stylesheets/login.css"/>
+    <script type="text/javascript" src="scripts/ext-all.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function () {
+            var login = document.getElementById('login');
+            document.onkeydown = function (event) {
+                if (event.keyCode == 13) {
+                    login.click();
+                }
+            };
+            login.onclick = function () {
+                var account = document.getElementById('account');
+                var password = document.getElementById('password');
+                var errorMsg = document.getElementById('errorMsg');
+                if (!account.value && !password.value) {
+                    errorMsg.innerText = '用户名和密码不能为空!';
+                    return;
+                }
+
+                var obj = {};
+                obj.userCode = account.value;
+                obj.password = password.value;
+                Ext.Ajax.request({
+                    params: obj,
+                    url: 'wms/auth/login',
+                    method: 'POST',
+                    success: function (response) {
+                        console.log(response);
+                        var result = Ext.util.JSON.decode(response.responseText);
+                        if (result.success) {
+                            var theme = result.res.theme;
+                            window.location.href = 'index.html?theme=' + theme;
+                        } else {
+                            errorMsg.innerText = result.msg;
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log(response);
+                    }
+                });
+            };
+        });
+    </script>
+</head>
+<body>
+<div class="container" >
+    <div class="header"><span style="font: 18px/40px 微软雅黑,arial,sans-serif;color:white;">WMS</span><em
+            style="font: 18px/40px arial,sans-serif;color:#ffffff"></em></div>
+    <div class="content">
+        <div class="content_wrapper">
+            <div class="login_container" style="height: 372px; visibility: visible;">
+                <div class="login_con">
+                    <div class="title">用户登录</div>
+                    <ul>
+                        <li>帐号：<br/><input class="input2" id="account"/></li>
+                        <li>密码：<br/><input type="password" class="input2" id="password"/></li>
+                        <li id="errorMsg"></li>
+                        <li class="mt10"><a id="login">
+                            <div class="btn2 cursor" style="margin-left:55px" onclick="">登录</div>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+            <div class="login_pictures">
+
+            </div>
+        </div>
+    </div>
+    <div class="footer"><span class="gray">©2017 世仓智能(WAP) All Rights Reserved.</span></div>
+</div>
+</body>
+</html>

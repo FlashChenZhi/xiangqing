@@ -1,0 +1,157 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv=”X-UA-Compatible” content=”IE=EmulateIE8″/>
+    <title>WMS</title>
+    <link rel="stylesheet" href="stylesheets/topBar.css"/>
+
+    <script type="text/javascript" src="scripts/ext-all.js"></script>
+    <script type="text/javascript" src="scripts/ext-charts.js"></script>
+    <script type="text/javascript" src="scripts/jquery-1.8.2.min.js"></script>
+    <style>
+        table[id^="gridview"]:nth-of-type(odd) {
+            background: #ffffff;
+        }
+
+        table[id^="gridview"]:nth-of-type(even) {
+            background: #b6e3ff;
+        }
+
+        /*.x-column-header {*/
+            /*background: #209680 !important;*/
+            /*color: #f00 !important;*/
+        /*}*/
+
+    </style>
+
+    <script type="text/javascript">
+        function GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null)return unescape(r[2]);
+            return null;
+        }
+
+        var theme = GetQueryString("theme");
+
+        if ('crisp' == theme) {
+            document.write('<link rel="stylesheet" type="text/css" href="ext-theme-crisp-all.css">');
+            document.write("<script type='text/javascript' src='scripts/ext-theme-crisp.js'><\/script>");
+        } else {
+            document.write('<link rel="stylesheet" type="text/css" href="ext-theme-gray-all.css">');
+            document.write("<script type='text/javascript' src='scripts/ext-theme-gray.js'><\/script>");
+        }
+    </script>
+
+    <script type="text/javascript" src="scripts/ext-locale-zh_CN.js"></script>
+    <script type="text/javascript" src="scripts/header.js"></script>
+    <script type="text/javascript" src="scripts/main.js"></script>
+    <script type="text/javascript" src="scripts/Map.js"></script>
+    <script type="text/javascript" src="scripts/global.js"></script>
+    <!--common-->
+    <script type="text/javascript" src="scripts/sources/common/CommonSource.js"></script>
+    <script type="text/javascript" src="scripts/sources/common/CommonData.js"></script>
+    <script type="text/javascript" src="scripts/sources/order/OrderSearchSource.js"></script>
+    <script type="text/javascript" src="scripts/sources/log/InventoryLogSource.js"></script>
+    <script type="text/javascript" src="scripts/sources/asrs/AsrsSource.js"></script>
+    <script type="text/javascript" src="scripts/sources/log/LogSearchSource.js"></script>
+
+    <!--权限-->
+    <script type="text/javascript" src="scripts/page/user/UserMaster.js"></script>
+    <script type="text/javascript" src="scripts/page/user/AddUserWin.js"></script>
+    <script type="text/javascript" src="scripts/page/user/ModifyUserWin.js"></script>
+    <script type="text/javascript" src="scripts/sources/user/UserMasterSource.js"></script>
+    <script type="text/javascript" src="scripts/page/user/RoleMaster.js"></script>
+    <script type="text/javascript" src="scripts/page/user/AddRoleWin.js"></script>
+    <script type="text/javascript" src="scripts/page/user/ModifyRoleWin.js"></script>
+    <script type="text/javascript" src="scripts/sources/user/RoleMasterSource.js"></script>
+    <script type="text/javascript" src="scripts/page/user/MenuMaster.js"></script>
+    <script type="text/javascript" src="scripts/page/user/AddMenuWin.js"></script>
+    <script type="text/javascript" src="scripts/page/user/ModifyMenuWin.js"></script>
+    <script type="text/javascript" src="scripts/sources/user/MenuMasterSource.js"></script>
+    <script type="text/javascript" src="scripts/page/user/ModifyPasswordWin.js"></script>
+    <script type="text/javascript" src="scripts/page/user/AuthMaster.js"></script>
+
+    <script type="text/javascript" src="scripts/page/order/OrderSearchPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/order/OrderDetailWin.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventorySearchPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventoryTransferPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventoryBatchTransferPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventoryWarningPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/order/OrderRetrievalPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/log/InventoryLogSearchPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/asrs/AsrsJobLogPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/asrs/AsrsJobPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/asrs/SystemLogSearchPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/master/SkuMasterPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/master/SkuShelfLifePanel.js"></script>
+    <script type="text/javascript" src="scripts/page/master/LocationUseRate.js"></script>
+    <script type="text/javascript" src="scripts/page/master/SkuStrategyPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/master/LocationRelease.js"></script>
+    <script type="text/javascript" src="scripts/page/master/WelcomePanel.js"></script>
+    <script type="text/javascript" src="scripts/page/master/InOutSettingPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/log/StatisticsPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/order/DirectRetrievalPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventoryRelease.js"></script>
+    <script type="text/javascript" src="scripts/page/inventory/InventorySearchDailyPanel.js"></script>
+    <script type="text/javascript" src="scripts/page/asrs/EmptyLocationRetrievalPanel.js"></script>
+
+</head>
+<body style="margin: 0 auto;overflow-y:hidden;'Arial','Microsoft YaHei','Tahoma'">
+<script type="text/javascript">
+    var theme = GetQueryString("theme");
+    Ext.application({
+        name: "WMS",
+        launch: function () {
+            Ext.Ajax.setDefaultHeaders({"Request-By": "Ext"});
+            Ext.Ajax.on('requestcomplete', function (conn, response, options) {
+                if ('getResponseHeader' in response && response.getResponseHeader("timeOut") == 'true') {
+                    window.location.href = "login.html";
+                }
+            });
+            Ext.Ajax.request({
+                url: 'wms/auth/getLoginUser',
+                method: 'POST',
+                success: function (response, options) {
+                    var result = Ext.util.JSON.decode(response.responseText);
+                    if (result.success) {
+                        new Main(result.res, theme);
+                    }
+                }
+            });
+            Ext.messageTip = function (msg, style, align) {
+                var defaultAlign = 't';
+                if (align != undefined && align != null) {
+                    defaultAlign = align;
+                }
+                var toast = Ext.toast({
+                    html: msg,
+                    align: defaultAlign,
+                    closable: false,
+                    slideInDuration: 400,
+                    minWidth: 400,
+                    bodyStyle: style,
+                    bodyBorder: false
+                });
+                return toast;
+            };
+            Ext.info = function (msg) {
+                return Ext.messageTip(msg);
+            };
+            Ext.alert = function (msg) {
+                return Ext.messageTip(msg, 'background:#B8860B;font-size:20px;text-align:center;');
+            };
+            Ext.warn = function (msg) {
+                return Ext.messageTip(msg, 'background:#EEB422;font-size:20px;text-align:center;');
+            };
+            Ext.success = function (msg) {
+                return Ext.messageTip(msg, 'background:#2E8B57;color:white;font-size:20px;text-align:center;');
+            };
+            Ext.error = function (msg) {
+                return Ext.messageTip(msg, 'background:#A52A2A;color:white;font-size:20px;text-align:center;');
+            };
+        }
+    });
+</script>
+</body>
+</html>

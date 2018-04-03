@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] [%c] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="WMS_INFO" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/wms/info"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] [%c] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="WMS_WARN" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/wms/warn"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] [%c] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="WMS_ERROR" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/wms/error"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] [%c] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="XMLMessageInfo" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/asrs/XMLMessageInfo"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="XMLMessageError" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/asrs/error"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="LOG_ROOT" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="wms_logs/logs/root/root"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="yyyyMMdd'.log'"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%p] [%d{yyyy-MM-dd HH:mm:ss,SSS}] [%c] %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="STDOUT" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="WMS_INFO" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="WMS_INFO"/>
+    </logger>
+
+    <logger name="WMS_INFO" additivity="false">
+        <level value="ERROR"/>
+        <appender-ref ref="WMS_ERROR"/>
+    </logger>
+
+    <logger name="WMS_WARN" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="WMS_WARN"/>
+    </logger>
+
+    <logger name="WMS_ERROR" additivity="false">
+        <level value="ERROR"/>
+        <appender-ref ref="WMS_ERROR"/>
+    </logger>
+
+    <logger name="XMLMessageInfo" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="XMLMessageInfo"/>
+    </logger>
+    <logger name="XMLMessageInfo" additivity="false">
+        <level value="ERROR"/>
+        <appender-ref ref="XMLMessageError"/>
+    </logger>
+
+
+    <root>
+        <priority value="ERROR"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+</log4j:configuration>

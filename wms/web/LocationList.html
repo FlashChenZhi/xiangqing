@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>设备状态监控</title>
+    <style type="text/css">
+        #Container {
+            width: 1000px;
+            margin: 0 auto;
+            /*background:#CF3;*/
+        }
+
+        #Header {
+            height: 80px;
+            background: #093;
+        }
+
+        #logo {
+            padding-left: 50px;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        .Content {
+            /*height: 600px;*/
+            margin-top: 5px;
+            /*background:#0FF;*/
+
+        }
+
+        .Content-Storage-1 {
+            width: 460px;
+            margin-top: 10px;
+            margin-left: 150px;
+            float: left;
+            /*background:#90C;*/
+        }
+
+        .Content-Storage-2 {
+            width: 460px;
+            margin: 5px;
+            float: left;
+            /*background:#90C;*/
+        }
+
+        .Content-Picking-3 {
+            width: 30px;
+            margin: 5px;
+            float: left;
+            /*background:#90C;*/
+        }
+
+        .Content-Picking-4 {
+            width: 30px;
+            margin: 5px;
+            float: left;
+            /*background:#90C;*/
+        }
+
+        #Footer {
+            height: 120px;
+            /*background:#90C;*/
+            margin-top: 50px;
+            width: 1025px;
+        }
+
+        .Clear {
+            clear: both;
+        }
+
+        table.location {
+            font-family: verdana, arial, sans-serif;
+            font-size: 11px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+        }
+
+        table.location td {
+            border-width: 1px;
+            padding: 3px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+            width: 20px;
+            height: 20px;
+            font-size: 15px;
+        }
+
+        .emptyLocation {
+            background-color: #ffffff !important;
+        }
+
+        .normal {
+            background-color: green !important;
+        }
+
+        .warn {
+            background-color: yellow !important;
+        }
+
+        .abnormal {
+            background-color: red !important;
+        }
+
+        .restrected {
+            background-color: #205081 !important;
+        }
+
+        .bay {
+            color: #ffffff !important;
+            background-color: #205081 !important;
+        }
+
+        .emptyPallet {
+            background-color: #87CEFF !important;
+        }
+
+        .transferReserved {
+            background-color: #AB51FF !important;
+        }
+
+        .unAvailLocation {
+            background-color: #AAAAAA !important;
+        }
+
+        .width50 {
+            width: 60px !important;
+        }
+
+        .tdLeftRightTopHidden {
+            border-left: none !important;
+            border-right: none !important;
+            border-top: none !important;
+        }
+
+        .tdLeftRightBottomHidden {
+            border-left: none !important;
+            border-right: none !important;
+            border-bottom: none !important;
+        }
+
+        .tdLeftRightHidden {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        .tdLeftRightTopBottomHidden {
+            border-left: none !important;
+            border-right: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+        }
+
+        * {
+            font-family: '微软雅黑', Tahoma, '宋体', Geneva, sans-serif;
+        }
+
+        body {
+            font-size: 12px;
+            line-height: 1.6;
+            background-color: #fff;
+            color: #333;
+        }
+
+        body, input, textarea, select {
+            font-size: 12px;
+            color: #333;
+        }
+
+        body, h1, h2, h3, h4, p, ul, ol {
+            margin: 0;
+        }
+
+        body {
+            margin: 0 auto;
+        }
+
+        table {
+            font-size: 12px
+        }
+
+        a {
+            text-decoration: none;
+            outline: 0;
+            color: #333;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: #999;
+        }
+
+        a img {
+            border: 0;
+        }
+
+        ul, ol {
+            padding-left: 0;
+            list-style-type: none;
+        }
+
+        input {
+            padding: 2px 3px 2px;
+            _padding: 2px 3px 2px;
+        }
+
+        select {
+            padding: 1px;
+            _padding: 1px
+        }
+
+        fieldset {
+            display: block;
+            -webkit-margin-start: 0;
+            -webkit-margin-end: 0;
+            -webkit-padding-before: 0;
+            -webkit-padding-start: 0;
+            -webkit-padding-end: 0;
+            -webkit-padding-after: 0;
+            border: 0;
+            border-image: initial;
+        }
+
+        .l {
+            float: left;
+        }
+
+        .r {
+            float: right;
+        }
+
+        .cl {
+            clear: both;
+        }
+
+        .fw {
+            font-family: '微软雅黑';
+        }
+
+        .b {
+            font-weight: bold
+        }
+
+        .tc {
+            text-align: center;
+        }
+
+        .tr {
+            text-align: right;
+        }
+
+        .tl {
+            text-align: left;
+        }
+
+        .tdl {
+            text-decoration: underline;
+        }
+
+        .tdn, .tdn:hover, a.tdl:hover {
+            text-decoration: none;
+        }
+
+        .g0 {
+            color: #000;
+        }
+
+        .g3 {
+            color: #333;
+        }
+
+        .g6 {
+            color: #666;
+        }
+
+        .g9 {
+            color: #999;
+        }
+
+        .wh {
+            color: white;
+        }
+
+        .g92 {
+            color: #929292
+        }
+
+        .red_f {
+            color: #ef3e36
+        }
+
+        .green {
+            color: #090
+        }
+
+        .yellow {
+            color: #9f9d00
+        }
+
+        .blu {
+            color: #00518c
+        }
+
+        .bg_gray1 {
+            background-color: #f6f6f6;
+        }
+
+        .dl {
+            vertical-align: top
+        }
+
+        .alpha {
+            filter: Alpha(Opacity=40);
+            opacity: 0.4;
+        }
+
+        .chrome_f {
+            -webkit-text-size-adjust: none
+        }
+
+        .f10 {
+            font-size: 10px;
+        }
+
+        .f12 {
+            font-size: 12px;
+        }
+
+        .f14 {
+            font-size: 14px;
+        }
+
+        .f16 {
+            font-size: 16px;
+        }
+
+        .f20 {
+            font-size: 20px;
+        }
+
+        .f24 {
+            font-size: 24px;
+        }
+
+        .f30 {
+            font-size: 30px;
+        }
+
+        .f36 {
+            font-size: 36px;
+        }
+
+        .f50 {
+            font-size: 50px;
+        }
+
+        .ml5 {
+            margin-left: 5px;
+        }
+
+        .ml10 {
+            margin-left: 10px;
+        }
+
+        .ml13 {
+            margin-left: 13px;
+        }
+
+        .ml20 {
+            margin-left: 20px;
+        }
+
+        .ml35 {
+            margin-left: 35px
+        }
+
+        .mr5 {
+            margin-right: 5px;
+        }
+
+        .mr10 {
+            margin-right: 10px;
+        }
+
+        .mr15 {
+            margin-right: 15px;
+        }
+
+        .mr20 {
+            margin-right: 20px;
+        }
+
+        .mr30 {
+            margin-right: 30px
+        }
+
+        .mr35 {
+            margin-right: 35px
+        }
+
+        .mr46 {
+            margin-right: 47px
+        }
+
+        .mr66 {
+            margin-right: 59px
+        }
+
+        .mt3 {
+            margin-top: 3px;
+        }
+
+        .mt5 {
+            margin-top: 5px;
+        }
+
+        .mt10 {
+            margin-top: 10px;
+        }
+
+        .mt15 {
+            margin-top: 15px;
+        }
+
+        .mt20 {
+            margin-top: 20px;
+        }
+
+        .mb5 {
+            margin-bottom: 5px;
+        }
+
+        .mb10 {
+            margin-bottom: 10px;
+        }
+
+        .mb20 {
+            margin-bottom: 20px;
+        }
+
+        .m5 {
+            margin: 5px;
+        }
+
+        .m10 {
+            margin: 10px;
+        }
+
+        .m20 {
+            margin: 20px;
+        }
+
+        .pl5 {
+            padding-left: 5px;
+        }
+
+        .pl10 {
+            padding-left: 10px;
+        }
+
+        .pl20 {
+            padding-left: 20px;
+        }
+
+        .pr5 {
+            padding-right: 5px;
+        }
+
+        .pr10 {
+            padding-right: 10px;
+        }
+
+        .pr20 {
+            padding-right: 20px;
+        }
+
+        .pr35 {
+            padding-right: 35px;
+        }
+
+        .pb5 {
+            padding-bottom: 5px;
+        }
+
+        .pb10 {
+            padding-bottom: 10px;
+        }
+
+        .pb20 {
+            padding-bottom: 20px;
+        }
+
+        .pt5 {
+            padding-top: 5px;
+        }
+
+        .pt10 {
+            padding-top: 10px;
+        }
+
+        .pt20 {
+            padding-top: 20px;
+        }
+
+        .p5 {
+            padding: 5px;
+        }
+
+        .p10 {
+            padding: 10px;
+        }
+
+        .p20 {
+            padding: 20px;
+        }
+
+        .edit, .add, .more, .edit_item, .cursor {
+            cursor: pointer
+        }
+
+        .br {
+            border-right: 1px solid #dfdfdf
+        }
+
+        .bb {
+            border-bottom: 1px solid #dfdfdf
+        }
+
+        .bb1 {
+            border-bottom: 1px dotted #dfdfdf;
+        }
+
+        .bt {
+            border-top: 2px solid #dfdfdf
+        }
+
+        .search {
+            border: none;
+            float: left;
+            color: #fff;
+            width: 68px;
+            height: 27px;
+            text-align: center;
+            background-color: #0072c6;
+            padding: 5px 9px;
+            float: left;
+            margin-left: 10px;
+            font-family: '微软雅黑';
+            cursor: pointer;
+        }
+
+        .btn1 {
+            border: none;
+            float: left;
+            color: #fff;
+            width: 68px;
+            height: 27px;
+            text-align: center;
+            background-color: #0072c6;
+            padding: 5px 9px;
+            margin-right: 10px;
+            font-family: '微软雅黑';
+            cursor: pointer;
+        }
+
+        .btn2 {
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            width: 110px;
+            height: 34px;
+            line-height: 30px;
+            float: right;
+            text-align: center;
+            padding: 2px 0 0 0;
+            margin: 0 9px 0 0;
+            cursor: pointer;
+            background-color: #0065D0
+        }
+
+        .btn2 a {
+            color: #fff
+        }
+
+        .btn2 a:hover {
+            color: #888
+        }
+
+        .btn3 {
+            font-family: '微软雅黑';
+            font-size: 12px;
+            border: none;
+            color: #fff;
+            width: 50px;
+            height: 23px;
+            float: right;
+            text-align: center;
+            padding: 5px 9px 0px 9px;
+            cursor: pointer;
+            background-color: #0065D0
+        }
+
+        .btn4 {
+            border: none;
+            color: #fff;
+            height: 29px;
+            text-align: center;
+            background-color: #0072c6;
+            padding: 5px 11px;
+            margin-right: 10px;
+            font-family: '微软雅黑';
+            cursor: pointer;
+        }
+
+        .btn5 {
+            float: left;
+            color: #333;
+            height: 28px;
+            text-align: center;
+            padding: 5px 9px 0 10px;
+            margin-right: 10px;
+            font-family: '微软雅黑';
+            cursor: pointer;
+            border: none
+        }
+
+        .static_s {
+            width: 139px;
+            height: 22px
+        }
+
+        .search_i {
+            width: 240px;
+            height: 20px
+        }
+
+        .container {
+            /* margin:0 auto; */
+            float: left;
+            width: 100%;
+        }
+
+        .head {
+            width: 100%;
+            height: 42px;
+            background-color: #0072c6;
+            float: left;
+            border-bottom: 2px solid #fff;
+        }
+
+        .top_c {
+            padding: 0px 0px
+        }
+
+        .t_title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 500;
+            float: left;
+            padding-top: 5px;
+            _padding-top: 5px
+        }
+
+        .nav {
+            width: 500px;
+            float: left;
+        }
+
+        .nav ul {
+        }
+
+        .nav ul li {
+            float: left;
+            display: inline;
+            height: 42px;
+            line-height: 42px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .nav ul li a {
+            color: #fff;
+            height: 42px;
+            line-height: 42px;
+            display: inline-block;
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .nav ul li a:hover {
+            color: #d0e8ff;
+            height: 38px;
+            line-height: 36px;
+            padding-left: 6px;
+            padding-right: 6px;
+            border-top: 4px solid #1ac6fe;
+            text-decoration: none
+        }
+
+        .nav .current {
+            color: #0072c6;
+            background-color: #fff;
+            height: 38px;
+            line-height: 36px;
+            font-weight: bold;
+            padding-left: 6px;
+            padding-right: 6px;
+            border-top: 4px solid #1ac6fe
+        }
+
+        .nav ul li img {
+            vertical-align: middle
+        }
+
+        .fuc {
+            float: right;
+            padding-top: 6px;
+            margin-right: 5px
+        }
+
+        .login_t {
+            height: 85px
+        }
+
+        .login_logo {
+            width: 990px;
+            margin: 0 auto;
+        }
+
+        .login_logo span {
+            line-height: 85px;
+            color: #666;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .login_con {
+            margin: 0 0 0 20px;
+            width: 280px;
+            float: left;
+        }
+
+        .input2 {
+            width: 180px;
+            height: 25px;
+            margin: 6px 8px 10px 0;
+            paddding: 4px;
+            background-color: #fff;
+            border: 1px solid #a0a0a0;
+        }
+
+        /*=====icon======*/
+
+        .login_c {
+            margin: 0 auto;
+            width: 810px;
+            height: 380px;
+            padding-top: 120px;
+            _padding-top: 120px
+        }
+
+        .login_c div {
+            margin: 0 auto;
+            width: 200px;
+            float: left;
+            text-align: center;
+            margin-bottom: 40px;
+            margin-right: 0px
+        }
+
+        .login_c div span a {
+            text-align: center;
+            width: 200px;
+            float: left;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666
+        }
+
+        .login_c div span a:hover {
+            text-align: center;
+            width: 200px;
+            float: left;
+            font-size: 16px;
+            font-weight: bold;
+            color: #999
+        }
+
+        .middle {
+            background-color: #fff;
+            width: 100%;
+            margin: 2px auto 0;
+        }
+
+        .left {
+            float: left;
+            width: 15%;
+            min-height: 560px;
+            background-color: #f3f3f3;
+        }
+
+        .left_c ul {
+        }
+
+        .left_c ul li {
+            width: 188px;
+            padding-left: 12px;
+            float: left;
+            display: inline;
+            height: 36px;
+            line-height: 36px;
+            text-align: left;
+            color: #666;
+            font-size: 14px
+        }
+
+        .left_c ul li a:hover {
+            color: #666;
+        }
+
+        .left_c .current {
+            width: 185px !important;
+            _width: 197px;
+            background-color: #dfdfdf;
+            border-left: 3px solid #9e9e9e
+        }
+
+        .left_c .current span {
+        }
+
+        .sub_nav, .sub_nav_c {
+            width: 178px !important;
+            _width: 185px;
+            padding-left: 22px !important;
+            _padding-left: 0px;
+            float: left;
+            display: inline;
+            height: 30px;
+            line-height: 30px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .sub_nav {
+        }
+
+        .sub_nav_c {
+            color: #0072c6;
+            background-color: #e7e7e7;
+            border-top: 1px solid #fff
+        }
+
+        .right {
+            float: left;
+            width: 80%;
+            margin-left: 20px !important;
+            _margin-left: 8px;
+            min-height: 560px;
+            display: inline;
+        }
+
+        .right_c {
+            padding: 15px 0px 15px 0px;
+            float: left;
+            display: inline;
+            width: 100%;
+        }
+
+        .footer {
+            height: 120px;
+            width: 100%;
+            color: #333;
+            margin: 1px auto;
+        }
+
+        .footer_c {
+            padding: 6px 20px 8px;
+            _padding: 6px 20px 8px;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 14px
+        }
+
+        /* all*/
+        .table1 {
+            margin: 8px 0 2px 0;
+            border-collapse: collapse;
+            text-align: left;
+            float: left;
+            display: inline;
+        }
+
+        .table1 thead th {
+            height: 28px;
+            padding: 4px 1px 2px 4px;
+            _padding: 4px 1px 2px 4px;
+            background-color: #e3f1ff;
+            color: #333;
+            font-weight: 900;
+            border: 1px solid #dedede;
+            border-top: 2px solid #0086e8;
+            text-align: left;
+        }
+
+        .table1 th {
+            height: 28px;
+            padding: 4px 1px 2px 4px;
+            _padding: 4px 1px 2px 4px;
+            background-color: #e3f1ff;
+            color: #333;
+            font-weight: 900;
+            border: 1px solid #dedede;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .table1 td {
+            height: 24px;
+            padding: 4px 1px 2px 4px;
+            _padding: 4px 1px 2px 4px;
+            border: 1px solid #dedede;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .table1 td img {
+            vertical-align: middle
+        }
+
+        .menu_table {
+            margin: 8px 0 2px 0;
+            border-collapse: collapse;
+            text-align: left;
+            float: left;
+            display: inline;
+        }
+
+        .menu_table thead th {
+            height: 28px;
+            padding: 4px 1px 2px 4px;
+            _padding: 4px 1px 2px 4px;
+            background-color: #e3f1ff;
+            color: #333;
+            font-weight: 900;
+            border: 1px solid #dedede;
+            border-top: 2px solid #0086e8;
+            text-align: left;
+        }
+
+        .menu_table td {
+            height: 24px;
+            padding: 4px 1px 2px 4px;
+            _padding: 4px 1px 2px 4px;
+            border: 1px solid #dedede;
+        }
+
+        .menu_table td img {
+            vertical-align: middle
+        }
+
+        /*border none*/
+        .table2 {
+            margin: 2px 0 2px 0;
+            border-collapse: collapse;
+            text-align: left;
+            float: left;
+            display: inline
+        }
+
+        .table2 thead {
+            padding: 4px 1px 2px 4px;
+            background-color: #c5ec97;
+            color: #333;
+            font-weight: 900;
+            text-align: left;
+            text-align: left;
+        }
+
+        .table2 thead th {
+            height: 30px;
+            text-align: left;
+        }
+
+        .table2 td {
+            height: 20px;
+            padding: 3px 1px 3px 4px;
+        }
+
+        .table2 td img {
+            vertical-align: middle
+        }
+
+        .table td {
+            padding-top: 3px;
+            padding-bottom: 3px
+        }
+
+        .table3 td {
+            padding-top: 3px;
+            padding-bottom: 3px
+        }
+
+        .table3 input {
+            width: 80px
+        }
+
+        /*========== 时间选择控件样式 ==========*/
+        .ui-timepicker-div .ui-widget-header {
+            margin-bottom: 8px
+        }
+
+        .ui-timepicker-div dl {
+            text-align: left
+        }
+
+        .ui-timepicker-div dl dt {
+            height: 30px
+        }
+
+        .ui-timepicker-div dl dd {
+            margin: -26px 10px 15px 65px
+        }
+
+        .ui-timepicker-div td {
+            font-size: 90%
+        }
+
+        .list {
+            padding: 15px 0;
+            margin: 2px auto 4px;
+        }
+
+        .list ul {
+            width: 420px;
+            margin: 0 auto;
+        }
+
+        .list ul li {
+            height: 32px
+        }
+
+        .list dl {
+            width: 99%;
+            overflow: hidden;
+            zoom: 1;
+        }
+
+        .list dt {
+            width: 30%;
+            float: left;
+            text-align: right;
+            padding-top: 2px;
+            font-size: 14px
+        }
+
+        .list dd {
+            width: 69%;
+            float: right;
+            margin-left: 6px;
+            overflow: hidden;
+        }
+
+        .modify {
+            padding: 15px 0;
+            margin: 0 0 2px 0;
+            background-color: #f6f6f6;
+            width: 99.7%
+        }
+
+        .modify ul {
+            width: 420px;
+            margin: 0 auto;
+        }
+
+        .modify ul li {
+            height: 32px
+        }
+
+        .modify dl {
+            width: 99%;
+            overflow: hidden;
+            zoom: 1;
+        }
+
+        .modify dt {
+            width: 39%;
+            float: left;
+            text-align: right;
+            padding-top: 2px
+        }
+
+        .modify dd {
+            width: 60%;
+            float: right;
+            margin-left: 6px;
+            overflow: hidden;
+        }
+
+        .new {
+            width: 735px;
+            margin: 25px 0 6px 0;
+            border: 1px solid #c8c8c8;
+            background-color: #f6f6f6;
+        }
+
+        .new ul {
+        }
+
+        .new ul li {
+            height: 32px
+        }
+
+        .new ul li span img, .modify ul li img {
+            vertical-align: middle
+        }
+
+        .new dl {
+            width: 99%;
+            overflow: hidden;
+            zoom: 1;
+        }
+
+        .new dt {
+            width: 35%;
+            float: left;
+            text-align: right;
+            padding-top: 2px
+        }
+
+        .new dd {
+            width: 64%;
+            float: right;
+            margin-left: 6px;
+            overflow: hidden;
+        }
+
+        .bbs_l {
+            padding: 15px 0;
+            width: 770px
+        }
+
+        .bbs_l ul {
+            line-height: 30px;
+        }
+
+        .bbs_l ul li {
+            line-height: 30px;
+            border-bottom: 1px dotted #e1e1e1
+        }
+
+        .dis_none {
+            display: none
+        }
+
+        .bg_b {
+        }
+
+        .bg_g {
+            border: 1px solid #DFDFDF;
+            background-color: #fcfcfc;
+            margin-top: 10px
+        }
+
+        h1 {
+            width: 100%;
+            border-bottom: 1px solid #EBEBE8;
+            padding: 2px 0 0;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 18px !important;
+            _margin-bottom: -20px;
+            float: left;
+            color: #444
+        }
+
+        h1 a {
+            color: #444
+        }
+
+        h1 a:hover {
+            text-decoration: none;
+            color: #999;
+            cursor: pointer
+        }
+
+        h1 img {
+            cursor: pointer
+        }
+
+        h2 {
+            width: 742px;
+            font-size: 12px;
+            padding: 2px 4px;
+            margin-bottom: 8px;
+            float: left;
+            color: #666;
+            background-color: #f4f4f4;
+            font-weight: 100
+        }
+
+        /*role*/
+        .popup {
+            width: 380px;
+            border: 1px solid #dfdfdf;
+            padding: 2px 10px;
+            background-color: #fff;
+            maigin: 0 0 5px 0
+        }
+
+        .popup dl {
+            width: 380px;
+            border-bottom: 1px dotted #dfdfdf;
+            overflow: hidden;
+            zoom: 1;
+        }
+
+        .popup dt {
+            width: 140px;
+            float: left;
+            font-weight: bold;
+        }
+
+        .popup dd {
+            width: 220px;
+            float: right;
+            margin-left: 0;
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+
+        .popup ul li {
+            padding: 3px 0;
+        }
+
+        .popup_h {
+            border: 1px solid #dfdfdf;
+            padding: 10px 10px;
+            background-color: #f6f6f6;
+        }
+
+        .search_init, .text_filter {
+            font-family: '微软雅黑'; /* width: 94%; */
+            padding: 0;
+            _padding: 0;
+        }
+
+        .cutLen75 {
+            width: 75px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .cutLen100 {
+            width: 100px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .cutLen400 {
+            width: 400px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .cutLen450 {
+            width: 450px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .cutLen650 {
+            width: 650px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .cutLen770 {
+            width: 770px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .tab {
+            width: 100%;
+            border-bottom: 1px solid #bfbfbf;
+            position: relative;
+            height: 28px;
+            margin: 2px 0 6px 0;
+            float: left;
+            font-size: 14px
+        }
+
+        .tab ul {
+            width: 100%;
+            overflow: hidden;
+            position: absolute;
+            left: 0;
+            bottom: -1px
+        }
+
+        .tab li {
+            float: left;
+            padding: 2px 5px 0 8px;
+            height: 23px;
+            line-height: 24px;
+            color: #666;
+            text-align: center;
+            margin-right: 2px;
+            cursor: pointer;
+            margin-left: 8px
+        }
+
+        .tab li a {
+            color: #666
+        }
+
+        .tab .on {
+            height: 24px;
+            background-color: #fff;
+            border: 1px solid #bfbfbf;
+            border-bottom-color: #fff;
+            font-weight: bold
+        }
+
+        .tab .on a {
+            color: #70922f;
+        }
+
+        .pp_location {
+            width: 761px;
+            overflow: hidden;
+            float: left
+        }
+
+        .pop-panel {
+            padding: 1px 9px 5px 0;
+            _padding: 1px 9px 5px 0;
+            background: white;
+            color: #61646E;
+        }
+
+        .pp_location dl {
+            margin-bottom: 2px;
+            margin-top: 4px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed #E4E4E4;
+        }
+
+        .pp_location dt {
+            float: left;
+            width: 60px;
+            color: #999;
+        }
+
+        .pp_location dd {
+            margin-left: 80px;
+            margin-right: -10px;
+        }
+
+        .pp_location li {
+            float: left;
+            width: 53px;
+            margin: 0 3px 1px 0;
+        }
+
+        .pp_location .current {
+            font-weight: bold;
+            background-color: #0065D0;
+            color: #fff;
+            padding: 1px 5px
+        }
+
+        .w200 {
+            width: 204px;
+            padding: 2px 2px
+        }
+
+        .w195 {
+            width: 193px
+        }
+
+        .bg_blue1 {
+            background-color: #b9e6ff;
+        }
+
+        .bg_blue2 {
+            background-color: #e1f4ff;
+        }
+
+        #bg {
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 1280px;
+            height: 3800px;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.7;
+            opacity: .70;
+            filter: alpha(opacity=70);
+        }
+
+        #show {
+            display: none;
+            position: absolute;
+            top: 25%;
+            left: 40%;
+            width: 100px;
+            height: 40px;
+            padding: 5px;
+            border: 1px solid #E8E9F7;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+
+        #menuDiv, #scarMenuDiv, #mcarMenuDiv ul li {
+            font-size: 16px;
+            margin-top: 2px;
+            padding-left: 5px;
+        }
+
+        #loadNextBlockDiv, #onNextBlockDiv {
+            font-size: 16px;
+            margin-top: 2px;
+            padding-left: 5px;
+        }
+
+    </style>
+    <link type="text/css" href="jquery.qtip.min.css" rel="Stylesheet"/>
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="jquery.qtip.min.js"></script>
+    <script type="text/javascript">
+        var blockNo;
+
+
+        $(document).ready(function () {
+            $('#menuDiv').hide();
+            $('#scarMenuDiv').hide();
+            $('#mcarMenuDiv').hide();
+            $('#loadNextBlockDiv').hide();
+            $('#onNextBlockDiv').hide();
+
+            $('#menuLoadCar').on('click', function (e) {
+                hideMenu();
+                hideNextBlock();
+                loadCar(e);
+            });
+
+            $('#menuOnCar').on('click', function (e) {
+                hideMenu();
+                hideNextBlock();
+                onCar(e);
+            });
+
+            for (var level = 4; level >= 1; level--) {
+                var tableId = "bank" + 1;
+                var trBody = "";
+                for (var bay = 1; bay <= 34; bay++) {
+                    var maxAddress = 12;
+                    var trStr = '<tr>';
+                    for (var address = 0; address <= maxAddress; address++) {
+
+                        var bayStr;
+                        if (bay < 10) {
+                            bayStr = "0" + bay;
+                        } else {
+                            bayStr = bay + "";
+                        }
+                        var levelStr = "0" + level;
+
+                        var addressStr;
+                        if (address < 10) {
+                            addressStr = "0" + address;
+                        } else {
+                            addressStr = address + "";
+                        }
+                        var locationId = addressStr + bayStr + levelStr;
+                        if (address == 0) {
+                            trStr = trStr + '<td class = "bay">' + bay + '</td>';
+//                        } else if (address == 8) {
+//                            trStr = trStr + '<td id="' + locationId + '" style="background-color: #abd6d0">' + '' + '</td>';
+//                        } else if (address == 9) {
+//                            trStr = trStr + '<td id="' + locationId + '" style="background-color: #abd6d0">' + '' + '</td>';
+//                        } else if (address == 11) {
+//                            trStr = trStr + '<td id="' + locationId + '" style="background-color: #abd6d0">' + '' + '</td>';
+                        } else {
+                            trStr = trStr + '<td id="' + locationId + '">' + '' + '</td>';
+                        }
+
+                        if (address == 8) {
+                            trStr = trStr + '<td id="SC01" style="background-color:#ff550a"></td>';
+                            trStr = trStr + '<td id="ML01' + bay + level + '" style="background-color:#ff550a"></td>';
+                        }
+                        if (level == 1 && bay == 1 && address == 12) {
+                            trStr = trStr + '<td id="ML01" style="background-color:#ff550a"></td>';
+                            trStr = trStr + '<td id="0001" style="background-color:#ff550a"></td>';
+                            trStr = trStr + '<td id="0001" style="background-color:#ff550a"></td>';
+                        }
+                        if (level == 1 && bay == 2 && address == 12) {
+                            trStr = trStr + '<td id="ML02" style="background-color:#ff550a"></td>';
+                            trStr = trStr + '<td id="0002" style="background-color:#ff550a"></td>';
+                            trStr = trStr + '<td id="0003" style="background-color:#ff550a"></td>';
+                        }
+                    }
+
+                    trStr = trStr + '</tr>';
+                    trBody = trBody + trStr;
+                }
+                if (level > 1)
+                    trBody = trBody + '</tr><td colspan="13"></td></tr>';
+                $("#" + tableId).append(trBody);
+            }
+
+            flushData();
+
+        });
+
+
+        function showMenu() {
+            $('#menuDiv').hide();
+
+            $('#menuDiv').show();
+        }
+
+        function showScarMenu() {
+            $('#scarMenuDiv').hide();
+
+            $('#scarMenuDiv').show();
+        }
+
+        function showMcarMenu() {
+            $('#mcarMenuDiv').hide();
+
+            $('#mcarMenuDiv').show();
+
+        }
+
+        function flushData() {
+            $.ajax({
+                url: 'location/list.do',
+                timeout: 60000,
+                dataType: 'json',
+                type: 'get',
+                success: function (json) {
+                    var res = json.res;
+                    for (var i = 0; i < res.length; i++) {
+
+                        var bank = res[i].bank;
+                        var locationNo = res[i].locationNo;
+                        var status = res[i].status;
+                        var machineNo = res[i].machineNo;
+                        var remark = res[i].remark;
+
+                        if ('8' == status) {
+                            $("#" + locationNo).text("S");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:#5cb911;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                hideMenu();
+                                hideNextBlock();
+                                blockNo = $(this).attr("title");
+                                $("#scarMenuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('9' == status) {
+                            $("#" + locationNo).text("M");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:blue;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#mcarMenuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('10' == status) {
+                            $("#" + locationNo).text("BL");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:black;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#menuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('11' == status) {
+                            $("#" + locationNo).text("ML");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:black;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#menuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+
+                        }
+
+                        if ('12' == status) {
+                            $("#" + locationNo).text("01");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:black;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#menuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+                        if ('13' == status) {
+                            $("#" + locationNo).text("02");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:black;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#menuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+                        if ('14' == status) {
+                            $("#" + locationNo).text("03");
+                            $("#" + locationNo).attr("title", machineNo);
+                            $("#" + locationNo).attr("style", "background-color:black;color:red;cursor: default;");
+                            $('#' + locationNo).mousedown(function (e) {
+                                blockNo = $(this).attr("title");
+                                hideMenu();
+                                hideNextBlock();
+                                $("#menuDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+                            });
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('0' == status) {
+                            $("#" + locationNo).attr("class", "emptyLocation");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+                        if ('1' == status) {
+                            $("#" + locationNo).attr("class", "normal");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+                        if ('2' == status) {
+                            $("#" + locationNo).attr("class", "warn");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+                        if ('3' == status) {
+                            $("#" + locationNo).attr("class", "restrected");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+
+                        }
+                        if ('4' == status) {
+                            $("#" + locationNo).attr("class", "abnormal");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+                        if ('5' == status) {
+                            $("#" + locationNo).attr("class", "emptyPallet");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('6' == status) {
+                            $("#" + locationNo).attr("class", "transferReserved");
+                            $("#" + locationNo).attr("title", remark);
+                            qtip(locationNo, bank);
+                        }
+
+                        if ('7' == status) {
+                            $("#" + locationNo).attr("class", "unAvailLocation");
+                        }
+
+                    }
+
+//                    hidediv();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+//                    hidediv();
+                    alert('加载失败');
+                }
+            });
+        }
+
+        function pad(num, n) {
+            return Array(n > num ? (n - ('' + num).length + 1) : 0).join(0) + num;
+        }
+
+        function qtip(divId, bank) {
+            var myCss;
+            if (bank == 1 || bank == 3) {
+                myCss = 'top left';
+            } else {
+                myCss = 'top right';
+            }
+            $('#' + divId).qtip({
+                position: {
+                    adjust: {y: 10},
+                    at: "left  center",
+                    my: myCss
+                },
+                style: {
+                    border: "0px",
+                    width: "200px",
+                    classes: "ui-tooltip-green1",
+                    tip: true
+                }
+            });
+        }
+
+        //        function showdiv() {
+        //            document.getElementById("bg").style.display = "block";
+        //            document.getElementById("show").style.display = "block";
+        //        }
+        //        function hidediv() {
+        //            document.getElementById("bg").style.display = 'none';
+        //            document.getElementById("show").style.display = 'none';
+        //        }
+
+        function hideMenu() {
+            $('#menuDiv').hide();
+            $('#scarMenuDiv').hide();
+            $('#mcarMenuDiv').hide();
+        }
+
+        function hideNextBlock() {
+            $('#loadNextBlockDiv').hide();
+            $('#onNextBlockDiv').hide();
+        }
+
+        function qieli() {
+            $.ajax({
+                url: 'location/offline.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'get',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+        }
+
+        function clearDate() {
+            $.ajax({
+                url: 'location/clearData.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'get',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+
+        }
+
+        function huifu() {
+            $.ajax({
+                url: 'location/online.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+        }
+
+        function jiechu() {
+            $.ajax({
+                url: 'location/removeAbnormal.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+        }
+
+        function deleteDate() {
+            $.ajax({
+                url: 'location/deleteDate.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+        }
+
+        function finish() {
+            $.ajax({
+                url: 'location/finish.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+        }
+
+        function onCarF() {
+            var nextBlock = $('#onNextBlock').val();
+            $.ajax({
+                url: 'location/onCar.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo, nextBlock: nextBlock},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+            hideNextBlock();
+        }
+
+        function loadCar(e) {
+            console.log("加载窗口");
+            $("#loadNextBlockDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+        }
+
+        function onCar(e) {
+            console.log("加载窗口");
+            $("#onNextBlockDiv").css({top: e.pageY + 2, left: e.pageX + 2}).show();
+        }
+
+        function loadCarF() {
+            var nextBlock = $('#loadNextBlock').val();
+            $.ajax({
+                url: 'location/loadCar.do',
+                timeout: 60000,
+                dataType: 'json',
+                data: {blockNo: blockNo, nextBlock: nextBlock},
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+            hideNextBlock();
+        }
+
+        function initDate() {
+            $.ajax({
+                url: 'block/init.do',
+                timeout: 60000,
+                dataType: 'json',
+                type: 'post',
+                success: function (json) {
+                    var res = json.msg;
+                    alert(res);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('请求失败');
+                }
+            });
+            hideMenu();
+            hideNextBlock();
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div class="Container" id="container">
+    <div class="Content">
+        <div class="Content-Storage-1">
+            <table class="location" id="bank1">
+            </table>
+        </div>
+    </div>
+    <div class="Clear"></div>
+    <div id="Footer">
+        <table class="location">
+            <tr>
+                <td class="emptyLocation width50 ">空货位</td>
+                <td class="normal width50">正常</td>
+                <td class="unAvailLocation width50">无效货位</td>
+                <td class="restrected width50">冻结/限制</td>
+                <td class="warn width50">警告</td>
+                <td class="abnormal width50">故障</td>
+                <td class="emptyPallet width50">空托盘</td>
+                <td class="transferReserved width50">搬送预约</td>
+            </tr>
+        </table>
+
+
+        <div class="btn2 cursor" style="margin-left:55px" onclick="flushData()">刷新</div>
+
+        <div class="btn2 cursor" style="margin-left:55px" onclick="initDate()">重置设备数据</div>
+
+    </div>
+</div>
+
+<div id="menuDiv" style="background: #828ae6;width: 100px;height: 170px;position:absolute;cursor:default">
+    <ul>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="qieli()">设备切离
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="huifu()">设备恢复
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="jiechu()">异常解除
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="deleteDate()">删除任务
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="finish()">强制完成
+        </li>
+        <li onclick="hideMenu()" onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';">退出
+        </li>
+    </ul>
+</div>
+
+<div id="scarMenuDiv" style="background: #828ae6;width: 100px;height: 200px;position:absolute;cursor:default">
+    <ul>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="qieli()">设备切离
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="huifu()">设备恢复
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="jiechu()">异常解除
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="deleteDate()">删除任务
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="finish()">强制完成
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" id="menuOnCar">上车
+        </li>
+
+        <li onclick="hideMenu()" onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';">退出
+        </li>
+    </ul>
+</div>
+
+<div id="mcarMenuDiv" style="background: #828ae6;width: 100px;height: 200px;position:absolute;cursor:default">
+    <ul>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="qieli()">设备切离
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="huifu()">设备恢复
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="jiechu()">异常解除
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="deleteDate()">删除任务
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" onclick="finish()">强制完成
+        </li>
+        <li onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';" id="menuLoadCar">接车
+        </li>
+
+        <li onclick="hideMenu()" onmouseover="this.style.backgroundColor='red';"
+            onmouseout="this.style.backgroundColor='';">退出
+        </li>
+    </ul>
+</div>
+
+<div id="loadNextBlockDiv" style="background: #828ae6;width: 150px;height: 100px;position:absolute;cursor:default">
+    目标设备:<input type="text" id="loadNextBlock">
+    <div style="float: right;margin-top: 5px; margin-right: 10px;">
+        <input type="button" onclick="loadCarF()" value="确认"/>
+        <input type="button" onclick="hideNextBlock()" value="取消"/>
+    </div>
+</div>
+
+<div id="onNextBlockDiv" style="background: #828ae6;width: 150px;height: 100px;position:absolute;cursor:default">
+    目标设备:<input type="text" id="onNextBlock">
+    <div style="float: right;margin-top: 5px; margin-right: 10px;">
+        <input type="button" onclick="onCarF()" value="确认"/>
+        <input type="button" onclick="hideNextBlock()" value="取消"/>
+    </div>
+</div>
+
+</body>
+</html>

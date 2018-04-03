@@ -1,0 +1,393 @@
+.ant-layout-aside {
+    position: relative;
+    min-height: 100%;
+}
+
+tr[class^="ant-table-row"]:nth-of-type(odd) {
+    background: #c4eeff;
+}
+
+tr[class^="ant-table-row"]:nth-of-type(even) {
+    background: #ffffff;
+}
+
+.ant-table-tbody > tr > td {
+    padding: 8px 12px !important;
+}
+
+.ant-layout-aside .ant-layout-logo {
+    width: 224px;
+    height: 50px;
+    background: #09C;
+    /*border-radius: 6px;*/
+    /*color: #CFCFCF !important;*/
+    margin: 0px 24px 16px 0px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-logo {
+    width: 32px;
+    margin: 16px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-logo-child {
+    color: #FFF !important;
+    padding: 11px 24px 16px 28px;
+}
+
+.ant-layout-aside .ant-layout-sider {
+    width: 224px;
+    background: #222d32;
+    position: absolute;
+    overflow: visible;
+    /*padding-bottom: 24px;*/
+    min-height: 100%;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider {
+    width: 50px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside .ant-layout-sider > .ant-menu {
+    margin-bottom: 20px;
+}
+
+.ant-layout-aside .ant-layout-sider > .ant-menu > .ant-menu-item {
+    margin: 16px 0;
+}
+
+.ant-layout-aside .ant-layout-sider > .ant-menu > .ant-menu-item .nav-text {
+    vertical-align: baseline;
+    display: inline-block;
+}
+
+.ant-layout-aside .ant-layout-sider > .ant-menu > .ant-menu-item > .anticon {
+    transition: font-size .3s;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider > .ant-menu > .ant-menu-item {
+    transition: all 0s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider > .ant-menu > .ant-menu-item > .anticon {
+    font-size: 16px;
+    display: inline-block;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider > .ant-menu > .ant-menu-item .nav-text {
+    display: none;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider > .ant-menu > .ant-menu-item:hover {
+    background: #2db7f5;
+    color: #fff;
+    transition: all 0s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-sider > .ant-menu > .ant-menu-item:hover .nav-text {
+    display: inline-block;
+    vertical-align: top;
+    background: #2db7f5;
+    color: #fff;
+    padding-right: 16px;
+    border-radius: 0 5px 5px 0;
+}
+
+/*menu新背景样式*/
+.ant-menu-dark .ant-menu-inline.ant-menu-sub {
+    background: #2c3b41 !important;
+}
+
+.ant-menu-dark, .ant-menu-dark .ant-menu-sub {
+    background: #222d32 !important;
+}
+
+.ant-layout-sider .ant-menu-item {
+    border-left: 6px solid;
+    border-color: #222d32;
+}
+
+.ant-layout-sider .ant-menu-submenu-title {
+    border-left: 6px solid;
+    border-color: #222d32;
+}
+
+.ant-layout-sider .ant-menu-sub .ant-menu-item {
+    border-left: 6px solid;
+    border-color: #2c3b41;
+}
+
+.ant-layout-sider .ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
+    background-color: #1e282c;
+    border-left: 6px solid;
+    border-color: #2db7f5 !important;
+}
+
+.ant-layout-sider .ant-menu-dark .ant-menu-item:hover {
+    background-color: #1e282c;
+    border-left: 6px solid;
+    border-color: #2db7f5 !important;
+}
+
+.ant-layout-sider .ant-menu-dark .ant-menu-submenu-title:hover {
+    background-color: #1e282c;
+    border-left: 6px solid;
+    border-color: #2db7f5 !important;
+}
+
+/* 实际使用中需要改成 position: fixed */
+.ant-layout-aside .ant-aside-action {
+    height: 42px;
+    width: 224px;
+    position: absolute;
+    bottom: 0;
+    background: #656565;
+    color: #fff;
+    text-align: center;
+    line-height: 42px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside-collapse .ant-aside-action {
+    width: 50px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside .ant-layout-header {
+    background: #fff;
+    height: 50px;
+    border-bottom: 1px solid #e9e9e9;
+}
+
+.ant-layout-aside .ant-layout-breadcrumb {
+    margin: 7px 0 -17px 24px;
+}
+
+.ant-layout-aside .ant-layout-main {
+    margin-left: 224px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside .ant-layout-main-extrnal {
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-main {
+    margin-left: 64px;
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside-collapse .ant-layout-main-extrnal {
+    transition: all 0.3s ease;
+}
+
+.ant-layout-aside .ant-layout-container {
+    margin: 24px 16px 0px 16px;
+}
+
+.ant-layout-aside .ant-layout-content {
+    background: #fff;
+    /*padding: 24px;*/
+}
+
+.ant-layout-aside .ant-layout-footer {
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    background: #fff;
+    /*border-top: 1px solid #e9e9e9;*/
+    width: 100%;
+}
+
+.ant-layout-ceiling-demo {
+    height: 100%;
+}
+
+.ant-layout-ceiling {
+    font-size: 12px;
+    height: 50px;
+    line-height: 50px;
+    background-color: #09C;
+    color: #ddd;
+}
+
+.ant-layout-ceiling a {
+    color: #fff !important;
+}
+
+.ant-layout-ceiling a:hover {
+    color: #ddd !important;
+}
+
+.ant-layout-ceiling .right {
+    float: right;
+}
+
+.ant-layout-ceiling ul li {
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.ant-layout-ceiling-demo .ant-layout-wrapper {
+    padding: 0 12px;
+}
+
+.ant-layout-ceiling-demo .ant-layout-header {
+    background: #fff;
+    height: 50px;
+    border-bottom: 1px solid #d9d9d9;
+}
+
+.chat {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.chat li {
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #999;
+}
+
+.chat li.left .chat-body {
+    margin-left: 35px;
+}
+
+.chat li.right .chat-body {
+    margin-right: 35px;
+}
+
+.chat li .chat-body p {
+    margin: 0;
+}
+
+.panel .slidedown .glyphicon,
+.chat .glyphicon {
+    margin-right: 5px;
+}
+
+/*.chat-panel {*/
+/*height: 240px;*/
+/*overflow-y: scroll;*/
+/*}*/
+
+.ant-detail-from {
+    padding: 16px 8px;
+    border-radius: 6px;
+}
+
+.ant-advanced-search-form {
+    padding: 16px 8px;
+    background: #f8f8f8;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+}
+
+/* 由于输入标签长度不确定，所以需要微调使之看上去居中 */
+.ant-advanced-search-form > .ant-row {
+    position: relative;
+    left: -6px;
+}
+
+.ant-advanced-search-form .ant-btn + .ant-btn {
+    margin-left: 8px;
+}
+
+/* login */
+.login-home {
+    margin: 0;
+    padding: 0;
+    color: #666;
+    width: 100%;
+    height: 100%;
+    font-family: Arial, "Hiragino Sans GB", "Microsoft Yahei", "Microsoft Sans Serif", "WenQuanYi Micro Hei", sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    background-color: #fff;
+    background-image: url(images/bg.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+.login-main {
+    width: 450px;
+    background: #FFF;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, .1);
+    font-size: 14px;
+    margin: auto;
+    display: inline-block;
+}
+
+.regis-body {
+    padding-top: 100px;
+    text-align: center;
+}
+
+.login-body {
+    padding-top: 150px;
+    text-align: center;
+}
+
+.login-title {
+    text-align: center;
+    padding: 20px 0px;
+}
+
+.img-logo {
+    width: 23px;
+    margin-right: 10px;
+}
+
+.login-title-color {
+    color: #242736;
+}
+
+.login-cnt {
+    padding: 25px 25px 10px;
+}
+
+.login-from-group .ant-form-item {
+    margin-bottom: 15px;
+}
+
+.ant-form .ant-form-item {
+    margin-bottom: 10px;
+}
+
+.login-from-group .ant-input {
+    background: #fafafa;
+    height: 39px;
+    padding: 9px;
+    font-size: 14px;
+}
+
+.login-from-group .ant-btn {
+    width: 100%;
+    border: 1px solid #0eb4f1;
+    background: #0eb4f1;
+    color: #fff;
+    height: 39px;
+}
+
+.login-from-group .ant-input-group-addon {
+    padding: 0 10px;
+}
+
+.login-from-group .ant-row {
+    padding: 8px 0;
+}
+
+.regis-btn {
+    width: 100%;
+    border: 1px solid #0eb4f1;
+    background: #0eb4f1;
+    color: #fff;
+    height: 39px;
+}

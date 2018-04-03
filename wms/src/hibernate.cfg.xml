@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="current_session_context_class">thread</property>
+        <property name="connection.url">jdbc:sqlserver://192.168.10.11:1433;DatabaseName=wcs</property>
+        <property name="hibernate.connection.username">wcs</property>
+        <property name="connection.password">wcs2018</property>
+        <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <!--<property name="hibernate.format_sql">true</property>-->
+        <property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
+        <!-- 最大连接数 -->
+        <property name="hibernate.c3p0.max_size">30</property>
+        <!-- 最小连接数 -->
+        <property name="hibernate.c3p0.min_size">3</property>
+        <!-- 获得连接的超时时间,如果超过这个时间,会抛出异常，单位毫秒 -->
+        <property name="hibernate.c3p0.timeout">30</property>
+        <!-- 当连接池里面的连接用完的时候，C3P0一下获取的新的连接数 -->
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- 每次都验证连接是否可用 -->
+        <property name="hibernate.c3p0.validate">true</property>
+        <mapping class="com.wms.domain.Container"/>
+        <mapping class="com.wms.domain.Inventory"/>
+        <mapping class="com.wms.domain.Job"/>
+        <mapping class="com.wms.domain.JobDetail"/>
+        <mapping class="com.wms.domain.Location"/>
+        <mapping class="com.wms.domain.User"/>
+        <mapping class="com.wms.domain.Wcs"/>
+        <mapping class="com.wms.domain.Station"/>
+        <mapping class="com.wms.domain.Config"/>
+        <mapping class="com.wms.domain.ReceivingPlan"/>
+        <mapping class="com.wms.domain.RetrievalOrder"/>
+        <mapping class="com.wms.domain.RetrievalResult"/>
+        <mapping class="com.wms.domain.Sku"/>
+        <mapping class="com.wms.domain.StoreResult"/>
+        <mapping class="com.wms.domain.blocks.Block"/>
+        <mapping class="com.wms.domain.blocks.Crane"/>
+        <mapping class="com.wms.domain.blocks.Conveyor"/>
+        <mapping class="com.wms.domain.blocks.Lift"/>
+        <mapping class="com.wms.domain.blocks.Srm"/>
+        <mapping class="com.wms.domain.blocks.MCar"/>
+        <mapping class="com.wms.domain.blocks.SCar"/>
+        <mapping class="com.wms.domain.blocks.StationBlock"/>
+        <mapping class="com.wms.domain.Message"/>
+        <mapping class="com.wms.domain.AsrsJob"/>
+        <mapping class="com.wms.domain.Msg03"/>
+        <mapping class="com.wms.domain.RetrievalOrderDetail"/>
+        <mapping class="com.wms.domain.InventoryView"/>
+        <mapping class="com.wms.domain.OutSeaBatch"/>
+        <mapping class="com.wms.domain.WmsJobInventory"/>
+        <mapping class="com.wms.domain.Role"/>
+        <mapping class="com.wms.domain.Menu"/>
+        <mapping class="com.wms.domain.InventoryLog"/>
+        <mapping class="com.wms.domain.JobLog"/>
+        <mapping class="com.wms.domain.SystemLog"/>
+        <mapping class="com.wms.domain.Configuration"/>
+        <mapping class="com.wms.domain.WcsMessage"/>
+
+    </session-factory>
+</hibernate-configuration>
