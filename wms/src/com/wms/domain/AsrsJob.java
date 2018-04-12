@@ -1,5 +1,6 @@
 package com.wms.domain;
 
+import com.wms.domain.blocks.WcsMessage;
 import org.hibernate.*;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
