@@ -588,10 +588,21 @@ public class Location {
         //存在同批次的库存同一边的可用，并且托盘是整托
         Query q = session.createQuery("from Location l where exists( select 1 from Inventory i where l.bay=i.container.location.bay and l.actualArea=i.container.location.actualArea " +
                 " and l.level =i.container.location.level  and i.skuCode=:skuCode and i.lotNum = :batchNO " +
-                " and  l.position=i.container.location.position and l.actualArea = i.container.location.actualArea and i.container.location.seq<l.seq  ) and not exists( select 1 from Inventory i " +
-                " where l.bay=i.container.location.bay and l.level =i.container.location.level  and l.actualArea=i.container.location.actualArea and l.position=i.container.location.position and i.orderNo is not null)  " +
-                "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position=:po order by l.seq")
-                .setString("skuCode", skuCode).setString("batchNO", batchNo).setString("po", po);
+                " and  l.position=i.container.location.position and  i.container.location.seq<l.seq  ) and not exists( select 1 from Inventory i " +
+                " where l.bay=i.container.location.bay and l.level =i.container.location.level  and l.actualArea=i.container.location.actualArea and l.position=i.container.location.position and i.container.reserved =true )  " +
+                "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po) order by l.seq asc")
+                .setString("skuCode", skuCode).setString("batchNO", batchNo);
+
+        //若传入的positon值为0，则默认查询整个仓库的库位
+        List<String> list = new ArrayList<>();
+        if("0".equals(po)){
+            list.add("1");
+            list.add("2");
+            q.setParameterList("po", list);
+        }else{
+            list.add(po);
+            q.setParameterList("po", list);
+        }
         if (!q.list().isEmpty()) {
             return (Location) q.list().get(0);
         } else {
@@ -599,42 +610,36 @@ public class Location {
             q = session.createQuery("from Location l where exists( select 1 from Job j where " +
                     " j.lotNum =:batchNo and l.actualArea= j.toLocation.actualArea " +
                     " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and j.skuCode=:skuCode and l.position=j.toLocation.position )  " +
-                    "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position=:po  order by l.seq asc")
-                    .setParameter("batchNo", batchNo).setParameter("skuCode", skuCode).setString("po", po);
+                    "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po)  order by l.seq asc")
+                    .setParameter("batchNo", batchNo).setParameter("skuCode", skuCode);
+            list = new ArrayList<>();
+            if("0".equals(po)){
+                list.add("1");
+                list.add("2");
+                q.setParameterList("po", list);
+            }else{
+                list.add(po);
+                q.setParameterList("po", list);
+            }
             if (!q.list().isEmpty()) {
+
                 return (Location) q.list().get(0);
             } else {
-                //查找一个空的巷道
-                List<String> emptyLocstions = new ArrayList<>();
-                emptyLocstions.add("101013001");
-                emptyLocstions.add("101014001");
-                emptyLocstions.add("101015001");
-                emptyLocstions.add("101016001");
-                emptyLocstions.add("101017001");
-                emptyLocstions.add("101018001");
-                emptyLocstions.add("101019001");
-                emptyLocstions.add("101020001");
-                emptyLocstions.add("101021001");
-                emptyLocstions.add("101022001");
-
-                if(!Const.EMPTY_PALLET.equals(skuCode)) {
-                    q = session.createQuery("from Location l where not exists (select 1 from Location ol where ol.bay = l.bay and (ol.reserved=true or ol.empty=false ) " +
-                            "and l.level =ol.level and l.actualArea=ol.actualArea and l.position=ol.position )" +
-                            " and l.empty=true and l.reserved=false and l.asrsFlag = true and l.position=:po  and l.putawayRestricted = false and l.wmsLocationNo not in (:locationNos) order by l.bay asc,level asc,actualArea asc,seq asc ")
-                            .setString("po", po)
-                            .setParameterList("locationNos",emptyLocstions);
-                    if (!q.list().isEmpty()) {
-                        return (Location) q.list().get(0);
-                    }
+                q = session.createQuery("from Location l where not exists (select 1 from Location ol where ol.bay = l.bay and (ol.reserved=true or ol.empty=false ) " +
+                        "and l.level =ol.level and l.actualArea=ol.actualArea and l.position=ol.position ) " +
+                        "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.position in (:po)  " +
+                        "and l.putawayRestricted = false order by l.bay asc,l.level asc,l.actualArea asc,l.seq asc ");
+                list = new ArrayList<>();
+                if("0".equals(po)){
+                    list.add("1");
+                    list.add("2");
+                    q.setParameterList("po", list);
                 }else{
-                    q = session.createQuery("from Location l where not exists (select 1 from Location ol where ol.bay = l.bay and (ol.reserved=true or ol.empty=false ) " +
-                            "and l.level =ol.level and l.actualArea=ol.actualArea and l.position=ol.position )" +
-                            " and l.empty=true and l.reserved=false and l.asrsFlag = true and l.position=:po  and l.putawayRestricted = false and l.wmsLocationNo in (:locationNos) order by l.bay asc,level asc,actualArea asc,seq asc ")
-                            .setString("po", po)
-                            .setParameterList("locationNos",emptyLocstions);
-                    if (!q.list().isEmpty()) {
-                        return (Location) q.list().get(0);
-                    }
+                    list.add(po);
+                    q.setParameterList("po", list);
+                }
+                if (!q.list().isEmpty()) {
+                    return (Location) q.list().get(0);
                 }
             }
             return null;

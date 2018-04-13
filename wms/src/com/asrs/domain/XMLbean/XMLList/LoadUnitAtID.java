@@ -117,10 +117,10 @@ public class LoadUnitAtID extends XMLProcess {
             }
             if (job != null && station!=null ) {
 
-//                Job job = Job.getByContainer(barcode);
-//                if(job != null){
-//                    throw new Exception("托盘号已存在" );
-//                }
+/*                Job job = Job.getByContainer(barcode);
+                if(job != null){
+                    throw new Exception("托盘号已存在" );
+                }*/
                 Container container = Container.getByBarcode(barcode);
                 if(container != null){
                     throw new Exception("托盘号已存在" );
@@ -133,22 +133,22 @@ public class LoadUnitAtID extends XMLProcess {
                     Station station1 = Station.getNormalStation("1102");
                     if(station1!=null){
                         //1102没有被禁用，1101分配2号巷道货位
-                        newLocation = Location.getEmptyLocation(String.valueOf(station.getAisleNo()));
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
                     }else{
                         //1102被禁用，1101分配1、2号巷道货位
-                        newLocation = Location.getEmpteyPalletLocation(String.valueOf(station.getAisleNo()));
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
                     }
 
                 }else {
                     //入库站台为1102时
-
-                    if(station.getAisleNo().intValue() != 0) {
-                        newLocation = Location.getEmptyLocation(view.getSkuID(), view.getLotAttr05(), String.valueOf(station.getAisleNo()));
+                    //判断1101是否被禁用
+                    Station station1 = Station.getNormalStation("1101");
+                    if(station1!=null){
+                        //1101没有被禁用，1102分配1号巷道货位
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
                     }else{
-                        newLocation = Location.getEmptyLocation(view.getSkuID(), view.getLotAttr05(), "1");
-                        if(newLocation == null){
-                            newLocation = Location.getEmptyLocation(view.getSkuID(), view.getLotAttr05(), "2");
-                        }
+                        //1101被禁用，1102分配1、2号巷道货位
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
                     }
                 }
                 if(newLocation != null) {
@@ -203,7 +203,7 @@ public class LoadUnitAtID extends XMLProcess {
                 el.setTransportOrder(to);
                 XMLUtil.sendEnvelope(el);
 
-                job = new Job();
+/*                job = new Job();
                 job.setToLocation(newLocation);
                 job.setMcKey(ri.getReferenceId());
                 job.setStatus("1");
@@ -218,7 +218,7 @@ public class LoadUnitAtID extends XMLProcess {
                     job.setLotNum(view.getLotAttr05());
                 }
                 job.setToStation(mCar.getBlockNo());
-                HibernateUtil.getCurrentSession().save(job);
+                HibernateUtil.getCurrentSession().save(job);*/
 
             } else {
                 throw new Exception("托盘任务不存在或放错站台" );
