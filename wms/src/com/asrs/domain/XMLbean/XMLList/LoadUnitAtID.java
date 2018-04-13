@@ -133,7 +133,7 @@ public class LoadUnitAtID extends XMLProcess {
                     Station station1 = Station.getNormalStation("1102");
                     if(station1!=null){
                         //1102没有被禁用，1101分配2号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
                     }else{
                         //1102被禁用，1101分配1、2号巷道货位
                         newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
@@ -145,7 +145,7 @@ public class LoadUnitAtID extends XMLProcess {
                     Station station1 = Station.getNormalStation("1101");
                     if(station1!=null){
                         //1101没有被禁用，1102分配1号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
                     }else{
                         //1101被禁用，1102分配1、2号巷道货位
                         newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");

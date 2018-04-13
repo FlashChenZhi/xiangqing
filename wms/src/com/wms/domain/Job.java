@@ -357,7 +357,11 @@ public class Job {
         }
         jl.setToStation(this.getToStation());
         jl.setType(this.getType());
-
+        for(JobDetail jd : this._jobDetails){
+            jl.setSkuCode(jd.getInventory().getSkuCode());
+            jl.setSkuName(jd.getInventory().getSkuName());
+            jl.setQty(jd.getInventory().getQty());
+        }
     }
 
     public void asrsCancel() {
