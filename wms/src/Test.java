@@ -1,7 +1,9 @@
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
+import org.hibernate.Cache;
 import org.hibernate.Query;
+import org.hibernate.Session;
 
 import java.util.List;
 
@@ -11,12 +13,15 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args) {
+        System.out.println(2);
         Transaction.begin();
-        Query query = HibernateUtil.getCurrentSession().createQuery("from Role");
-        List<Menu> inventories = query.list();
-        Transaction.commit(
-
-        );
+        System.out.println(1);
+        Session session = HibernateUtil.getCurrentSession();
+        Query query = session.createQuery("from Station where status = true");
+        List<Station> list = query.list();
+        for(Station station : list){
+            System.out.println(station.getName());
+        }
     }
 
     //1到8排
@@ -42,5 +47,6 @@ public class Test {
             }
         }
     }
+
 
 }

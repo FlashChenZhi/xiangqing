@@ -155,6 +155,18 @@ public class Station
         _modeChangeTime = modeChangeTime;
     }
 
+    private boolean _status;
+
+    @Basic
+    @Column(name = "STATUS")
+    public boolean isStatus() {
+        return _status;
+    }
+
+    public void setStatus(boolean status) {
+        this._status = status;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -314,6 +326,19 @@ public class Station
 
         Session session = HibernateUtil.getCurrentSession();
         Station station = (Station) session.get(Station.class, stationNo);
+        return station;
+    }
+    public static Station getNormalStation(String stationNo)
+    {
+        if (StringUtils.isBlank(stationNo))
+        {
+            return null;
+        }
+
+        Session session = HibernateUtil.getCurrentSession();
+        Query query = session.createQuery("from Station where stationNo=:stationNo and status=true");
+        query.setString("stationNo", stationNo);
+        Station station =(Station) query.uniqueResult();
         return station;
     }
 }

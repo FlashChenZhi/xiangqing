@@ -152,6 +152,18 @@ public class Station
         _modeChangeTime = modeChangeTime;
     }
 
+    private boolean _status;
+
+    @Basic
+    @Column(name = "STATUS")
+    public boolean isStatus() {
+        return _status;
+    }
+
+    public void setStatus(boolean status) {
+        this._status = status;
+    }
+
     @Override
     public boolean equals(Object o)
     {

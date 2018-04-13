@@ -1,6 +1,7 @@
 package com.asrs.domain.XMLbean.XMLList;
 
 import com.asrs.Mckey;
+import com.asrs.business.consts.AsrsJobStatus;
 import com.asrs.business.consts.TransportType;
 import com.asrs.domain.XMLbean.Envelope;
 import com.asrs.domain.XMLbean.XMLList.ControlArea.ControlArea;
@@ -28,6 +29,7 @@ import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
 import com.yili.vo.ReceiptLpnVo;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import sun.plugin2.message.JavaObjectOpMessage;
@@ -100,23 +102,46 @@ public class LoadUnitAtID extends XMLProcess {
 
             String barcode = dataArea.getScanData().replaceAll("_","");
             String stationNo = dataArea.getXMLLocation().getMHA();
-            Station station = Station.getStation(stationNo);
-            ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);
-            if (view != null || "1101".equals(stationNo)) {
+            Station station = Station.getNormalStation(stationNo);
+//            ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
+            Job job=new Job();
+            if(StringUtils.isNotBlank(barcode)){
+                job = Job.getByContainer2(barcode,stationNo);
+            }else{
+                Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
+                        .setString("station",stationNo)
+                        .setString("waiting", AsrsJobStatus.WAITING)
+                        .setMaxResults(1);
 
-                Job job = Job.getByContainer(barcode);
-                if(job != null){
-                    throw new Exception("托盘号已存在" );
-                }
+                job = (Job) jobQuery.uniqueResult();
+            }
+            if (job != null && station!=null ) {
+
+//                Job job = Job.getByContainer(barcode);
+//                if(job != null){
+//                    throw new Exception("托盘号已存在" );
+//                }
                 Container container = Container.getByBarcode(barcode);
                 if(container != null){
                     throw new Exception("托盘号已存在" );
                 }
-
+                //站台判断
                 Location newLocation;
-                if(view == null || "1101".equals(stationNo)){
-                    newLocation = Location.getEmpteyPalletLocation(String.valueOf(station.getAisleNo()));
+                if("1101".equals(stationNo)){
+                    //入库站台为1101时
+                    //判断1102是否被禁用
+                    Station station1 = Station.getNormalStation("1102");
+                    if(station1!=null){
+                        //1102没有被禁用，1101分配2号巷道货位
+                        newLocation = Location.getEmptyLocation(String.valueOf(station.getAisleNo()));
+                    }else{
+                        //1102被禁用，1101分配1、2号巷道货位
+                        newLocation = Location.getEmpteyPalletLocation(String.valueOf(station.getAisleNo()));
+                    }
+
                 }else {
+                    //入库站台为1102时
+
                     if(station.getAisleNo().intValue() != 0) {
                         newLocation = Location.getEmptyLocation(view.getSkuID(), view.getLotAttr05(), String.valueOf(station.getAisleNo()));
                     }else{
@@ -196,7 +221,7 @@ public class LoadUnitAtID extends XMLProcess {
                 HibernateUtil.getCurrentSession().save(job);
 
             } else {
-                throw new Exception("托盘数据不存在" );
+                throw new Exception("托盘任务不存在或放错站台" );
             }
 
             Transaction.commit();
@@ -207,4 +232,6 @@ public class LoadUnitAtID extends XMLProcess {
         }
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.wms.domain;
 
+import com.asrs.business.consts.AsrsJobStatus;
 import com.util.hibernate.HibernateUtil;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
@@ -438,6 +439,21 @@ public class Job {
         Session session = HibernateUtil.getCurrentSession();
         Query q = session.createQuery(" from Job j where j.container = :container")
                 .setString("container", fromLpnID);
+        return (Job) q.uniqueResult();
+
+    }
+
+    /**
+     * 获取该托盘Job信息
+     * @param fromLpnID
+     * @param stationNo
+     * @return
+     */
+    public static Job getByContainer2(String fromLpnID,String stationNo) {
+        Session session = HibernateUtil.getCurrentSession();
+        Query q = session.createQuery(" from Job j where j.container = :container and j.fromStation = :station and j.status = :waiting")
+                .setString("container", fromLpnID).setString("station",stationNo)
+                .setString("waiting", AsrsJobStatus.WAITING);
         return (Job) q.uniqueResult();
 
     }
