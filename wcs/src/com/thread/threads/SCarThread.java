@@ -64,6 +64,7 @@ public class SCarThread extends BlockThread<SCar> {
                         }
                     }
                 } else {
+                    //小车在运行状态
                     if (StringUtils.isEmpty(sCar.getReservedMcKey()) && StringUtils.isEmpty(sCar.getMcKey())) {
 
                         ScarAndMCarServiceImpl service = new ScarAndMCarServiceImpl(sCar);

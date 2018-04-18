@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.*;
 
 import javax.persistence.*;
+import javax.persistence.Version;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public abstract class Block {
     protected String status;
     protected String error;
     private String wareHouse;
+    private int version;
 
     public static final String STATUS_RUN = "1";
     public static final String STATUS_CHARGE = "3";
@@ -49,6 +51,16 @@ public abstract class Block {
 
     public void setBlockNo(String blockNo) {
         this.blockNo = blockNo;
+    }
+
+    @Version
+    @Column(name = "VERSION")
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     @Basic
@@ -259,6 +271,23 @@ public abstract class Block {
 
     @Transient
     public Block getPreBlockHasMckey(String jobType) {
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where d.currentBlockNo = b.blockNo and " +
+                "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo desc ")
+                .setString("cb", getBlockNo()).setString("type", jobType)
+                .setString("status","1");
+
+        List<RouteDetail> rds = query.list();
+
+        if (rds.isEmpty()) {
+            return null;
+        }
+
+        return getByBlockNo(rds.get(0).getCurrentBlockNo());
+
+    }
+
+    @Transient
+    public Block getPreBlockHasMckeyByLevel(String jobType,String blockNo) {
         org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where d.currentBlockNo = b.blockNo and " +
                 "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo desc")
                 .setString("cb", getBlockNo()).setString("type", jobType)

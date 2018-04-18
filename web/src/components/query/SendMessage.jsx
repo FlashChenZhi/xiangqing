@@ -96,6 +96,8 @@ let SendMessage = React.createClass({
                         <li>11	载货移动</li>
                         <li>12	载货上车</li>
                         <li>13	载货下车</li>
+                        <li>14	充电开始</li>
+                        <li>15	充电结束</li>
                     </span>
                     <span>
                         <h3>作业区分</h3>
@@ -106,8 +108,8 @@ let SendMessage = React.createClass({
                         <li>05	补充出库</li>
                         <li>06	回库</li>
                         <li>07	充电  *4 新增</li>
-                        <li>08	换层  *4 新增</li>
-                        <li>09	充电完成 *4 新增</li>
+                        <li>08	充电完成 *4 新增</li>
+                        <li>09	换层  *4 新增</li>
                     </span>
                     <span>
                         <h3> 消息格式：</h3>  Mckey[4] + 机器号【4】+Cycle命令【2】+ 作业区分【2】+货形(高度)【1】+  货形(宽度)【1】+ 货位排列层【6】+ 站台【4】+ 码头【4】
