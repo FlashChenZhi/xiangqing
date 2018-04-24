@@ -25,7 +25,7 @@ public class MCarOperator {
 
     public void tryCarryGoods() throws Exception {
         AsrsJob job = AsrsJob.getAsrsJobByMcKey(mckey);
-        //移动提升机上有子车，去上一个block接货
+        //移动提升机上不管有没有子车，都去上一个block接货
         Block block = mCar.getPreBlock(mckey, job.getType());
 
         if (!block.getBlockNo().equals(mCar.getDock()) || !mCar.getCheckLocation() == true) {

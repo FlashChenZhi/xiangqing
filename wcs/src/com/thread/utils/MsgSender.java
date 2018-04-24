@@ -37,11 +37,7 @@ public class MsgSender {
 
         if (StringUtils.isNotBlank(locationNo)) {
             Location location = Location.getByLocationNo(locationNo);
-            if(StringUtils.isNotBlank(location.getOutPosition()) && (blockNo.equals("MC05") || block.getBlockNo().equals("MC05"))){
-                m3.Bank = StringUtils.leftPad(16 + "", 2, '0');
-            }else {
-                m3.Bank = StringUtils.leftPad(location.getBank() + "", 2, '0');
-            }
+            m3.Bank = StringUtils.leftPad(location.getBank() + "", 2, '0');
             m3.Bay = StringUtils.leftPad(location.getBay() + "", 2, '0');
             m3.Level = StringUtils.leftPad(location.getLevel() + "", 2, '0');
         }

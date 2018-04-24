@@ -90,7 +90,7 @@ public class LiftOperator {
      * @param conveyor
      */
     public void tryUnLoadCarToConveyor(Conveyor conveyor) throws Exception {
-        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
         SCar sCar = (SCar) query.uniqueResult();
         if (conveyor.getBlockNo().equals(lift.getDock())) {
             MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, lift, "", sCar.getBlockNo(), "", "");

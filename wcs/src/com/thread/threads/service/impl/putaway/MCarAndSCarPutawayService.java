@@ -10,7 +10,7 @@ import com.thread.blocks.SCar;
 import com.thread.threads.operator.MCarOperator;
 import com.thread.threads.service.impl.MCarServiceImpl;
 import com.thread.utils.MsgSender;
-import com.util.common.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by van on 2018/2/1.
@@ -29,33 +29,21 @@ public class MCarAndSCarPutawayService extends MCarServiceImpl {
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
         MCarOperator operator = new MCarOperator(mCar, asrsJob.getMcKey());
 
-        if (StringUtils.isNotEmpty(mCar.getsCarBlockNo())) {
-            //提升机上有子车，提升机准备去接货
-            operator.tryCarryGoods();
-        } else {
 
-           // Location location = Location.getByLocationNo(asrsJob.getToLocation());
-//            if (mCar.getBay() == location.getBay()
-//                    && mCar.getLevel() == location.getLevel()) {
-                //优先接货
-            SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
-            if(StringUtils.isEmpty(sCar.getOnMCar()))
+        if(mCar.getGroupNo()!=null){
+            //若绑定有子车
+            if (StringUtils.isNotEmpty(mCar.getsCarBlockNo())) {
+                //提升机上有子车，提升机准备去接货
                 operator.tryCarryGoods();
-//            } else {
-//                //计算是否先取货，还是先取车，如果子车不在提升机上
-//                boolean flag = loadCarFirst();
-//
-//                if (flag) {
-//                    //先去取车
-//                    //移动提升机上没有子车，先去接子车，去子车所在的层列
-//                    operator.tryLoadCar();
-//                } else {
-//                    //提升机先去接货
-//                    operator.tryCarryGoods();
-//                }
-//            }
+            } else {
+                SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
+                //优先接货
+                if(StringUtils.isEmpty(sCar.getOnMCar()))
+                    //子车不在母车上先去接货（入库）
+                    operator.tryCarryGoods();
+            }
         }
-
+        //若没有绑定子车则什么都不做
 
     }
 

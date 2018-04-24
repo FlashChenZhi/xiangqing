@@ -134,6 +134,9 @@ public class MovementReport extends XMLProcess {
                             inventory.setContainer(container);
                             inventory.setStoreDate(sdf.format(new Date()));
                             inventory.setStoreTime(sdf2.format(new Date()));
+
+                            j.getJobDetails().iterator().next().setInventory(inventory);
+
                             session.save(inventory);
                             inventoryLog.setQty(inventoryLog.getQty().add(inventory.getQty()));
                             inventoryLog.setSkuCode(inventory.getSkuCode());

@@ -252,6 +252,14 @@ public class Msg35Proc implements MsgProcess {
                                 station.setMcKey(null);
                                 InMessage.error(station.getStationNo(), "");
                             }
+                            //入库站台是否要加移载取货设置mckey，
+                            // 看1301，1302，1303，这三个站台我们系统是把他们看成什么（站台or传送带）
+                            /*if (message35.isMoveCarryGoods()) {
+                                //移载取货
+                                station.setMcKey(message35.McKey);
+
+                            }*/
+
 
                         } else if (block instanceof Conveyor) {
                             Conveyor conveyor = (Conveyor) block;
@@ -860,9 +868,10 @@ public class Msg35Proc implements MsgProcess {
                                     sCar.setBay(mCar.getBay());
                                 }
                             } else if (message35.isUnLoadCar()) {
-                                //换成卸子车，清除任务，子车
+                                //换成卸子车，清除任务，子车,清除绑定子车
                                 mCar.clearMckeyAndReservMckey();
                                 mCar.setsCarBlockNo(null);
+                                mCar.setGroupNo(null);
                             } else if (message35.isLoadCar()) {
                                 mCar.setsCarBlockNo(message35.Station);
                                 aj.setStatus(AsrsJobStatus.DONE);
@@ -875,12 +884,14 @@ public class Msg35Proc implements MsgProcess {
                                 if(message35.Station.equals(aj.getToStation())){
                                     sCar.clearMckeyAndReservMckey();
                                     sCar.setOnMCar(message35.Station);
+                                    MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
+                                    mCar.setGroupNo(sCar.getGroupNo());
                                 }
                             }else if (message35.isOffCar()) {
                                 if (message35.Station.equals(aj.getToStation())) {
                                     MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
                                     sCar.setOnMCar(mCar.getBlockNo());
-                                    sCar.setGroupNo(mCar.getGroupNo());
+                                    mCar.setGroupNo(sCar.getGroupNo());
                                 } else {
                                     sCar.setOnMCar(null);
                                 }
