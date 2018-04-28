@@ -164,6 +164,13 @@ public class Station
         this._status = status;
     }
 
+    private boolean  _derection;
+
+    @Basic
+    @Column(name = "STATUS")
+    
+
+
     @Override
     public boolean equals(Object o)
     {
