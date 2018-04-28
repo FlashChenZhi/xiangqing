@@ -17,6 +17,7 @@ public abstract class Block {
     protected String mcKey;
     protected String status;
     protected String reservedMcKey;
+    private int version;
 
     protected Block() {
 
@@ -30,6 +31,16 @@ public abstract class Block {
 
     public void setBlockNo(String blockNo) {
         this.blockNo = blockNo;
+    }
+
+    @Version
+    @Column(name = "VERSION")
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     @Basic

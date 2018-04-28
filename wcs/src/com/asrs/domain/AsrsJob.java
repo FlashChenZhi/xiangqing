@@ -5,6 +5,7 @@ import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
 
 import javax.persistence.*;
+import javax.persistence.Version;
 import java.util.Date;
 import java.util.List;
 
@@ -258,6 +259,7 @@ public class AsrsJob {
     public void setSendReport(boolean sendReport) {
         this.sendReport = sendReport;
     }
+
 
     @Override
     public boolean equals(Object o) {

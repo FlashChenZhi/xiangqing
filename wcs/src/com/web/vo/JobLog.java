@@ -1,7 +1,6 @@
-package com.wms.domain;
+package com.web.vo;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -31,9 +30,6 @@ public class JobLog {
     private Date createDate;
     private String createUser;
     private String status;
-    private String skuCode;
-    private String skuName;
-    private BigDecimal _qty;
 
     public static final String COL_ID = "id";
 
@@ -46,36 +42,6 @@ public class JobLog {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "SKUCODE")
-    public String getSkuCode() {
-        return skuCode;
-    }
-
-    public void setSkuCode(String skuCode) {
-        this.skuCode = skuCode;
-    }
-
-    @Basic
-    @Column(name = "SKUNAME")
-    public String getSkuName() {
-        return skuName;
-    }
-
-    public void setSkuName(String skuName) {
-        this.skuName = skuName;
-    }
-
-    @Column(name = "QTY")
-    @Basic
-    public BigDecimal getQty() {
-        return _qty;
-    }
-
-    public void setQty(BigDecimal qty) {
-        _qty = qty;
     }
 
     @Basic

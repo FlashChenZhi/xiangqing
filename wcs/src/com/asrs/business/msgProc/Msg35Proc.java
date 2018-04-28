@@ -97,7 +97,12 @@ public class Msg35Proc implements MsgProcess {
                         if (block instanceof Srm) {
                             Srm srm = (Srm) block;
                             if (message35.isMove()) {
-                                //升降机移动
+                                /**
+                                 * 收到的是升降机移动的35
+                                 *   判断提升机是移动到站台还是移动到库位列
+                                 *   设置提升机的dock，area，设置小车的bay，lev，area
+                                 *   设置提升机的checkLocation为true
+                                 */
                                 if (message35.Station.equals("0000")) {
                                     srm.setDock(null);
                                     srm.setBay(Integer.parseInt(message35.Bay));
@@ -114,12 +119,25 @@ public class Msg35Proc implements MsgProcess {
                                 }
                                 srm.setCheckLocation(true);
                             } else if (message35.isMoveCarryGoods()) {
+                                /**
+                                 * 收到的是移载取货的35
+                                 *   将mckey放入提升机的Mckey中
+                                 *   将提升机的reservedMcky清空
+                                 */
                                 srm.generateMckey(message35.McKey);
                                 aj.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                             } else if (message35.isMoveUnloadGoods()) {
+                                /**
+                                 * 收到的是移载卸货的35
+                                 *   清空reservedMckey和Mckey
+                                 */
                                 srm.clearMckeyAndReservMckey();
                             } else if (message35.isLoadCar()) {
-
+                                /**
+                                 * 收到的是接子车的35
+                                 *   将提升机的scarBlockNo设为接到的小车
+                                 *   若小车的mckey不为空，将提升机的mckey置为小车的mckey，将reservedMckey置为空
+                                 */
                                 SCar sCar = (SCar) Block.getByBlockNo(message35.Station);
                                 srm.setsCarBlockNo(sCar.getBlockNo());
 
@@ -128,6 +146,10 @@ public class Msg35Proc implements MsgProcess {
                                 }
 
                             } else if (message35.isUnLoadCar()) {
+                                /**
+                                 * 收到的是卸子车的35
+                                 *   将提升机的scarBlockNo设为null 清除提升机的mckey和resercedMckey
+                                 */
                                 SCar sCar = (SCar) Block.getByBlockNo(srm.getsCarBlockNo());
                                 srm.setsCarBlockNo(null);
                                 // mCar.setReservedMcKey(null);
@@ -137,7 +159,7 @@ public class Msg35Proc implements MsgProcess {
                         } else if (block instanceof MCar) {
                             MCar mCar = (MCar) block;
                             if (message35.isMove()) {
-                                //升降机移动
+                                //移动
                                 if (message35.Station.equals("0000")) {
                                     mCar.setDock(null);
                                     mCar.setBay(Integer.parseInt(message35.Bay));
@@ -161,12 +183,14 @@ public class Msg35Proc implements MsgProcess {
                                 }
                                 mCar.setCheckLocation(true);
                             } else if (message35.isMoveCarryGoods()) {
+                                //移载取货
                                 mCar.generateMckey(message35.McKey);
                                 aj.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                             } else if (message35.isMoveUnloadGoods()) {
+                                //移载卸货
                                 mCar.clearMckeyAndReservMckey();
                             } else if (message35.isLoadCar()) {
-
+                                //接子车
                                 SCar sCar = (SCar) Block.getByBlockNo(message35.Station);
                                 mCar.setsCarBlockNo(sCar.getBlockNo());
 
@@ -175,6 +199,7 @@ public class Msg35Proc implements MsgProcess {
                                 }
 
                             } else if (message35.isUnLoadCar()) {
+                                //卸子车
                                 SCar sCar = (SCar) Block.getByBlockNo(mCar.getsCarBlockNo());
                                 mCar.setsCarBlockNo(null);
                                 // mCar.setReservedMcKey(null);
@@ -184,6 +209,7 @@ public class Msg35Proc implements MsgProcess {
                         } else if (block instanceof SCar) {
                             SCar sCar = (SCar) block;
                             if (message35.isUnloadGoods()) {
+                                //卸货
                                 sCar.clearMckeyAndReservMckey();
                                 sCar.setOnMCar(null);
                                 //入库完成，发送消息给wms
@@ -199,7 +225,7 @@ public class Msg35Proc implements MsgProcess {
                                 sCar.clearMckeyAndReservMckey();
 
                             } else if (message35.isOnCar()) {
-
+                                //上车
                                 sCar.setOnMCar(message35.Station);
                                 sCar.setBank(0);
 
@@ -212,6 +238,7 @@ public class Msg35Proc implements MsgProcess {
                                     }
                                 }
                             } else if (message35.isOffCarCarryGoods()) {
+                                //载货下车
                                 sCar.setOnMCar(null);
                                 sCar.generateMckey(message35.McKey);
                                 sCar.setBank(Integer.parseInt(message35.Bank));
@@ -221,9 +248,18 @@ public class Msg35Proc implements MsgProcess {
 
                             StationBlock station = (StationBlock) block;
                             if (message35.isMoveUnloadGoods()) {
+                                //移载卸货
                                 station.setMcKey(null);
                                 InMessage.error(station.getStationNo(), "");
                             }
+                            //入库站台是否要加移载取货设置mckey，
+                            // 看1301，1302，1303，这三个站台我们系统是把他们看成什么（站台or传送带）
+                            /*if (message35.isMoveCarryGoods()) {
+                                //移载取货
+                                station.setMcKey(message35.McKey);
+
+                            }*/
+
 
                         } else if (block instanceof Conveyor) {
                             Conveyor conveyor = (Conveyor) block;
@@ -832,9 +868,10 @@ public class Msg35Proc implements MsgProcess {
                                     sCar.setBay(mCar.getBay());
                                 }
                             } else if (message35.isUnLoadCar()) {
-                                //换成卸子车，清除任务，子车
+                                //换成卸子车，清除任务，子车,清除绑定子车
                                 mCar.clearMckeyAndReservMckey();
                                 mCar.setsCarBlockNo(null);
+                                mCar.setGroupNo(null);
                             } else if (message35.isLoadCar()) {
                                 mCar.setsCarBlockNo(message35.Station);
                                 aj.setStatus(AsrsJobStatus.DONE);
@@ -847,12 +884,14 @@ public class Msg35Proc implements MsgProcess {
                                 if(message35.Station.equals(aj.getToStation())){
                                     sCar.clearMckeyAndReservMckey();
                                     sCar.setOnMCar(message35.Station);
+                                    MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
+                                    mCar.setGroupNo(sCar.getGroupNo());
                                 }
                             }else if (message35.isOffCar()) {
                                 if (message35.Station.equals(aj.getToStation())) {
                                     MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
                                     sCar.setOnMCar(mCar.getBlockNo());
-                                    sCar.setGroupNo(mCar.getGroupNo());
+                                    mCar.setGroupNo(sCar.getGroupNo());
                                 } else {
                                     sCar.setOnMCar(null);
                                 }

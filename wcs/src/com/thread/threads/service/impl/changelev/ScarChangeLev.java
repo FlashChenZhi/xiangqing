@@ -9,6 +9,7 @@ import com.thread.threads.service.impl.ScarAndMCarServiceImpl;
 public class ScarChangeLev extends ScarAndMCarServiceImpl {
 
     private SCar sCar;
+
     public ScarChangeLev(SCar sCar) {
         super(sCar);
         this.sCar = sCar;

@@ -551,7 +551,7 @@ public class WebService {
 
                     Query q = HibernateUtil.getCurrentSession().createQuery("from MCar where level=:level and position=:po");
                     q.setParameter("level", Integer.parseInt(level));
-                    q.setParameter("po", Location.LEFT);
+                    q.setParameter("po", sCar.getPosition());
                     q.setMaxResults(1);
                     MCar toMcar = (MCar) q.uniqueResult();
 

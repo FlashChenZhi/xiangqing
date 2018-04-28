@@ -1,10 +1,7 @@
 package com.asrs.domain.XMLbean.XMLList;
 
 import com.util.common.Const;
-import com.yili.NoticeReceivingPutAway;
-import com.yili.RetreivalFinish;
-import com.yili.Transfer;
-import com.yili.WebService;
+
 import com.wms.domain.*;
 import com.asrs.domain.XMLbean.XMLList.ControlArea.ControlArea;
 import com.asrs.domain.XMLbean.XMLList.DataArea.DAList.MovementReportDA;
@@ -17,13 +14,12 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.hibernate.*;
+import org.hibernate.Query;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -103,23 +99,61 @@ public class MovementReport extends XMLProcess {
                     l.setReserved(false);
                     l.setEmpty(false);
                     session.update(l);
-                    if(Const.EMPTY_PALLET.equals(j.getSkuCode())){
-                        Container container = new Container();
-                        container.setLocation(l);
+
+                    Container container = null;
+
+                    Query query = HibernateUtil.getCurrentSession().createQuery("from InventoryView where palletCode=:palletNo");
+                    query.setParameter("palletNo", j.getContainer());
+                    List<InventoryView> views = query.list();
+
+
+                    container = Container.getByBarcode(j.getContainer());
+
+                    if (container == null) {
+                        container = new Container();
                         container.setBarcode(j.getContainer());
-                        l.setEmpty(false);
+                        container.setLocation(l);
+                        container.setCreateDate(new Date());
+                        container.setCreateUser("sys");
+                        container.setReserved(false);
                         HibernateUtil.getCurrentSession().save(container);
-
-                        Inventory inventory = new Inventory();
-                        inventory.setSkuCode(j.getSkuCode());
-                        inventory.setLotNum(j.getLotNum());
-                        inventory.setQty(j.getQty());
-                        inventory.setContainer(container);
-
-                        HibernateUtil.getCurrentSession().save(inventory);
-                    }else {
-                        NoticeReceivingPutAway.notice(j.getContainer(), l);
                     }
+                    InventoryLog inventoryLog = new InventoryLog();
+                    inventoryLog.setQty(BigDecimal.ZERO);
+                    inventoryLog.setType(InventoryLog.TYPE_IN);
+                    for (InventoryView view : views) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+                        if (view != null) {
+                            Inventory inventory = new Inventory();
+                            inventory.setWhCode(view.getWhCode());
+                            inventory.setSkuName(view.getSkuName());
+                            inventory.setLotNum(view.getLotNum());
+                            inventory.setQty(view.getQty());
+                            inventory.setSkuCode(view.getSkuCode());
+                            inventory.setContainer(container);
+                            inventory.setStoreDate(sdf.format(new Date()));
+                            inventory.setStoreTime(sdf2.format(new Date()));
+
+                            j.getJobDetails().iterator().next().setInventory(inventory);
+
+                            session.save(inventory);
+                            inventoryLog.setQty(inventoryLog.getQty().add(inventory.getQty()));
+                            inventoryLog.setSkuCode(inventory.getSkuCode());
+                            inventoryLog.setWhCode(inventory.getWhCode());
+                            inventoryLog.setToLocation(container.getLocation().getLocationNo());
+                            inventoryLog.setLotNum(inventory.getLotNum());
+                            inventoryLog.setSkuName(inventory.getSkuName());
+
+                            session.delete(view);
+                        }
+
+                    }
+                    inventoryLog.setContainer(container.getBarcode());
+                    inventoryLog.setCreateDate(new Date());
+                    session.save(inventoryLog);
+
+
                 } else if (dataArea.getReasonCode().equals(ReasonCode.RETRIEVALFINISHED)) {
 //                Container c = j.getContainer();
 //                Location location = j.getFromLocation();
@@ -130,7 +164,7 @@ public class MovementReport extends XMLProcess {
 //
 //                //// TODO: 放在后台
 //                WebService.finishOrder(j);
-                    RetreivalFinish.finish(j);
+
 
                     Location fromLocation = j.getFromLocation();
 
@@ -148,7 +182,7 @@ public class MovementReport extends XMLProcess {
 
                 } else if (dataArea.getReasonCode().equals(ReasonCode.LOCATIONTOLOCATION)) {
 
-                    Location fromLocation = j.getFromLocation();
+                    /*Location fromLocation = j.getFromLocation();
                     fromLocation.setReserved(false);
                     fromLocation.setEmpty(true);
 
@@ -165,7 +199,7 @@ public class MovementReport extends XMLProcess {
 
 
                         container.setLocation(toLocation);
-                    }
+                    }*/
                 }
                 session.delete(j);
                 j.writeLog();

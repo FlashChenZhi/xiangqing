@@ -21,44 +21,72 @@ public class LiftServiceImpl implements LiftService {
     @Override
     public void withOutJob() throws Exception {
 
-        //查找入库
-        Block block = lift.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
-        if (block != null) {
-            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
-             if((block.getBlockNo().equals("0045")&&(asrsJob.getFromStation().equals("0040")||asrsJob.getFromStation().equals("0039")))||asrsJob.getFromStation().equals("0063")||asrsJob.getFromStation().equals("0057")||block.getBlockNo().equals("0019")){
-                    lift.setReservedMcKey(block.getMcKey());
-            }
-        }
-
-        if (StringUtils.isEmpty(lift.getReservedMcKey())) {
-            block = lift.getPreBlockHasMckey(AsrsJobType.RETRIEVAL);
-            if (block != null) {
-                lift.setReservedMcKey(block.getMcKey());
-            }
-        }
+        Block block= null;
+        /**
+         * 注：先查找充电，充电完成，换层任务，再查入库，出库任务
+         *     加上任务类型判断，是因为出库任务和换层任务接驳台到提升机的这段路经是一样的，
+         *     为了防止拿错任务。
+         */
 
         if(StringUtils.isEmpty(lift.getReservedMcKey())){
+            //查找充电
             block = lift.getPreBlockHasMckey(AsrsJobType.RECHARGED);
             if (block != null) {
-                lift.setReservedMcKey(block.getMcKey());
+                AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                //判断所拿任务是否是充电任务
+                if(asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                    lift.setReservedMcKey(block.getMcKey());
+                }
             }
         }
 
         if(StringUtils.isEmpty(lift.getReservedMcKey())){
+            //查找充电完成
             block = lift.getPreBlockHasMckey(AsrsJobType.RECHARGEDOVER);
             if (block != null) {
-                lift.setReservedMcKey(block.getMcKey());
+                AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                //判断所拿任务是否是充电完成任务
+                if(asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                    lift.setReservedMcKey(block.getMcKey());
+                }
             }
         }
         if(StringUtils.isEmpty(lift.getReservedMcKey())){
+            //查找换层
             block = lift.getPreBlockHasMckey(AsrsJobType.CHANGELEVEL);
             if (block != null) {
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                 if(asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)){
-                        lift.setReservedMcKey(block.getMcKey());
+                    lift.setReservedMcKey(block.getMcKey());
                 }
             }
         }
+
+        if (StringUtils.isEmpty(lift.getReservedMcKey())) {
+            //查找入库
+            block = lift.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
+            if (block != null) {
+                AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                //判断所拿任务是否是入库任务
+                if(asrsJob.getType().equals(AsrsJobType.PUTAWAY)){
+                    lift.setReservedMcKey(block.getMcKey());
+                }
+
+            }
+        }
+        if (StringUtils.isEmpty(lift.getReservedMcKey())) {
+            //查找出库
+            block = lift.getPreBlockHasMckey(AsrsJobType.RETRIEVAL);
+            if (block != null) {
+                AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                //判断所拿任务是否是出库任务
+                if(asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                    lift.setReservedMcKey(block.getMcKey());
+                }
+            }
+        }
+
+
 
     }
 

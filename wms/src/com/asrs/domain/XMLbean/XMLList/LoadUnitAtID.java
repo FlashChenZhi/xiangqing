@@ -19,8 +19,6 @@ import com.util.common.Const;
 import com.util.common.LogWriter;
 import com.util.common.LoggerType;
 import com.wms.domain.blocks.MCar;
-import com.yili.GetReceiptLPN;
-import com.yili.WebService;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
@@ -28,7 +26,6 @@ import com.util.common.DateFormat;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
-import com.yili.vo.ReceiptLpnVo;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -132,8 +129,8 @@ public class LoadUnitAtID extends XMLProcess {
                     //判断1102是否被禁用
                     Station station1 = Station.getNormalStation("1102");
                     if(station1!=null){
-                        //1102没有被禁用，1101分配2号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
+                        //1102没有被禁用，1101分配1号巷道货位
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
                     }else{
                         //1102被禁用，1101分配1、2号巷道货位
                         newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
@@ -144,8 +141,8 @@ public class LoadUnitAtID extends XMLProcess {
                     //判断1101是否被禁用
                     Station station1 = Station.getNormalStation("1101");
                     if(station1!=null){
-                        //1101没有被禁用，1102分配1号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
+                        //1101没有被禁用，1102分配2号巷道货位
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
                     }else{
                         //1101被禁用，1102分配1、2号巷道货位
                         newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
