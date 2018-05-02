@@ -167,6 +167,18 @@ public class Station
         this._status = status;
     }
 
+
+    private boolean  _direction;
+    @Basic
+    @Column(name = "DIRECTION")
+    public boolean is_direction() {
+        return _direction;
+    }
+
+    public void set_direction(boolean _direction) {
+        this._direction = _direction;
+    }
+
     @Override
     public boolean equals(Object o)
     {
