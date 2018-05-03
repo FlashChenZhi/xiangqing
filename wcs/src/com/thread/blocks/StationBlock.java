@@ -18,7 +18,28 @@ public class StationBlock extends Block {
     private String buffMckey;
     private String load;
     private String inPostion;
+    private Integer groupNo;//组号，绑定出库双站台
+    private boolean outLoad;//出库时候货位是否身上
 
+    @Basic
+    @Column(name = "OUTLOAD")
+    public boolean isOutLoad() {
+        return outLoad;
+    }
+
+    public void setOutLoad(boolean outLoad) {
+        this.outLoad = outLoad;
+    }
+
+    @Basic
+    @Column(name = "GROUP_NO")
+    public Integer getGroupNo() {
+        return groupNo;
+    }
+
+    public void setGroupNo(Integer group) {
+        this.groupNo = group;
+    }
     @Basic
     @Column(name = "stationNo")
     public String getStationNo() {

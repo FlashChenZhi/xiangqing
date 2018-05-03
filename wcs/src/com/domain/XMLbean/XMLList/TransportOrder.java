@@ -112,14 +112,14 @@ public class TransportOrder extends XMLProcess {
             if (asrsJobs.isEmpty()) {
                 System.out.println("接受任务");
 
-                Query jq = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type =:tp1 or type =:tp2");
+                /*Query jq = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type =:tp1 or type =:tp2");
                 jq.setParameter("tp1", AsrsJobType.RECHARGED);
                 jq.setParameter("tp2", AsrsJobType.RECHARGEDOVER);
                 List<AsrsJob> jobs = jq.list();
                 if (!jobs.isEmpty()) {
                     throw new Exception("存在充电任务");
                 }
-
+*/
                 if (AsrsJobType.PUTAWAY.equals(dataArea.getTransportType())) {
 
                     String fromStation = dataArea.getFromLocation().getMHA();
@@ -151,7 +151,7 @@ public class TransportOrder extends XMLProcess {
                         throw new Exception("入库站台无载荷");
                     }
 
-                    //location.setReserved(true);
+                    location.setReserved(true);
 
                     //入库类型
                     asrsJob.setType(AsrsJobType.PUTAWAY);

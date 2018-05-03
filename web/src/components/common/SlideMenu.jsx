@@ -76,7 +76,14 @@ const SlideMenu = React.createClass({
                                 <Icon type="setting"/><span className="nav-text">移库</span>
                             </Link>
                         </Menu.Item>
-                                      </SubMenu>
+                     </SubMenu>
+                    <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
+                        <Menu.Item key='12'>
+                            <Link to='AssignsTheStorehouse'>
+                                <Icon type="solution" /><span className="nav-text">定点出库</span>
+                            </Link>
+                        </Menu.Item>
+                    </SubMenu>
                 </Menu>
             </aside>
         );

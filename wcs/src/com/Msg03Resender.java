@@ -29,11 +29,12 @@ public class Msg03Resender {
                 long overTimeSecond = nowSecond - overSeconds;
                 Date overTime = new Date(overTimeSecond);
 
-                org.hibernate.Query q = session.createQuery("from WcsMessage m where m.received = false and m.lastSendDate <:overTime order by m.lastSendDate")
-                        .setDate("overTime", overTime);
+                org.hibernate.Query q = session.createQuery("from WcsMessage m where m.received = false and m.lastSendDate >:overTime order by m.lastSendDate")
+                        .setDate("overTime", overTime)
+                        .setMaxResults(1);
 
-                List<WcsMessage> msg03s = q.list();
-                for (WcsMessage msg03 : msg03s) {
+                WcsMessage msg03 = (WcsMessage) q.uniqueResult();
+                if(msg03 != null) {
 
                     if (!msg03.getMcKey().equals("9999")) {
 
@@ -63,7 +64,10 @@ public class Msg03Resender {
                             _wcsproxy.addSndMsg(m3);
                             System.out.println("resendId: " + msg03.getId());
 
-                            msg03.setLastSendDate(new Date());
+                            //msg03.setLastSendDate(new Date());
+                            session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
+                                    .setParameter("date",new Date())
+                                    .setParameter("id",msg03.getId()).executeUpdate();
                         }
                     } else {
 
@@ -88,9 +92,16 @@ public class Msg03Resender {
                         _wcsproxy.addSndMsg(m3);
                         System.out.println("resendId: " + msg03.getId());
 
-                        msg03.setLastSendDate(new Date());
+                        //msg03.setLastSendDate(new Date());
+                        session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
+                                .setParameter("date",new Date())
+                                .setParameter("id",msg03.getId()).executeUpdate();
                     }
 
+                    msg03.setLastSendDate(new Date());
+
+                    Thread.sleep(50);
+                }else{
                     Thread.sleep(5000);
                 }
 
@@ -98,10 +109,8 @@ public class Msg03Resender {
             } catch (Exception ex) {
                 Transaction.rollback();
                 ex.printStackTrace();
-
-            } finally {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

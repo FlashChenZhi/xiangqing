@@ -2,6 +2,7 @@ package com.asrs.domain.XMLbean.XMLList;
 
 import com.asrs.Mckey;
 import com.asrs.business.consts.AsrsJobStatus;
+import com.asrs.business.consts.AsrsJobType;
 import com.asrs.business.consts.TransportType;
 import com.asrs.domain.XMLbean.Envelope;
 import com.asrs.domain.XMLbean.XMLList.ControlArea.ControlArea;
@@ -29,9 +30,11 @@ import com.wms.domain.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.JDBCConnectionException;
 import sun.plugin2.message.JavaObjectOpMessage;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -100,7 +103,7 @@ public class LoadUnitAtID extends XMLProcess {
             String barcode = dataArea.getScanData().replaceAll("_","");
             String stationNo = dataArea.getXMLLocation().getMHA();
             Station station = Station.getNormalStation(stationNo);
-//            ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
+//           ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
             Job job=new Job();
             if(StringUtils.isNotBlank(barcode)){
                 job = Job.getByContainer2(barcode,stationNo);
@@ -113,92 +116,17 @@ public class LoadUnitAtID extends XMLProcess {
                 job = (Job) jobQuery.uniqueResult();
             }
             if (job != null && station!=null ) {
-
+                getToLocation(stationNo,job,barcode);
 /*                Job job = Job.getByContainer(barcode);
                 if(job != null){
                     throw new Exception("托盘号已存在" );
                 }*/
-                Container container = Container.getByBarcode(barcode);
+                /*Container container = Container.getByBarcode(barcode);
                 if(container != null){
                     throw new Exception("托盘号已存在" );
-                }
+                }*/
                 //站台判断
-                Location newLocation;
-                if("1101".equals(stationNo)){
-                    //入库站台为1101时
-                    //判断1102是否被禁用
-                    Station station1 = Station.getNormalStation("1102");
-                    if(station1!=null){
-                        //1102没有被禁用，1101分配1号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
-                    }else{
-                        //1102被禁用，1101分配1、2号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
-                    }
 
-                }else {
-                    //入库站台为1102时
-                    //判断1101是否被禁用
-                    Station station1 = Station.getNormalStation("1101");
-                    if(station1!=null){
-                        //1101没有被禁用，1102分配2号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
-                    }else{
-                        //1101被禁用，1102分配1、2号巷道货位
-                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
-                    }
-                }
-                if(newLocation != null) {
-                    newLocation.setReserved(true);
-                }else{
-                    throw new Exception("空货位不足" );
-                }
-
-                //开始
-                //创建ControlArea控制域对象
-                ControlArea ca = new ControlArea();
-                Sender sd = new Sender();
-                sd.setDivision(XMLConstant.COM_DIVISION);
-                ca.setSender(sd);
-
-                RefId ri = new RefId();
-                ri.setReferenceId(Mckey.getNext());
-                ca.setRefId(ri);
-                ca.setCreationDateTime(new DateFormat().format(new Date(), DateFormat.YYYYMMDDHHMMSS));
-                Query query  = HibernateUtil.getCurrentSession().createQuery("from MCar where position =:po and level =:lv");
-                query.setParameter("po",newLocation.getPosition());
-                query.setParameter("lv",newLocation.getLevel());
-                query.setMaxResults(1);
-                MCar mCar = (MCar) query.uniqueResult();
-
-                //创建TransportOrderDA数据域对象
-                TransportOrderDA toa = new TransportOrderDA();
-                toa.setTransportType(TransportType.PUTAWAY);
-                ToLocation toLocation = new ToLocation();
-                toLocation.setMHA(mCar.getBlockNo());
-                List<String> racks = new ArrayList<>();
-                racks.add(newLocation.getBank()+"");
-                racks.add(newLocation.getBay()+"");
-                racks.add(newLocation.getLevel()+"");
-                toLocation.setRack(racks);
-                toa.setToLocation(toLocation);
-                StUnit su = new StUnit();
-                su.setStUnitID(barcode);
-                toa.setStUnit(su);
-                toa.setToLocation(toLocation);
-
-                FromLocation fromLocation = new FromLocation();
-                fromLocation.setMHA(dataArea.getXMLLocation().getMHA());
-                toa.setFromLocation(fromLocation);
-
-                //创建TransportOrder核心对象
-                TransportOrder to = new TransportOrder();
-                to.setControlArea(ca);
-                to.setDataArea(toa);
-                //结束
-                Envelope el = new Envelope();
-                el.setTransportOrder(to);
-                XMLUtil.sendEnvelope(el);
 
 /*                job = new Job();
                 job.setToLocation(newLocation);
@@ -229,6 +157,139 @@ public class LoadUnitAtID extends XMLProcess {
         }
 
     }
+    /*
+     * @author：ed_chen
+     * @date：2018/5/3 16:46
+     * @description：分配货位，并向队列中压入TransportOrder
+     * @param stationNo
+     * @param job
+     * @param barcode
+     * @return：void
+     */
+    public void getToLocation(String stationNo,Job job,String barcode) throws Exception{
+            Location newLocation;
+            if("1101".equals(stationNo)){
+                //入库站台为1101时
+                //判断1102是否被禁用
+                Station station1 = Station.getNormalStation("1102");
+                if(station1!=null){
+                    //1102没有被禁用，1101分配1号巷道货位
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
+                }else{
+                    //1102被禁用，1101分配1、2号巷道货位
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
+                }
+            }else {
+                //入库站台为1102时
+                //判断1101是否被禁用
+                Station station1 = Station.getNormalStation("1101");
+                if(station1!=null){
+                    //1101没有被禁用，1102分配2号巷道货位
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
+                }else{
+                    //1101被禁用，1102分配1、2号巷道货位
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
+                }
+            }
+            if(newLocation != null) {
+                newLocation.setReserved(true);
+            }else{
+                throw new Exception("空货位不足" );
+            }
+            //开始
+            //创建ControlArea控制域对象
+            ControlArea ca = new ControlArea();
+            Sender sd = new Sender();
+            sd.setDivision(XMLConstant.COM_DIVISION);
+            ca.setSender(sd);
 
+            RefId ri = new RefId();
+            ri.setReferenceId(Mckey.getNext());
+            ca.setRefId(ri);
+            ca.setCreationDateTime(new DateFormat().format(new Date(), DateFormat.YYYYMMDDHHMMSS));
+            Query query  = HibernateUtil.getCurrentSession().createQuery("from MCar where position =:po and level =:lv");
+            query.setParameter("po",newLocation.getPosition());
+            query.setParameter("lv",newLocation.getLevel());
+            query.setMaxResults(1);
+            MCar mCar = (MCar) query.uniqueResult();
+
+            //创建TransportOrderDA数据域对象
+            TransportOrderDA toa = new TransportOrderDA();
+            toa.setTransportType(TransportType.PUTAWAY);
+            ToLocation toLocation = new ToLocation();
+            toLocation.setMHA(mCar.getBlockNo());
+            List<String> racks = new ArrayList<>();
+            racks.add(newLocation.getBank()+"");
+            racks.add(newLocation.getBay()+"");
+            racks.add(newLocation.getLevel()+"");
+            toLocation.setRack(racks);
+            toa.setToLocation(toLocation);
+            StUnit su = new StUnit();
+            su.setStUnitID(barcode);
+            toa.setStUnit(su);
+            toa.setToLocation(toLocation);
+
+            FromLocation fromLocation = new FromLocation();
+            fromLocation.setMHA(dataArea.getXMLLocation().getMHA());
+            toa.setFromLocation(fromLocation);
+
+            //创建TransportOrder核心对象
+            TransportOrder to = new TransportOrder();
+            to.setControlArea(ca);
+            to.setDataArea(toa);
+            //结束
+            Envelope el = new Envelope();
+            el.setTransportOrder(to);
+            XMLUtil.sendEnvelope(el);
+
+    }
+
+    public void createJob(String stationNo,){
+        try {
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+
+            Job job = new Job();
+            session.save(job);
+            job.setFromStation(stationNo);
+            job.setContainer(tuopanhao);
+            job.setSendReport(false);
+            job.setCreateDate(new Date());
+            if (zhantai.equals("1101")) {
+                job.setToStation("ML01");
+            }
+            if (zhantai.equals("1301")) {
+                job.setToStation("ML02");
+            }
+            job.setType(AsrsJobType.PUTAWAY);
+            job.setMcKey(Mckey.getNext());
+            job.setStatus(AsrsJobStatus.WAITING);
+
+            JobDetail jobDetail = new JobDetail();
+            session.save(jobDetail);
+            jobDetail.setJob(job);
+            jobDetail.setQty(new BigDecimal(num));
+
+            inventoryView = new InventoryView();
+            session.save(inventoryView);
+            inventoryView.setPalletCode(tuopanhao);
+            inventoryView.setQty(new BigDecimal(num));
+            inventoryView.setSkuCode(commodityCode);
+            inventoryView.setSkuName(sku.getSkuName());
+            inventoryView.setWhCode(sku.getCangkudaima());
+            inventoryView.setLotNum(lotNo);
+
+            returnObj.setSuccess(true);
+            Transaction.commit();
+        } catch (JDBCConnectionException ex) {
+            returnObj.setSuccess(false);
+            returnObj.setMsg(LogMessage.DB_DISCONNECTED.getName());
+
+        } catch (Exception ex) {
+            Transaction.rollback();
+            returnObj.setSuccess(false);
+            returnObj.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
+        }
+    }
 
 }

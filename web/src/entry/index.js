@@ -24,6 +24,7 @@ import SkuQuery from '../components/query/SkuQuery';
 import MessageLogQuery from '../components/query/MessageLogQuery';
 import SendMessage from '../components/query/SendMessage';
 import TransferPanel from '../components/query/TransferPanel';
+import AssignsTheStorehouse from '../components/InOrOut/AssignsTheStorehouse';
 
 class Index extends React.Component {
     constructor(props) {
@@ -52,7 +53,7 @@ class Index extends React.Component {
                     <Route path="/MessageLogQuery" components={MessageLogQuery}/>
                     <Route path="/SendMessage" components={SendMessage}/>
                     <Route path="/TransferPanel" components={TransferPanel}/>
-
+                    <Route path="/AssignsTheStorehouse" components={AssignsTheStorehouse}/>
                 </Route>
                 <Route path="/" component={LoginMain}>
                     <IndexRedirect to="/login"/>
