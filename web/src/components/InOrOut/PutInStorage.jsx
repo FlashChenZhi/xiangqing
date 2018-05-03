@@ -22,9 +22,6 @@ const columns = [{
     title: '货品数量',
     dataIndex: 'qty',
 },{
-    title: '批号',
-    dataIndex: 'lotNo',
-}, {
     title: '类型',
     dataIndex: 'type',
 }, {
@@ -50,12 +47,11 @@ const columns = [{
 let PutInStorage = React.createClass({
     getInitialState(){
         return {
-            tuopanhao: "",//托盘号
-            loading: false,
+            palletCode: "",//托盘号
+            loading: true,
             commodityCodeList:[],//货品代码集合
             commodityCodeFirst:"",//货品代码第一个
             total: 0,//表格数据总行数
-            loading: false,
             selectedData: [],//点击设定提交到后台的数据
             selectedRowKeys: [],
             defaultPageSize:6,
@@ -132,31 +128,29 @@ let PutInStorage = React.createClass({
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
-                let tuopanhao= encodeURI(values.tuopanhao,"utf-8");
-                let zhantai= values.zhantai;
+                let palletCode= encodeURI(values.palletCode,"utf-8");
+                let stationNo= values.stationNo;
                 let commodityCode= values.commodityCode;
-                let num= values.Num;
-                let lotNo = values.lotNo;
+                let num= values.num;
                 reqwest({
                     url: '/wms/master/putInStorage/addTask',
                     dataType: 'json',
                     method: 'post',
-                    data: {tuopanhao: tuopanhao,zhantai:zhantai,commodityCode:commodityCode,lotNo:lotNo,num:num},
+                    data: {palletCode: palletCode,stationNo:stationNo,commodityCode:commodityCode,num:num},
                     success: function (json) {
                         if (!json.success) {
                             message.error(json.msg);
                         } else {
                             message.success("设定任务成功！");
                             this.getData(current);
-
                         }
                         this.props.form.setFieldsValue({
-                            tuopanhao:'',
+                            palletCode:palletCode,
                         });
                     }.bind(this),
                     error: function (err) {
                         message.error("设定任务失败！");
-                        this.handleReset(e);
+                        this.handleReset(err);
                     }.bind(this)
                 })
             }
@@ -224,38 +218,32 @@ let PutInStorage = React.createClass({
             wrapperCol: {span: 14},
         };
 
-        const tuopanhaoProps = getFieldProps('tuopanhao', {
+        const tuopanhaoProps = getFieldProps('palletCode', {
             rules: [{ required: true, message: '请扫描托盘号！' }]
         });
-        const NumProps = getFieldProps('Num', {
+        const NumProps = getFieldProps('num', {
             rules: [{ required: true, message: '请输入数量！' }],
             initialValue:"1",
         });
         const commodityCodeProps = getFieldProps('commodityCode', {
             initialValue:this.state.commodityCodeFirst.id,
         });
-
-        const lotNoProps = getFieldProps('lotNo');
-
         const commodityCodeListSelect =[];
         this.state.commodityCodeList.forEach((commodityCode)=>{
-            commodityCodeListSelect.push(<Option value={commodityCode.id}>{commodityCode.name}</Option>);
+            commodityCodeListSelect.push(<Option value={commodityCode.id}>{commodityCode.skuName}</Option>);
         });
         return (
             <div>
                 <Form horizontal >
                     <FormItem
                         {...formItemLayout}
-                        label="托盘号："
-                    >
-
+                        label="托盘号：">
                         <Input style={{width:"300"}}
                             {...tuopanhaoProps}   placeholder="请扫描托盘号" />
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="商品名称："
-                    >
+                        label="商品名称：">
                         <Select id="select" size="large" style={{ width: 200 }}
                                 {...commodityCodeProps} >
                             {commodityCodeListSelect}
@@ -263,29 +251,16 @@ let PutInStorage = React.createClass({
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="批号："
-                    >
-
-                        <Input style={{width:"300"}}
-                               {...lotNoProps}   placeholder="请输入批号" />
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="数量："
-                    >
-
-                        {/*<Input style={{width:"300"}}*/}
-                               {/*{...NumProps}   placeholder="请输入数量" />*/}
+                        label="数量：">
                         <InputNumber min={1} defaultValue={2}   {...NumProps}  />
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="站台："
-                    >
+                        label="站台：">
                         <Select id="select" size="large" defaultValue="1101" style={{ width: 200 }}
-                        {...getFieldProps('zhantai', { initialValue: '1101' })} >
+                        {...getFieldProps('stationNo', { initialValue: '1101' })} >
                             <Option value="1101">1101</Option>
-                            <Option value="1301">1301</Option>
+                            <Option value="1102">1102</Option>
                         </Select>
                     </FormItem>
                     <FormItem wrapperCol={{offset: 6}}>

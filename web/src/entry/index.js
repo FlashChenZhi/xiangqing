@@ -20,10 +20,13 @@ import InventoryOutQuery from '../components/InOrOut/InventoryOutQuery';
 import AsrsJobQuery from '../components/query/AsrsJobQuery';
 import RecvPlanQuery from '../components/query/RecvPlanQuery';
 import SystemLogQuery from '../components/query/SystemLogQuery';
-import SkuQuery from '../components/query/SkuQuery';
 import MessageLogQuery from '../components/query/MessageLogQuery';
 import SendMessage from '../components/query/SendMessage';
 import TransferPanel from '../components/query/TransferPanel';
+import StationStatusSwitch from '../components/InOrOut/StationStatusSwitch';
+import PlatformSwitch from '../components/InOrOut/PlatformSwitch';
+import PutInStorage from '../components/InOrOut/PutInStorage';
+
 
 class Index extends React.Component {
     constructor(props) {
@@ -52,7 +55,9 @@ class Index extends React.Component {
                     <Route path="/MessageLogQuery" components={MessageLogQuery}/>
                     <Route path="/SendMessage" components={SendMessage}/>
                     <Route path="/TransferPanel" components={TransferPanel}/>
-
+                    <Route path="/StationStatusSwitch" components={StationStatusSwitch}/>
+                    <Route path="/PlatformSwitch" components={PlatformSwitch}/>
+                    <Route path="/PutInStorage" components={PutInStorage}/>
                 </Route>
                 <Route path="/" component={LoginMain}>
                     <IndexRedirect to="/login"/>

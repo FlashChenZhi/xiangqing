@@ -32,19 +32,20 @@ public class PutInStorageService {
      * @return
      * @throws IOException
      */
-    public ReturnObj<List<SkuVo2>> getCommodityCode() {
+    public ReturnObj<List<Sku>> getCommodityCode() {
         System.out.println("进入获取商品代码方法！");
-        ReturnObj<List<SkuVo2>> returnObj = new ReturnObj<>();
+        ReturnObj<List<Sku>> returnObj = new ReturnObj<>();
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
             Query query = session.createQuery("from Sku");
             List<Sku> skuList = query.list();
-            List<SkuVo2> mapList = new ArrayList<>();
+            List<Sku> mapList = new ArrayList<>();
             for (Sku sku : skuList) {
-                SkuVo2  vo= new SkuVo2();
-                vo.setId(sku.getSkuCode());
-                vo.setName(sku.getSkuName());
+                Sku  vo= new Sku();
+                vo.setId(sku.getId());
+                vo.setSkuCode(sku.getSkuCode());
+                vo.setSkuName(sku.getSkuName());
                 mapList.add(vo);
             }
             returnObj.setSuccess(true);
@@ -72,12 +73,14 @@ public class PutInStorageService {
      * @throws IOException
      */
 
-    public BaseReturnObj addTask(String palletCode, String stationNo, String skuName, String lotNo, int num) {
+    public BaseReturnObj addTask(String palletCode, String stationNo, String skuName, int num) {
         BaseReturnObj returnObj = new BaseReturnObj();
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            Sku sku = Sku.getByCode(skuName);
+            Sku sk=new Sku();
+            sk.setSkuName(skuName);
+            Sku sku = Sku.getByCode(sk.getSkuCode());
             if (sku == null) {
                 returnObj.setSuccess(false);
                 returnObj.setMsg("商品不存在!");
@@ -127,9 +130,7 @@ public class PutInStorageService {
             inventoryView.setQty(new BigDecimal(num));
             inventoryView.setSkuName(skuName);
             inventoryView.setSkuName(sku.getSkuName());
-//          inventoryView.setWhCode(sku.getCangkudaima());
-            inventoryView.setLotNum(lotNo);
-
+            inventoryView.setLotNum(null);
             returnObj.setSuccess(true);
             Transaction.commit();
         } catch (JDBCConnectionException ex) {
@@ -158,7 +159,9 @@ public class PutInStorageService {
             //根据Job表和InventoryView表查找相关信息(ID,创建时间，任务号，托盘号，数量，商品代码，商品名称，源站台和目标站台，最少量)
             Query query1 = session.createQuery("select j.id as id,j.createDate as createDate,j.mcKey as mcKey,j.container as containerId,b.qty as qty, " +
                     "b.skuCode as skuCode,b.skuName as skuName,j.fromStation as fromStation,j.toStation as toStation,b.lotNum as lotNo, " +
-                    "case j.type when '01' then '入库' when '03' then '出库' else '其他' end as type,j.status as status " +
+                    "case j.type when '01' then '入库' when '03' then '出库' else '其他' end as type," +
+                    "case j.status when '0' then '就绪' when '1' then '准备运行' when '2' then '正在运行' when '3' then '完成'" +
+                    " when '8' then '异常' else '其他' end as status " +
                     "from Job j, InventoryView b where j.container=b.palletCode order by j.createDate desc,j.id desc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             Query query2 = session.createQuery("select count(*) from Job j, InventoryView b where  j.container=b.palletCode");
             query1.setFirstResult(startIndex);

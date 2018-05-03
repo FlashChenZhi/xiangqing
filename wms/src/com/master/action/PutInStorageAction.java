@@ -5,6 +5,7 @@ import com.master.vo.SkuVo2;
 import com.util.common.BaseReturnObj;
 import com.util.common.PagerReturnObj;
 import com.util.common.ReturnObj;
+import com.wms.domain.Sku;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,8 +30,7 @@ public class PutInStorageAction {
      */
     @RequestMapping(value = "/getCommodityCode",method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObj<List<SkuVo2>> getCommodityCode() throws IOException{
-
+    public ReturnObj<List<Sku>> getCommodityCode(){
         return putInStorageService.getCommodityCode();
     }
     /**
@@ -44,10 +44,10 @@ public class PutInStorageAction {
      */
     @RequestMapping(value = "/addTask",method = RequestMethod.POST)
     @ResponseBody
-    public BaseReturnObj addTask(String palletCode, String stationNo, String skuName, String lotNo, int num) throws IOException{
+    public BaseReturnObj addTask(String palletCode, String stationNo, String skuName,int num) throws IOException{
         palletCode = URLDecoder.decode(palletCode,"utf-8");
         System.out.println("托盘号："+palletCode+";站台："+stationNo+";商品名称："+skuName+";数量："+num);
-        return putInStorageService.addTask(palletCode,stationNo,skuName,lotNo,num);
+        return putInStorageService.addTask(palletCode,stationNo,skuName,num);
     }
     /*
      * @author：ed_chen
@@ -58,7 +58,7 @@ public class PutInStorageAction {
      */
     @RequestMapping(value = "/findPutInStorageOrder",method = RequestMethod.POST)
     @ResponseBody
-    public PagerReturnObj<List<Map<String,Object>>> findPutInStorageOrder(int current, int defaultPageSize) throws IOException{
+    public PagerReturnObj<List<Map<String,Object>>> findPutInStorageOrder(int current, int defaultPageSize){
         int startIndex = (current-1)*defaultPageSize;
         return  putInStorageService.findPutInStorageOrder(startIndex,defaultPageSize);
     }
@@ -71,7 +71,7 @@ public class PutInStorageAction {
      */
     @RequestMapping(value = "/deleteTask",method = RequestMethod.POST)
     @ResponseBody
-    public BaseReturnObj deleteTask(String selectedRowKeysString) throws IOException{
+    public BaseReturnObj deleteTask(String selectedRowKeysString){
         System.out.println(selectedRowKeysString);
         return putInStorageService.deleteTask(selectedRowKeysString);
     }
