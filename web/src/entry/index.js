@@ -25,7 +25,7 @@ import SendMessage from '../components/query/SendMessage';
 import TransferPanel from '../components/query/TransferPanel';
 import StationStatusSwitch from '../components/InOrOut/StationStatusSwitch';
 import PlatformSwitch from '../components/InOrOut/PlatformSwitch';
-import PutInStorage from '../components/InOrOut/PutInStorage';
+
 
 
 class Index extends React.Component {
