@@ -12,39 +12,46 @@ let PlatformSwitch = React.createClass({
         return {
             loading: false,
             selectedRowKeys: [],
-            zhantai:"1301",
+            stationNo:this.stationNo,
+            direction:this.direction,
         };
     },
     componentDidMount(){
         this.findPlatformSwitch();
     },
     findPlatformSwitch(){
-        let zhantai = this.state.zhantai;
-        console.log(zhantai);
+        let stationNo = this.state.stationNo;
+        let direction=this.state.direction;
+        console.log(stationNo);
         reqwest({
             url: '/wcs/platformSwitch/findPlatformSwitch.do',
             dataType: 'json',
             method: 'post',
-            data: {zhantai:zhantai},
+            data: {stationNo:stationNo,direction:direction},
             success: function (json) {
                 if(json.success){
-
-                    if(json.res=="03"){
+                    if(json.stationNo=="1303"){
                         this.props.form.setFieldsValue({
-                            pattern: "03",
-                        });
-                    }else if (json.res=="01"){
-                        this.props.form.setFieldsValue({
-                            pattern: "01",
+                            stationNo: stationNo,
                         });
                     }
-                }else{
-                    message.error("初始化站台模式失败！");
+                    if(json.direction=="1"){
+                        this.props.form.setFieldsValue({
+                            direction: direction,
+                        });
+                    }else if (json.direction=="0"){
+                        this.props.form.setFieldsValue({
+                            direction: direction,
+                        });
+                    }
                 }
+                // else{
+                //     message.error("初始化站台模式失败！");
+                // }
             }.bind(this),
             error: function (err) {
                 message.error("初始化站台模式失败！");
-                this.handleReset(e);
+                this.handleReset(err);
             }.bind(this)
         })
     },
@@ -53,24 +60,25 @@ let PlatformSwitch = React.createClass({
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
-                let pattern= values.pattern;
-                let zhantai= values.zhantai;
+                let direction= values.direction;
+                let stationNo= values.stationNo;
                 reqwest({
                     url: '/wcs/platformSwitch/updatePlatformSwitch.do',
                     dataType: 'json',
                     method: 'post',
-                    data: {pattern: pattern,zhantai:zhantai},
+                    data: {stationNo: stationNo,direction:direction},
                     success: function (json) {
                         if (!json.success) {
                             message.error(json.msg);
                         } else {
-                            message.success("模式切换成功！");
+                            message.success(json.msg);
                         }
                         // this.handleReset(e);
                     }.bind(this),
                     error: function (err) {
                         message.error("模式切换失败！");
-                        this.handleReset(e);
+                        this.handleReset(err);
+                        this.handleReset(err);
                     }.bind(this)
                 })
             }
@@ -88,10 +96,10 @@ let PlatformSwitch = React.createClass({
     onChange(value){
         console.log(value);
         this.setState({
-            zhantai:value,
+            stationNo:value,
         });
         this.props.form.setFieldsValue({
-            zhantai: value,
+            stationNo: value,
         });
     },
 
@@ -110,19 +118,19 @@ let PlatformSwitch = React.createClass({
                         {...formItemLayout}
                         label="站台："
                     >
-                        <Select id="select" size="large" defaultValue="1301" style={{ width: 200 }}
-                                {...getFieldProps('zhantai', { initialValue: '1301' })} onChange={this.onChange}>
-                            <Option value="1301">1301</Option>
+                        <Select id="select" size="large" defaultValue="1303" style={{ width: 200 }}
+                                {...getFieldProps('stationNo', { initialValue: '1303' })} onChange={this.onChange}>
+                            <Option value="1303">1301</Option>
                         </Select>
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="模式："
+                        label="转向："
                     >
-                        <Select id="select" size="large" defaultValue="01" style={{ width: 200 }}
-                                {...getFieldProps('pattern', { initialValue: '01' })} >
-                            <Option value="01">入库</Option>
-                            <Option value="03">出库</Option>
+                        <Select id="select" size="large" defaultValue="1" style={{ width: 200 }}
+                                {...getFieldProps('direction', { initialValue: '1' })} >
+                            <Option value="1">1201站台</Option>
+                            <Option value="0">1203站台</Option>
                         </Select>
                     </FormItem>
                     <br/><br/>

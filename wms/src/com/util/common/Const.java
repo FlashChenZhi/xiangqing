@@ -14,6 +14,11 @@ public class Const {
 
     public static final int bankCount = 50;
     public static final int bayCount = 27;
+    public static final int containerQty = 1;//每个托盘所载货物数量
+    public static final String containerCode = "XQSpringWater";//每个托盘的托盘号
+    public static final String skuCode = "SpringWater";//商品代码
+    public static final String skuName = "SpringWater";//商品名称
+    public static final String warehouseCode = "ck";//仓库代码
 
     public final static String OP_LOG_NAME = "opLog";
 
