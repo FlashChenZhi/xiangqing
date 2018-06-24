@@ -1,9 +1,12 @@
 package com.thread.blocks;
 
+import com.asrs.domain.ScarChargeLocation;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
+import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Administrator on 2016/12/12.
@@ -154,4 +157,6 @@ public class SCar extends Block {
         query.setMaxResults(1);
         return (SCar) query.uniqueResult();
     }
+
+
 }

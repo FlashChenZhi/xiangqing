@@ -1,9 +1,7 @@
 package com.thread.threads.operator;
 
 import com.asrs.message.Message03;
-import com.thread.blocks.Conveyor;
-import com.thread.blocks.Srm;
-import com.thread.blocks.StationBlock;
+import com.thread.blocks.*;
 import com.thread.utils.MsgSender;
 import org.apache.commons.lang3.StringUtils;
 
@@ -55,8 +53,15 @@ public class StationOperator {
             if (StringUtils.isBlank(nextBlock.getMcKey())
                     && StringUtils.isBlank(nextBlock.getReservedMcKey())
                     && !nextBlock.isWaitingResponse()) {
-                MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
-                MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", stationBlock.getBlockNo(), "", "");
+                /*Block byBlockNo2 = Block.getByBlockNo("0038");
+                Block byBlockNo3 = Block.getByBlockNo("0040");
+                if((nextBlock.getBlockNo().equals("0041")&&StringUtils.isNotBlank(byBlockNo3.getMcKey())&&stationBlock.getBlockNo().equals("0039"))
+                        || (nextBlock.getBlockNo().equals("0035")&&StringUtils.isNotBlank(byBlockNo2.getMcKey())&&stationBlock.getBlockNo().equals("0037"))) {
+
+                }else{*/
+                    MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
+                    MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", stationBlock.getBlockNo(), "", "");
+                /*}*/
             }
         }
 
@@ -69,6 +74,18 @@ public class StationOperator {
      * @throws Exception
      */
     public void tryMoveToSrm(Srm nextBlock) throws Exception {
+        if (stationBlock.getBlockNo().equals(nextBlock.getDock()) && StringUtils.isBlank(nextBlock.getMcKey())) {
+            MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
+        }
+    }
+
+    /**
+     * 已在卸货到提升机
+     *
+     * @param nextBlock
+     * @throws Exception
+     */
+    public void tryMoveToLift(Lift nextBlock) throws Exception {
         if (stationBlock.getBlockNo().equals(nextBlock.getDock()) && StringUtils.isBlank(nextBlock.getMcKey())) {
             MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
         }

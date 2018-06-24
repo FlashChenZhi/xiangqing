@@ -21,15 +21,12 @@ import com.domain.XMLbean.XMLList.DataArea.*;
 import com.domain.XMLbean.XMLList.LoadUnitAtID;
 import com.domain.consts.xmlbean.XMLConstant;
 import com.thread.blocks.*;
-import com.util.common.BaseReturnObj;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.JDBCConnectionException;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,12 +81,12 @@ public class Msg50Proc implements MsgProcess {
 
                         Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
                         if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
-                            /*//有子车电量不足
-                            List<SCar> sCars = HibernateUtil.getCurrentSession().createQuery("from SCar where power<30 and wareHouse=:po").setParameter("po", block1.getWareHouse()).list();
-                            List<AsrsJob> chargeJob = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:tp and wareHouse=:wh").setParameter("tp", AsrsJobType.RECHARGED)
-                                    .setParameter("wh", block1.getWareHouse()).list();
+                            //有子车电量不足
+//                            List<SCar> sCars = HibernateUtil.getCurrentSession().createQuery("from SCar where power<30 and wareHouse=:po").setParameter("po", block1.getWareHouse()).list();
+//                            List<AsrsJob> chargeJob = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:tp and wareHouse=:wh").setParameter("tp", AsrsJobType.RECHARGED)
+//                                    .setParameter("wh", block1.getWareHouse()).list();
 
-                            if (sCars.isEmpty() && chargeJob.isEmpty()) {*/
+                            //if (sCars.isEmpty() && chargeJob.isEmpty()) {
                                 for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
                                     for (Map.Entry<String, String> entry2 : entry1.getValue().entrySet()) {
                                         if (entry2.getValue().indexOf("???") == -1) {
@@ -132,7 +129,7 @@ public class Msg50Proc implements MsgProcess {
                                             xmlMessage.setStatus("1");
                                             xmlMessage.setRecv("WMS");
                                             xmlMessage.setMessageInfo(XMLUtil.getSendXML(envelope));
-                                           // HibernateUtil.getCurrentSession().save(xmlMessage);
+                                            HibernateUtil.getCurrentSession().save(xmlMessage);
                                             XMLUtil.sendEnvelope(envelope);
 
                                             block1.setLoad("1");
@@ -143,10 +140,10 @@ public class Msg50Proc implements MsgProcess {
                                     }
                                 }
 
-                           /* } else {
-                                SystemLog.error("子车存在充电任务");
-                                InMessage.error(blockNo,"子车存在充电任务");
-                            }*/
+//                            } else {
+//                                SystemLog.error("子车存在充电任务");
+//                                InMessage.error(blockNo,"子车存在充电任务");
+//                            }
                         } else {
 
 
@@ -182,10 +179,11 @@ public class Msg50Proc implements MsgProcess {
                                 if (asrsJob != null) {
                                     if (asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
 //                                        asrsJob.delete();
+                                        block1.setMcKey(null);
                                     } else {
                                         asrsJob.setStatus(AsrsJobStatus.DONE);
+                                        block1.setMcKey(null);
                                     }
-                                    block1.setMcKey(null);
                                 }
                             }
                         }
@@ -198,9 +196,6 @@ public class Msg50Proc implements MsgProcess {
             Transaction.rollback();
         }
     }
-
-
-
 
 }
 

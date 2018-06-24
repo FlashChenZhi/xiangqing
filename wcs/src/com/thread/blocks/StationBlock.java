@@ -18,6 +18,7 @@ public class StationBlock extends Block {
     private String buffMckey;
     private String load;
     private String inPostion;
+    private boolean manty;
     private Integer groupNo;//组号，绑定出库双站台
     private boolean outLoad;//出库时候货位是否身上
 
@@ -40,6 +41,7 @@ public class StationBlock extends Block {
     public void setGroupNo(Integer group) {
         this.groupNo = group;
     }
+
     @Basic
     @Column(name = "stationNo")
     public String getStationNo() {
@@ -98,6 +100,17 @@ public class StationBlock extends Block {
 
     public void setInPostion(String inPostion) {
         this.inPostion = inPostion;
+    }
+
+
+    @Basic
+    @Column(name = "MANTY")
+    public boolean isManty() {
+        return manty;
+    }
+
+    public void setManty(boolean manty) {
+        this.manty = manty;
     }
 
     public static StationBlock getByStationNo(String stationNo) {

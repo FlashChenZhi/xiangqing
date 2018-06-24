@@ -18,6 +18,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thread.blocks.*;
+import com.util.common.LogWriter;
+import com.util.common.LoggerType;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang.StringUtils;
@@ -112,14 +114,14 @@ public class TransportOrder extends XMLProcess {
             if (asrsJobs.isEmpty()) {
                 System.out.println("接受任务");
 
-                /*Query jq = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type =:tp1 or type =:tp2");
-                jq.setParameter("tp1", AsrsJobType.RECHARGED);
-                jq.setParameter("tp2", AsrsJobType.RECHARGEDOVER);
-                List<AsrsJob> jobs = jq.list();
-                if (!jobs.isEmpty()) {
-                    throw new Exception("存在充电任务");
-                }
-*/
+//                Query jq = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type =:tp1 or type =:tp2");
+//                jq.setParameter("tp1", AsrsJobType.RECHARGED);
+//                jq.setParameter("tp2", AsrsJobType.RECHARGEDOVER);
+//                List<AsrsJob> jobs = jq.list();
+//                if (!jobs.isEmpty()) {
+//                    throw new Exception("存在充电任务");
+//                }
+
                 if (AsrsJobType.PUTAWAY.equals(dataArea.getTransportType())) {
 
                     String fromStation = dataArea.getFromLocation().getMHA();
@@ -161,7 +163,7 @@ public class TransportOrder extends XMLProcess {
                     stationBlock.setWaitingResponse(false);
                     session.saveOrUpdate(stationBlock);
 
-
+                    asrsJob.setFromStation(stationBlock.getBlockNo());
                     asrsJob.setToStation(srm.getBlockNo());
                     stationBlock.setLoad("0");
                     asrsJob.setWareHouse(srm.getWareHouse());
@@ -205,8 +207,15 @@ public class TransportOrder extends XMLProcess {
             sendReport("00");
             Transaction.commit();
         }catch (Exception e) {
+            LogWriter.error(LoggerType.ERROR, LogWriter.getStackTrace(e));
             Transaction.rollback();
+
             e.printStackTrace();
+            try{
+                sendReport(e.getMessage());
+            }catch (Exception e1){
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -243,12 +252,14 @@ public class TransportOrder extends XMLProcess {
         //将MovementReport发送给wms
         Envelope el = new Envelope();
         el.setAcceptTransportOrder(acceptTransportOrder);
+        XMLUtil.sendEnvelope(el);
 
         XMLMessage xmlMessage = new XMLMessage();
         xmlMessage.setStatus("1");
         xmlMessage.setRecv("WMS");
         xmlMessage.setMessageInfo(XMLUtil.getSendXML(el));
         HibernateUtil.getCurrentSession().save(xmlMessage);
+
 
 
     }

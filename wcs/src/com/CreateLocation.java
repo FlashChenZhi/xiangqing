@@ -1,8 +1,8 @@
 package com;
 
 import com.asrs.business.consts.ReasonCode;
-import com.asrs.domain.AsrsJob;
-import com.asrs.domain.Location;
+import com.asrs.business.msgProc.Msg35Proc;
+import com.asrs.domain.*;
 import com.asrs.xml.util.XMLUtil;
 import com.domain.XMLbean.Envelope;
 import com.domain.XMLbean.XMLList.ControlArea.ControlArea;
@@ -16,9 +16,13 @@ import com.domain.XMLbean.XMLList.MovementReport;
 import com.domain.consts.xmlbean.XMLConstant;
 import com.thread.blocks.Block;
 import com.thread.blocks.Conveyor;
+import com.thread.blocks.SCar;
+import com.util.common.LogWriter;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,7 +37,7 @@ public class CreateLocation {
 
 //        for (int i = 1; i <= 27; i++) {
         Transaction.begin();
-//
+
 //            org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("from Location where level = 3 and bay=:bk and actualArea='2' and position ='1' order by bank asc");
 //            query.setParameter("bk", i);
 //            List<Location> locations = query.list();
@@ -43,16 +47,32 @@ public class CreateLocation {
 //                seq--;
 //            }
 
-        oneToEight("1");
+        //oneToEight("1");
+//        double count=5;
+//        if(count>3){
+//            float i = 8;
+//            float j = 3;
+//            float qqq = i / j;
+//            System.out.println(qqq);
+//            count = Math.ceil(qqq);
+//        }
+//        System.out.println(count);
 
 
-//        Conveyor conveyor = new Conveyor();
-//        conveyor.setBlockNo("0068");
-//        conveyor.setPlcName("BL01");
-//        conveyor.setManty(false);
+
+        LogWriter.writeError(Msg35Proc.class, "20180528test");
+//        for ( int i=0; i<10 ; i++){
+//            System.out.println(i);
 //
-//        HibernateUtil.getCurrentSession().save(conveyor);
-
+//            if(i>5){
+//                Query qq = HibernateUtil.getCurrentSession().createQuery("from WcsMessage ")
+//                        .setMaxResults(1);
+//                WcsMessage wcsMessage1 = (WcsMessage) qq.uniqueResult();
+//                System.out.println(wcsMessage1.getMcKey());
+//                break;
+//            }else {
+//            }
+//        }
         Transaction.commit();
 //
 //        }

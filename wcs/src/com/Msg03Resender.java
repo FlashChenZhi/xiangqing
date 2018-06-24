@@ -24,13 +24,7 @@ public class Msg03Resender {
                 Transaction.begin();
                 Session session = HibernateUtil.getCurrentSession();
 
-                long nowSecond = (new Date()).getTime();
-                int overSeconds = 5000;
-                long overTimeSecond = nowSecond - overSeconds;
-                Date overTime = new Date(overTimeSecond);
-
-                org.hibernate.Query q = session.createQuery("from WcsMessage m where m.received = false and m.lastSendDate >:overTime order by m.lastSendDate")
-                        .setDate("overTime", overTime)
+                org.hibernate.Query q = session.createQuery("from WcsMessage m where m.received = false and datediff(second,LASTSENDDATE , GETDATE())>= 2 order by m.lastSendDate")
                         .setMaxResults(1);
 
                 WcsMessage msg03 = (WcsMessage) q.uniqueResult();
@@ -102,7 +96,7 @@ public class Msg03Resender {
 
                     Thread.sleep(50);
                 }else{
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
                 }
 
                 Transaction.commit();

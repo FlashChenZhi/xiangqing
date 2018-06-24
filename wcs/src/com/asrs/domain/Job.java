@@ -1,7 +1,8 @@
-package com.web.vo;
+package com.asrs.domain;
 
-import com.asrs.business.consts.AsrsJobStatus;
 import com.util.hibernate.HibernateUtil;
+import com.asrs.domain.JobDetail;
+import com.asrs.domain.Location;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -59,6 +60,18 @@ public class Job {
         _fromStation = fromStation;
     }
 
+
+    private String finalLoc;
+
+    @Basic
+    @Column(name = "FINALLOC")
+    public String getFinalLoc() {
+        return finalLoc;
+    }
+
+    public void setFinalLoc(String finalLoc) {
+        this.finalLoc = finalLoc;
+    }
     private BigDecimal qty;
 
     @Basic
@@ -168,6 +181,16 @@ public class Job {
         this.lotNum = lotNum;
     }
 
+    private String yl_lot_num;
+    @Basic
+    @Column(name = "YLLOTNUM")
+    public String getYLLOTNUM() {
+        return yl_lot_num;
+    }
+
+    public void setYLLOTNUM(String yl_lot_num) {
+        this.yl_lot_num = yl_lot_num;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -273,13 +296,78 @@ public class Job {
         this.orderNo = orderNo;
     }
 
-    /**
-     * JobLog 标记log
-     */
-    public void writeLog() {
+    public void asrsDone() {
+//        Session session = HibernateUtil.getCurrentSession();
+//
+//        writeLog();
+//
+//        this.getAsrsJob().writeLog();
+//
+//        boolean picking = false;
+//        if (this.getType().equals(JobType.PUTAWAY)) {
+//            this.getToLocation().setEmpty(false);
+//            this.getToLocation().setReserved(false);
+//            this.getContainer().setLocation(this.getToLocation());
+//            if(this.getContainer().getPutawayDate() == null) {
+//                this.getContainer().setPutawayDate(new Date());
+//                ContainerInfo ci = ContainerInfo.getByBarcode(this.getContainer().getBarcode());
+//                if(ci != null){
+////                    ci.setProcessed(false);
+//                    ci.setStatus(ContainerInfoStatus.STORAGE);
+//                }
+//            }
+//            for (In inventory : this.getContainer().getInventories()) {
+//                inventory.setAvailableQty(inventory.getQty());
+//                this.getToLocation().setInvHash(inventory.getInvHash());
+//            }
+//        } else if (this.getType().equals(JobType.RETRIEVAL)) {
+//            this.getFromLocation().setEmpty(true);
+//            this.getFromLocation().setReserved(false);
+//            this.getFromLocation().getContainers().remove(this.getContainer());
+//            this.getFromLocation().setInvHash(-1);
+//
+//            for(JobDetail jd : this.getJobDetails()){
+//                JobPlan jp = jd.getJobPlan();
+//                if(jp != null){
+//                    jp.setDoneQty(jp.getDoneQty() + jd.getQty());
+//                }
+//            }
+//            for(In inventory : this.getContainer().getInventories()){
+//                if(inventory.getAvailableQty() != 0){
+//                    picking = true;
+//                    break;
+//                }
+//            }
+//        } else if (this.getType().equals(JobType.CYCLECOUNT)) {
+//            this.getFromLocation().setReserved(false);
+//            this.getFromLocation().setCyclecounting(false);
+//            this.getContainer().setReserved(false);
+//        }
+//
+//        //delete job
+//        session.delete(this);
+//
+//        if (this.getType().equals(JobType.RETRIEVAL)) {
+//            if(!picking) {
+//                session.delete(this.getContainer());
+//            }else {
+//                for (In inventory : this.getContainer().getInventories()) {
+//                    inventory.setQty(inventory.getAvailableQty());
+//                    inventory.setAvailableQty(0);
+//                }
+//                this.getContainer().setLocation(Location.getByLocationNo(Const.PICKBACK_AREA));
+//                this.getContainer().setReserved(false);
+//            }
+//        }
+    }
+
+    /*public void writeLog() {
         Session session = HibernateUtil.getCurrentSession();
+
         JobLog jl = new JobLog();
+
         session.save(jl);
+
         jl.setContainer(this.getContainer());
         jl.setCreateDate(new Date());
         jl.setCreateUser(this.getCreateUser());
@@ -293,8 +381,41 @@ public class Job {
         jl.setToStation(this.getToStation());
         jl.setType(this.getType());
 
-    }
+    }*/
 
+    public void asrsCancel() {
+//        Session session = HibernateUtil.getCurrentSession();
+//
+//        this.getAsrsJob().writeLog();
+//
+//        if (this.getType().equals(JobType.PUTAWAY)) {
+//            if (this.getToLocation() != null) {
+//                this.getToLocation().setReserved(false);
+//            }
+//            this.getContainer().setReserved(false);
+//            if(Const.PUTAWAY_AREA.equals(this.getContainer().getLocation().getLocationNo())) {
+//                HibernateUtil.getCurrentSession().delete(this.getContainer());
+//            }
+//        } else if (this.getType().equals(JobType.RETRIEVAL)) {
+//            this.getFromLocation().setReserved(false);
+//            this.getContainer().setReserved(false);
+//            for(In inventory : this.getContainer().getInventories()){
+//                inventory.setAvailableQty(inventory.getQty());
+//            }
+//            for(JobDetail jd : this.getJobDetails()){
+//                JobPlan jp = jd.getJobPlan();
+//                if(jp != null){
+//                    jp.setAllocateQty(jp.getAllocateQty() - jd.getQty() - jp.getCancelQty());
+//                    jp.setCancelQty(0);
+//                }
+//            }
+//        } else if (this.getType().equals(JobType.CYCLECOUNT)) {
+//            this.getFromLocation().setReserved(false);
+//            this.getFromLocation().setCyclecounting(false);
+//        }
+//
+//        session.delete(this);
+    }
 
     public static Job getById(int id) {
         return (Job) HibernateUtil.getCurrentSession().get(Job.class, id);
@@ -307,6 +428,36 @@ public class Job {
         return (Job) q.uniqueResult();
     }
 
+
+    public void pickingCancel() {
+//        Session session = HibernateUtil.getCurrentSession();
+//
+//        this.getFromLocation().setReserved(false);
+//        this.getFromLocation().setEmpty(true);
+//        this.getFromLocation().setCyclecounting(false);
+//        this.getFromLocation().getContainers().remove(this.getContainer());
+//        this.getContainer().setReserved(false);
+//        this.writeLog();
+//
+//        this.getAsrsJob().writeLog();
+//
+//
+//        if(JobType.CYCLECOUNT.equals(this.getType())) {
+//            this.getContainer().setLocation(Location.getByLocationNo(Const.CYCLECOUNT_AREA));
+//        }else{
+//            this.getContainer().setLocation(Location.getByLocationNo(Const.PICKBACK_AREA));
+//            for(In inventory : this.getContainer().getInventories()){
+//                inventory.setQty(inventory.getAvailableQty());
+//            }
+//        }
+//        for(In inventory : this.getContainer().getInventories()){
+//            inventory.setAvailableQty(0);
+//        }
+//
+//        session.delete(this);
+
+    }
+
     public static Job getByContainer(String fromLpnID) {
         Session session = HibernateUtil.getCurrentSession();
         Query q = session.createQuery(" from Job j where j.container = :container")
@@ -314,19 +465,4 @@ public class Job {
         return (Job) q.uniqueResult();
 
     }
-
-    /**
-     * 获取该托盘Job信息
-     * @param fromLpnID
-     * @param stationNo
-     * @return
-     */
-//    public static Job getByContainer2(String fromLpnID,String stationNo) {
-//        Session session = HibernateUtil.getCurrentSession();
-//        Query q = session.createQuery(" from Job j where j.container = :container and j.fromStation = :station and j.status = :waiting")
-//                .setString("container", fromLpnID).setString("station",stationNo)
-//                .setString("waiting", AsrsJobStatus.WAITING);
-//        return (Job) q.uniqueResult();
-//    }
-
 }

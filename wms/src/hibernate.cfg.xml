@@ -5,7 +5,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="current_session_context_class">thread</property>
-        <property name="connection.url">jdbc:sqlserver://192.168.11.3:1433;DatabaseName=xiangqing</property>
+        <property name="connection.url">jdbc:sqlserver://127.0.0.1:1433;DatabaseName=xiangqing</property>
         <property name="hibernate.connection.username">xiangqing</property>
         <property name="connection.password">xiangqing</property>
         <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
@@ -59,5 +59,6 @@
         <mapping class="com.wms.domain.JobLog"/>
         <mapping class="com.wms.domain.SystemLog"/>
         <mapping class="com.wms.domain.Configuration"/>
+        <mapping class="com.wms.domain.ScarChargeLocation"/>
     </session-factory>
 </hibernate-configuration>

@@ -49,6 +49,9 @@ public class MCarAndScarStsService extends MCarServiceImpl {
             //堆垛机上有子车
             Location location = Location.getByLocationNo(asrsJob.getToLocation());
             operator.tryUnLoadCarToLocation(location);
+        } else {
+            //提升机去找子车，接子车
+            operator.tryLoadCar();
         }
     }
 }

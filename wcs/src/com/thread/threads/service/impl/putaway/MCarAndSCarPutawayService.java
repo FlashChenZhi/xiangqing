@@ -10,7 +10,7 @@ import com.thread.blocks.SCar;
 import com.thread.threads.operator.MCarOperator;
 import com.thread.threads.service.impl.MCarServiceImpl;
 import com.thread.utils.MsgSender;
-import org.apache.commons.lang3.StringUtils;
+import com.util.common.StringUtils;
 
 /**
  * Created by van on 2018/2/1.
@@ -28,18 +28,14 @@ public class MCarAndSCarPutawayService extends MCarServiceImpl {
     public void withReserveMckey() throws Exception {
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
         MCarOperator operator = new MCarOperator(mCar, asrsJob.getMcKey());
-
-
-        if(mCar.getGroupNo()!=null){
+        if(mCar.getGroupNo()!=null) {
             //若绑定有子车
             if (StringUtils.isNotEmpty(mCar.getsCarBlockNo())) {
                 //提升机上有子车，提升机准备去接货
                 operator.tryCarryGoods();
             } else {
                 SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
-                //优先接货
-                if(StringUtils.isEmpty(sCar.getOnMCar()))
-                    //子车不在母车上先去接货（入库）
+                if (StringUtils.isEmpty(sCar.getOnMCar()))
                     operator.tryCarryGoods();
             }
         }
@@ -78,6 +74,7 @@ public class MCarAndSCarPutawayService extends MCarServiceImpl {
         }else {
             Block nextBlock = mCar.getNextBlock(asrsJob.getType(), asrsJob.getToStation());
                 operator.tryUnloadGoodsToConvery((Conveyor) nextBlock);
+
         }
 
     }

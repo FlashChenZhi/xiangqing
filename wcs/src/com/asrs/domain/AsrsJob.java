@@ -5,7 +5,6 @@ import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
 
 import javax.persistence.*;
-import javax.persistence.Version;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +29,7 @@ public class AsrsJob {
     public static final String __ID = "id";
     public static final String _MCKEY = "mcKey";
     public static final String _WMSMCKEY = "wmsMckey";
+    public static final String _GENERATETIME = "generateTime";
     private int _id;
 
     @Id
@@ -259,7 +259,6 @@ public class AsrsJob {
     public void setSendReport(boolean sendReport) {
         this.sendReport = sendReport;
     }
-
 
     @Override
     public boolean equals(Object o) {

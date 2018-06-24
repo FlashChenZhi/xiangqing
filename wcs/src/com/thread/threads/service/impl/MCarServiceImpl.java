@@ -9,9 +9,14 @@ import com.asrs.domain.Location;
 import com.thread.blocks.*;
 import com.thread.threads.operator.MCarOperator;
 import com.thread.threads.service.MCarService;
+import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by van on 2017/10/31.
@@ -32,27 +37,45 @@ public class MCarServiceImpl implements MCarService {
          *      母车绑定有子车，母车去接小车的任务,若没有接到再去查本层的入库和出库任务。
          *      母车没有绑定子车，判断是否有充电任务，此母车是不是同一position的一层母车，是否有换层任务（换层到此母车）
          */
-        if(mCar.getGroupNo()!=null){
+        if (mCar.getGroupNo() != null) {
             //判断母车绑定有子车
             SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
-            if(sCar!=null){
-                //检查子车上是否有任务,将其赋予母车的reservedMckey
-                if (StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+            if (sCar != null) {
+                boolean hasJob = false;
+
+                if (StringUtils.isNotBlank(sCar.getReservedMcKey()) || StringUtils.isNotBlank(sCar.getMcKey())) {
                     /**
                      *  子车有预约任务，母车预约任务（子车在35中有查询是否在此列继续出库的代码）
                      */
-                    mCar.setReservedMcKey(sCar.getReservedMcKey());
+                    String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey():sCar.getMcKey();
+                    AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
+                    if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)){
+                        mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        hasJob=true;
+                    }
 
-                } else {
-                    boolean hasJob =false;
-
+                }
+                if (sCar.getPower() > Const.LOWER_POWER){
+                    //检查子车上是否有任务,将其赋予母车的reservedMckey
                     if (!hasJob) {
                         //查找本层的入库任务
-                        hasJob = findPutawayByLevelOfMcar(hasJob);
+                        if (StringUtils.isNotBlank(sCar.getMcKey())) {
+                            mCar.setReservedMcKey(sCar.getMcKey());
+                        } else if (StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+                            mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        } else {
+                            hasJob = findPutawayByLevelOfMcar(hasJob);
+                        }
                     }
                     if (!hasJob) {
                         //查找本层的出库任务
-                        hasJob = findStockRemovalByLevelOfMcar(hasJob);
+                        if (StringUtils.isNotBlank(sCar.getMcKey())) {
+                            mCar.setReservedMcKey(sCar.getMcKey());
+                        } else if (StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+                            mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        } else {
+                            hasJob = findStockRemovalByLevelOfMcar(hasJob);
+                        }
                     }
 
                     if (hasJob) {
@@ -62,10 +85,10 @@ public class MCarServiceImpl implements MCarService {
                             asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
                         else if (StringUtils.isNotBlank(mCar.getMcKey()))
                             asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());
-                        asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
+                        /*asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);*/
                     } else {
                         //若没查到任务，且母车绑定有子车，并且子车不在母车上，给母车发上车
-                        if(sCar!=null && StringUtils.isBlank(mCar.getsCarBlockNo())){
+                        if (sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
                             if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
                                 MCarOperator srmOperator = new MCarOperator(mCar, "9999");
                                 srmOperator.tryLoadCar();
@@ -73,8 +96,9 @@ public class MCarServiceImpl implements MCarService {
                         }
                     }
                 }
+
             }
-        }else{
+        } else {
             //母车没有绑定小车
             //查找是否有充电、充电完成任务、换层任务
             Query query = HibernateUtil.getCurrentSession().createQuery(
@@ -87,7 +111,7 @@ public class MCarServiceImpl implements MCarService {
             query.setString("position", mCar.getPosition());
             query.setMaxResults(1);
             AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
-            if(asrsJob!=null){
+            if (asrsJob != null) {
                 mCar.setReservedMcKey(asrsJob.getMcKey());
             }
         }
@@ -101,7 +125,7 @@ public class MCarServiceImpl implements MCarService {
      * @param mCar
      * @return：boolean
      */
-    public boolean findPutawayByLevelOfMcar(boolean hasJob){
+    public boolean findPutawayByLevelOfMcar(boolean hasJob) {
         Block block = mCar.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
         if (block != null) {
             //如果上一段block有mckey，
@@ -112,7 +136,7 @@ public class MCarServiceImpl implements MCarService {
                     //如果小车绑定母车的上一节是入库作业，设置小车的reservedmckey
                     if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
                         mCar.setReservedMcKey(block.getMcKey());
-                        hasJob=true;
+                        hasJob = true;
                     }
                 }
             } else if (block instanceof StationBlock) {
@@ -121,7 +145,16 @@ public class MCarServiceImpl implements MCarService {
                     AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                     if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
                         mCar.setReservedMcKey(block.getMcKey());
-                        hasJob=true;
+                        hasJob = true;
+                    }
+                }
+            }else if (block instanceof Lift) {
+                if (StringUtils.isNotBlank(block.getMcKey())) {
+                    //如果提升机的上一节是入库作业，设置提升机reservedmckey
+                    AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                    if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                        mCar.setReservedMcKey(block.getMcKey());
+                        hasJob = true;
                     }
                 }
             }
@@ -137,7 +170,7 @@ public class MCarServiceImpl implements MCarService {
      * @param mCar
      * @return：boolean
      */
-    public boolean findStockRemovalByLevelOfMcar(boolean hasJob){
+    public boolean findStockRemovalByLevelOfMcar(boolean hasJob) {
         //获取本层的出库任务
         Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:fStation order by id asc ").setMaxResults(1);
         query.setParameter("tp", AsrsJobType.RETRIEVAL);
@@ -150,80 +183,9 @@ public class MCarServiceImpl implements MCarService {
         return hasJob;
     }
 
-    @Override
-    public void withReserveMckey() throws Exception {
-
-    }
-
-    @Override
-    public void withMckey() throws Exception {
-
-    }
-       /* Query charQuery = HibernateUtil.getCurrentSession().createQuery("from AsrsJob  where (type=:tp or type=:ttp) and (fromStation=:fs or toStation=:ts) and status!=:status");
-        charQuery.setParameter("tp", AsrsJobType.RECHARGED);
-        charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
-        charQuery.setParameter("status", AsrsJobStatus.DONE);
-        charQuery.setParameter("fs", mCar.getBlockNo());
-        charQuery.setParameter("ts", mCar.getBlockNo());
-
-        charQuery.setMaxResults(1);
-        AsrsJob chargedJob = (AsrsJob) charQuery.uniqueResult();
-
-        if (chargedJob != null) {
-
-            if (chargedJob.getType().equals(AsrsJobType.RECHARGED)) {
-                //如果仓库里存在充电作业，不查找其他作业，
-                MCar fromMCar = (MCar) MCar.getByBlockNo(chargedJob.getFromStation());
-                Location location = Location.getByLocationNo(chargedJob.getToLocation());
-                if (fromMCar.getBlockNo().equals(mCar.getBlockNo())) {
-                    //如果充电子车绑定的堆垛机就是当前堆垛机
-                    //不用处理，作业生成的时候自动绑定任务
-
-                } else {
-                    //如果充电子车绑定的堆垛机不是当前堆垛机
-                    if (mCar.getPosition().equals(location.getPosition())) {
-                        //如果当前堆垛机和充电货位的位置是一边
-                        if (!chargedJob.getStatus().equals(AsrsJobStatus.DONE))
-                            mCar.setReservedMcKey(chargedJob.getMcKey());
-                    } else {
-                        //如果当前堆垛机和冲淡位置不是一边
-                        //不用理睬
-                    }
-                }
-            } else if (chargedJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-                //系统存在充电完成作业
-                MCar toMCar = (MCar) MCar.getByBlockNo(chargedJob.getToStation());
-                Location location = Location.getByLocationNo(chargedJob.getFromLocation());
-                SCar sCar = SCar.getScarByGroup(toMCar.getGroupNo());
-                if (toMCar.getBlockNo().equals(mCar.getBlockNo())) {
-                    //目标堆垛机是当前堆垛机
-                    if (mCar.getPosition().equals(location.getPosition())) {
-                        //当前堆垛机位置和充电位置一直
-                        //不用理睬
-                    } else {
-                        //当前堆垛机在充电位置的另一边
-                        if (!chargedJob.getStatus().equals(AsrsJobStatus.DONE))
-                            toMCar.setReservedMcKey(chargedJob.getMcKey());
-                    }
-                } else {
-                    //目标堆垛机不是当前堆垛机
-                    if (mCar.getPosition().equals(location.getPosition())) {
-                        //当前堆垛机和充电位置堆垛机一直
-                        if (sCar.getBank() == location.getBank()
-                                && sCar.getBay() == location.getBay()
-                                && sCar.getLevel() == location.getLevel()
-                                && sCar.getPosition().equals(mCar.getPosition())) {
-                            //如果子车和堆垛机在同一边，并且子车在充电位子上
-                            mCar.setReservedMcKey(chargedJob.getMcKey());
-                        }
-                    }
-                }
-            }
-
-        } else {
-            //仓库里没有充电作业，执行正常操作
-            //移动提升机上有子车
-            if (StringUtils.isNotBlank(mCar.getsCarBlockNo())) {
+    //仓库里没有充电作业，执行正常操作
+    //移动提升机上没有子车
+            /*if (StringUtils.isNotBlank(mCar.getsCarBlockNo())) {
                 //获取子车
                 SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
                 //检查子车上是否有任务
@@ -232,33 +194,46 @@ public class MCarServiceImpl implements MCarService {
                     mCar.setReservedMcKey(sCar.getReservedMcKey());
 
                 } else {
-                    //子车在提升机上
+                    //子车不在提升机上
                     //获取入库任务
                     boolean hasJob = false;
 
                     //堆垛机上的子车电量不足，生成充电任务
-                    if (sCar.getPower() <= 40) {
-                        AsrsJob asrsJob = new AsrsJob();
-                        asrsJob.setMcKey(Mckey.getNext());
-                        asrsJob.setToLocation(sCar.getChargeLocation());
-                        asrsJob.setFromStation(mCar.getBlockNo());
+                    if (sCar.getPower() <= 30) {
+                        if(StringUtils.isBlank(sCar.getOnMCar())){
+                            return;
+                        }
                         Location location = Location.getByLocationNo(sCar.getChargeLocation());
-                        MCar chargeSrm = mCar.getMCarByPosition(location.getPosition(),location.getLevel());
-                        asrsJob.setToStation(chargeSrm.getBlockNo());
-                        asrsJob.setStatus(AsrsJobStatus.RUNNING);
-                        asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
-                        asrsJob.setType(AsrsJobType.RECHARGED);
-                        asrsJob.setWareHouse(mCar.getWareHouse());
-                        HibernateUtil.getCurrentSession().save(asrsJob);
-                        mCar.setMcKey(asrsJob.getMcKey());
-                        sCar.setMcKey(asrsJob.getMcKey());
-                        hasJob = true;
+                        if(location!=null){
+                            AsrsJob asrsJob = new AsrsJob();
+                            asrsJob.setMcKey(Mckey.getNext());
+                            asrsJob.setToLocation(sCar.getChargeLocation());
+                            asrsJob.setFromStation(mCar.getBlockNo());
+                            MCar chargeSrm = mCar.getMCarByPosition(location.getPosition(),location.getLevel());
+                            asrsJob.setToStation(chargeSrm.getBlockNo());
+                            asrsJob.setStatus(AsrsJobStatus.RUNNING);
+                            asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
+                            asrsJob.setType(AsrsJobType.RECHARGED);
+                            asrsJob.setWareHouse(mCar.getWareHouse());
+//                            AsrsJob asrsJob3=(AsrsJob) HibernateUtil.getCurrentSession().createQuery("from AsrsJob order by generateTime").setMaxResults(1).uniqueResult();
+//                            if(asrsJob3!=null){
+//                                Calendar calendar=Calendar.getInstance();
+//                                calendar.setTime(asrsJob3.getGenerateTime());
+//                                calendar.add(Calendar.MINUTE,-1);
+//                                asrsJob.setGenerateTime(asrsJob3.getGenerateTime());
+//                            }else {
+//                                asrsJob.setGenerateTime(new Date());
+//                            }
+                            HibernateUtil.getCurrentSession().save(asrsJob);
+                            mCar.setMcKey(asrsJob.getMcKey());
+                            sCar.setMcKey(asrsJob.getMcKey());
+                            hasJob = true;
+                        }
                     }
 
 
-
+                    Block block = mCar.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
                     if (!hasJob) {
-                        Block block = mCar.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
                         if (block != null) {
                             //如果上一段block有mckey，
                             if (block instanceof Conveyor) {
@@ -273,17 +248,19 @@ public class MCarServiceImpl implements MCarService {
                                                 mCar.setReservedMcKey(block.getMcKey());
                                                 hasJob = true;
                                             }
-                                        }else if(block.getBlockNo().equals("0059")
-                                                ||block.getBlockNo().equals("0065")){
-                                            if(mCar.getBlockNo().equals("MC05")){
+                                        }else if(block.getBlockNo().equals("0059")||block.getBlockNo().equals("0065")){
+                                            Block mc05 = block.getNextBlock(asrsJob.getType(), mCar.getBlockNo());
+                                            if(mc05.getBlockNo().equals("MC05")){
                                                 mCar.setReservedMcKey(block.getMcKey());
                                                 hasJob = true;
                                             }
                                         }else if(block.getBlockNo().equals("0066")
                                                 ||block.getBlockNo().equals("0067")
                                                 ||block.getBlockNo().equals("0068")){
+                                            if(mCar.getBlockNo().equals("MC06")||mCar.getBlockNo().equals("MC07")||mCar.getBlockNo().equals("MC08")){
                                                 mCar.setReservedMcKey(block.getMcKey());
                                                 hasJob = true;
+                                            }
 
                                         } else if(block.getBlockNo().equals("0047")
                                                 ||block.getBlockNo().equals("0048")
@@ -292,9 +269,11 @@ public class MCarServiceImpl implements MCarService {
                                                 mCar.setReservedMcKey(block.getMcKey());
                                                 hasJob = true;
                                             }
-                                        } else if(asrsJob.getFromStation().equals("0037")){
-                                            mCar.setReservedMcKey(block.getMcKey());
-                                            hasJob = true;
+                                        } else if(asrsJob.getFromStation().equals("0037")||asrsJob.getFromStation().equals("0040")||asrsJob.getFromStation().equals("0039")){
+                                            if(mCar.getBlockNo().equals("MC01")||mCar.getBlockNo().equals("MC02")||mCar.getBlockNo().equals("MC03")||mCar.getBlockNo().equals("MC04")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
                                         }
                                     }
                                 }
@@ -313,7 +292,7 @@ public class MCarServiceImpl implements MCarService {
 
                     //获取出库任务
                     if (!hasJob) {
-                        Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:fStation order by id asc ").setMaxResults(1);
+                        Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:fStation order by generateTime asc ").setMaxResults(1);
                         query.setParameter("tp", AsrsJobType.RETRIEVAL);
                         query.setParameter("fStation", mCar.getBlockNo());
                         AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
@@ -323,9 +302,9 @@ public class MCarServiceImpl implements MCarService {
                         }
                     }
 
-                    //获取库内移动任务
+                    //获取出库任务
                     if (!hasJob) {
-                        Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:fStation order by id asc ").setMaxResults(1);
+                        Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:fStation order by generateTime asc ").setMaxResults(1);
                         query.setParameter("tp", AsrsJobType.LOCATIONTOLOCATION);
                         query.setParameter("fStation", mCar.getBlockNo());
                         AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
@@ -334,7 +313,6 @@ public class MCarServiceImpl implements MCarService {
                             hasJob = true;
                         }
                     }
-                    //获取直行任务
                     if (!hasJob) {
                         Block bb = mCar.getPreBlockHasMckey(AsrsJobType.ST2ST);
                         if (bb != null) {
@@ -371,10 +349,34 @@ public class MCarServiceImpl implements MCarService {
                             asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());
                         asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                     } else {
-//                        if (!mCar.getCycle().equals(mCar.getDock())) {
-//                            SrmOperator srmOperator = new SrmOperator(srm, "9999");
-//                            srmOperator.cycle(srm);
-//                        }
+                        Query qqq = HibernateUtil.getCurrentSession().createQuery("from AsrsJob  where  (fromStation=:fs or toStation=:ts) and (( type='03' and status<>'3') or type <> '03')");
+                        qqq.setParameter("fs", mCar.getBlockNo());
+                        qqq.setParameter("ts", mCar.getBlockNo());
+                        qqq.setMaxResults(1);
+                        AsrsJob ajb = (AsrsJob) qqq.uniqueResult();
+                        if (sCar.getPower() <= 90&& ajb==null) {
+                            if(StringUtils.isBlank(sCar.getOnMCar())){
+                                return;
+                            }
+                            Location location = Location.getByLocationNo(sCar.getChargeLocation());
+                            if(location!=null){
+                                AsrsJob asrsJob = new AsrsJob();
+                                asrsJob.setMcKey(Mckey.getNext());
+                                asrsJob.setToLocation(sCar.getChargeLocation());
+                                asrsJob.setFromStation(mCar.getBlockNo());
+                                MCar chargeSrm = mCar.getMCarByPosition(location.getPosition(),location.getLevel());
+                                asrsJob.setToStation(chargeSrm.getBlockNo());
+                                asrsJob.setStatus(AsrsJobStatus.RUNNING);
+                                asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
+                                asrsJob.setType(AsrsJobType.RECHARGED);
+                                asrsJob.setWareHouse(mCar.getWareHouse());
+                                HibernateUtil.getCurrentSession().save(asrsJob);
+                                mCar.setMcKey(asrsJob.getMcKey());
+                                sCar.setMcKey(asrsJob.getMcKey());
+                                hasJob = true;
+                            }
+                        }
+
                     }
                 }
 
@@ -413,8 +415,39 @@ public class MCarServiceImpl implements MCarService {
                                     //如果提升机的上一节是入库作业，设置提升机reservedmckey
                                     AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                                     if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                        mCar.setReservedMcKey(block.getMcKey());
-                                        hasJob = true;
+                                        if(block.getBlockNo().equals("0046")){
+                                            if(asrsJob.getFromStation().equals("0040")
+                                                    || asrsJob.getFromStation().equals("0039")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
+                                        }else if(block.getBlockNo().equals("0059")||block.getBlockNo().equals("0065")){
+                                            Block mc05 = block.getNextBlock(asrsJob.getType(), mCar.getBlockNo());
+                                            if(mc05.getBlockNo().equals("MC05")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
+                                        }else if(block.getBlockNo().equals("0066")
+                                                ||block.getBlockNo().equals("0067")
+                                                ||block.getBlockNo().equals("0068")){
+                                            if(mCar.getBlockNo().equals("MC06")||mCar.getBlockNo().equals("MC07")||mCar.getBlockNo().equals("MC08")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
+
+                                        } else if(block.getBlockNo().equals("0047")
+                                                ||block.getBlockNo().equals("0048")
+                                                ||block.getBlockNo().equals("0049")){
+                                            if(mCar.getBlockNo().equals("MC06")||mCar.getBlockNo().equals("MC07")||mCar.getBlockNo().equals("MC08")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
+                                        } else if(asrsJob.getFromStation().equals("0037")||asrsJob.getFromStation().equals("0040")||asrsJob.getFromStation().equals("0039")){
+                                            if(mCar.getBlockNo().equals("MC01")||mCar.getBlockNo().equals("MC02")||mCar.getBlockNo().equals("MC03")||mCar.getBlockNo().equals("MC04")){
+                                                mCar.setReservedMcKey(block.getMcKey());
+                                                hasJob = true;
+                                            }
+                                        }
                                     }
                                 }
                             } else if (block instanceof StationBlock) {
@@ -432,7 +465,7 @@ public class MCarServiceImpl implements MCarService {
                 }
 
                 if (!hasJob) {
-                    Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:st order by id asc ").setMaxResults(1);
+                    Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:st order by generateTime asc ").setMaxResults(1);
                     query.setParameter("tp", AsrsJobType.RETRIEVAL);
                     query.setParameter("st", mCar.getBlockNo());
                     AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
@@ -443,7 +476,7 @@ public class MCarServiceImpl implements MCarService {
                 }
 
                 if (!hasJob) {
-                    Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:st order by id asc ").setMaxResults(1);
+                    Query query = HibernateUtil.getCurrentSession().createQuery(" from AsrsJob where type=:tp and statusDetail = '0' and fromStation=:st order by generateTime asc ").setMaxResults(1);
                     query.setParameter("tp", AsrsJobType.LOCATIONTOLOCATION);
                     query.setParameter("st", mCar.getBlockNo());
                     AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
@@ -473,19 +506,33 @@ public class MCarServiceImpl implements MCarService {
                     }
                 }
 
+                if (hasJob) {
+                    AsrsJob asrsJob = null;
+                    if (StringUtils.isNotBlank(mCar.getReservedMcKey()))
+                        asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
+                    asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
+                }
 
                 if (!hasJob) {
                     if(sCar!=null){
                         if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
                             MCarOperator srmOperator = new MCarOperator(mCar, "9999");
                             srmOperator.tryLoadCar();
+
                         }
+
                     }
                 }
-            }
-        }*/
+            }*/
 
 
+    @Override
+    public void withReserveMckey() throws Exception {
 
+    }
 
+    @Override
+    public void withMckey() throws Exception {
+
+    }
 }

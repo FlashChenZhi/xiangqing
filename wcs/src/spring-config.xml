@@ -69,7 +69,7 @@
 
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="basename">
-            <value>classpath:message</value>
+            <value>message</value>
         </property>
         <!-- 设置缓存的时间，生产环境下应当设置成 -1 -->
         <property name="cacheSeconds">

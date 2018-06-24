@@ -82,6 +82,8 @@ public class LiftThread extends BlockThread<Lift> {
 
                         } else if (asrsJob.getType().equals(AsrsJobType.ST2ST)) {
 
+                        }else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
+                            service = new LiftChangeLevService(lift);
                         }
                         if(service!=null)
                         service.withReserveMckey();

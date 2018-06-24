@@ -1,4 +1,4 @@
-package com.web.vo;
+package com.asrs.domain;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -115,15 +115,15 @@ public class Inventory {
         this.providerName = providerName;
     }
 
-    @Version
-    @Column(name = "VERSION")
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
+//    @Version
+//    @Column(name = "VERSION")
+//    public int getVersion() {
+//        return version;
+//    }
+//
+//    public void setVersion(int version) {
+//        this.version = version;
+//    }
 
     @Basic
     @Column(name = "SKUCODE")

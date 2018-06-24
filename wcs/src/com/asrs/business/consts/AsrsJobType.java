@@ -34,7 +34,7 @@ public class AsrsJobType {
         map.put(RECHARGEDOVER, "充电完成");
         map.put(CHANGELEVEL, "换层");
         map.put(COUNT, "盘库回库");
-//        map.put(TRANSFER,"库内移动");
+        map.put(LOCATIONTOLOCATION,"库内移动");
     }
 
 }

@@ -41,8 +41,10 @@ public class MessageCenter extends UnicastRemoteObject implements MessageProxy {
 
     public void addRcvdMsg(MessageBuilder msg) {
         _rcvdMsgQ.add(msg);
-        if(!msg.ID.equals("26") && !msg.ID.equals("30"))
-        log("PUT", msg.PlcName, msg.ID);
+        if(!msg.ID.equals("26") && !msg.ID.equals("30")) {
+            log("PUT", msg.PlcName, msg.ID);
+            System.out.println("<RCVD>" + _rcvdMsgQ.size());
+        }
     }
 
     public void addSndMsg(Message msg) {
@@ -53,13 +55,11 @@ public class MessageCenter extends UnicastRemoteObject implements MessageProxy {
             _sndQmap.put(plcName, new LinkedBlockingQueue<Message>());
         }
 
-        _sndQmap.get(plcName).
-
-                add(msg);
-        if(!msg.getID().equals("06") && !msg.getID().equals("10"))
-        log("PUT", plcName, msg.getID()
-
-        );
+        _sndQmap.get(plcName).add(msg);
+        if(!msg.getID().equals("06") && !msg.getID().equals("10")) {
+            log("PUT", plcName, msg.getID());
+            System.out.println("<SEND>" +  _sndQmap.get(plcName).size());
+        }
     }
 
     public MessageBuilder getRcvdMsg() throws InterruptedException {

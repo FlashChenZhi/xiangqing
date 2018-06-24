@@ -234,7 +234,7 @@ public class PlcConnection
                         {
                               Message msg = MessageCenter.instance().getSndMsg(_plcName);
                               send(msg);
-                              Thread.sleep(500);
+                              Thread.sleep(35);
                         }
                         catch (InterruptedException e)
                         {

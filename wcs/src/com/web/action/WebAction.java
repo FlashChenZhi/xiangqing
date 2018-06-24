@@ -1,5 +1,6 @@
 package com.web.action;
 
+import com.asrs.domain.AsrsJob;
 import com.util.common.HttpMessage;
 import com.web.service.WebService;
 import org.springframework.stereotype.Controller;
@@ -48,8 +49,8 @@ public class WebAction {
 
     @RequestMapping("searchJob.do")
     @ResponseBody
-    public HttpMessage searchJob(int currentPage) {
-        HttpMessage httpMessage = webService.asrsJobQuery(currentPage);
+    public HttpMessage searchJob(int currentPage, AsrsJob asrsJob) {
+        HttpMessage httpMessage = webService.asrsJobQuery(currentPage,asrsJob);
         return httpMessage;
     }
 
@@ -152,6 +153,16 @@ public class WebAction {
         return httpMessage;
     }
 
-
-
+    @RequestMapping("onTheMLCar.do")
+    @ResponseBody
+    public HttpMessage onTheMLCar(String blockNo) {
+        HttpMessage httpMessage = webService.onTheMLCar(blockNo);
+        return httpMessage;
+    }
+    @RequestMapping("getTheSCCar.do")
+    @ResponseBody
+    public HttpMessage getTheSCCar(String blockNo) {
+        HttpMessage httpMessage = webService.getTheSCCar(blockNo);
+        return httpMessage;
+    }
 }

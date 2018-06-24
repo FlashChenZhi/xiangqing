@@ -50,14 +50,17 @@ public class MCarCharageService extends MCarServiceImpl{
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(srm.getMcKey());
         MCarOperator operator = new MCarOperator(srm, asrsJob.getMcKey());
         Location toLocation = Location.getByLocationNo(asrsJob.getToLocation());
-        if (srm.getBlockNo().equals(asrsJob.getToStation())) {
+        SCar sCar  = SCar.getScarByGroup(srm.getGroupNo());
+        if (srm.getBlockNo().equals(asrsJob.getToStation())&&StringUtils.isNotBlank(srm.getsCarBlockNo())&&StringUtils.isNotBlank(sCar.getOnMCar())) {
             operator.tryUnLoadCarToLocation(toLocation);
 
-        } else {
-            SCar sCar  = SCar.getScarByGroup(srm.getGroupNo());
-            Location tempLocation = Location.getByLocationNo(sCar.getChargeChanel());
-            operator.tryUnLoadCarToLocation(tempLocation);
-
+        } else{
+            //SCar sCar  = SCar.getScarByGroup(srm.getGroupNo());
+            //Location tempLocation = Location.getByLocationNo(sCar.getChargeChanel());
+//            if ( srm.getLevel() == toLocation.getLevel()
+//                    && srm.getBay() != toLocation.getBay()&&!srm.isWaitingResponse()) {
+//                operator.tryLoadCar();
+//            }
         }
     }
 }

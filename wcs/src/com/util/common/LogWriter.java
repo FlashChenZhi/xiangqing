@@ -2,6 +2,9 @@ package com.util.common;
 
 import org.apache.log4j.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,9 +57,27 @@ public class LogWriter
       }
 
       public static void main(String[] args) {
-            writeInfo("WMS_INFO","fdsfsdfdsfdf12312312");
+            try{
+                  int i = 10/0;
+            }catch (Exception e){
+                  error(LoggerType.ERROR,getStackTrace(e));
+            }
       }
 
+      public static void error(LoggerType logType, String log) {
+            Logger logger = Logger.getLogger(logType.getCode());
+            logger.error(log);
+      }
+      public static String getStackTrace (Throwable throwable){
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            try{
+                  throwable.printStackTrace(pw);
+                  return sw.toString();
+            }finally {
+                  pw.close();
+            }
+      }
 
 }
 

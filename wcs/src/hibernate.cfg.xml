@@ -5,11 +5,12 @@
 <hibernate-configuration>
   <session-factory>
     <property name="current_session_context_class">thread</property>
-    <property name="connection.url">jdbc:sqlserver://192.168.11.3:1433;DatabaseName=xiangqing</property>
-    <property name="hibernate.connection.username">xiangqing</property>
-    <property name="connection.password">xiangqing</property>
+    <property name="connection.url">jdbc:sqlserver://127.0.0.1:1433;DatabaseName=xiangqing</property>
     <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
     <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+
+    <property name="hibernate.connection.username">xiangqing</property>
+    <property name="connection.password">xiangqing</property>
     <property name="hibernate.format_sql">true</property>
     <property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
     <!--<property name="hibernate.hbm2ddl.auto">create</property>-->
@@ -46,5 +47,13 @@
     <mapping class="com.asrs.domain.SystemLog"/>
     <mapping class="com.asrs.domain.XMLMessage"/>
     <mapping class="com.asrs.domain.InMessage"/>
+    <mapping class="com.asrs.domain.Container"/>
+    <mapping class="com.asrs.domain.Inventory"/>
+    <mapping class="com.asrs.domain.Job"/>
+    <mapping class="com.asrs.domain.JobDetail"/>
+    <mapping class="com.asrs.domain.LedMessage"/>
+    <mapping class="com.asrs.domain.Sku"/>
+    <mapping class="com.asrs.domain.Qty"/>
+    <mapping class="com.asrs.domain.ScarChargeLocation"/>
   </session-factory>
 </hibernate-configuration>

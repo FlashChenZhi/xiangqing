@@ -1,21 +1,27 @@
 package com;
 
-import com.asrs.business.msgProc.MsgProcess;
+import com.asrs.domain.LedMessage;
+import com.asrs.domain.ScarChargeLocation;
+import com.thread.blocks.Block;
+import com.thread.blocks.Conveyor;
+import com.util.hibernate.HibernateUtil;
+import com.util.hibernate.Transaction;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
-/**
- * @Author: ed_chen
- * @Date: Create in 12:38 2018/4/26
- * @Description:
- * @Modified By:
- */
+import java.util.Date;
+import java.util.List;
+
 public class Test {
-
-    @org.junit.Test
-    public void test(){
-        //获取类所在的包
-        System.out.println(MsgProcess.class.getPackage().getName() );
-
-
+    public static void main(String[] args) {
+        Transaction.begin();
+        Session session = HibernateUtil.getCurrentSession();
+        Query query = session.createQuery("from ScarChargeLocation s where scarBlockNo=:scarBlockNo and status=true ");
+        query.setParameter("scarBlockNo", "SC01");
+        List<ScarChargeLocation> scarChargeLocationList = query.list();
+        for(ScarChargeLocation s :scarChargeLocationList){
+            System.out.println(s.getChargeLocation().getLocationNo());
+        }
+        Transaction.commit();
     }
 }
-

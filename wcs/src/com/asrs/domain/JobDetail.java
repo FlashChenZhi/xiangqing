@@ -1,4 +1,7 @@
-package com.web.vo;
+package com.asrs.domain;
+
+import com.asrs.domain.Inventory;
+import com.asrs.domain.Job;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

@@ -14,6 +14,7 @@ import com.util.common.*;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.web.vo.*;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -24,6 +25,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Service;
 
 import java.rmi.Naming;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -89,15 +91,18 @@ public class WebService {
         return httpMessage;
     }
 
-    public HttpMessage asrsJobQuery(int currentPage) {
+    public HttpMessage asrsJobQuery(int currentPage,AsrsJob asrsJob321) {
         HttpMessage httpMessage = new HttpMessage();
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
             Criteria criteria = session.createCriteria(AsrsJob.class);
             //获取总行数
+            if (StringUtils.isNotEmpty(asrsJob321.getType())) {
+                criteria.add(Restrictions.eq(AsrsJob.__TYPE, asrsJob321.getType()));
+            }
             Long total = (Long) criteria.setProjection(Projections.rowCount()).uniqueResult();
-            criteria.addOrder(Order.asc(AsrsJob.__ID));
+            criteria.addOrder(Order.asc(AsrsJob._GENERATETIME));
 
 //            获取分页数据
             criteria.setProjection(null);
@@ -118,6 +123,27 @@ public class WebService {
                 onlineTaskVo.setToStation(job.getToStation());
                 onlineTaskVo.setFromLocation(job.getFromLocation());
                 onlineTaskVo.setToLocation(job.getToLocation());
+                if(StringUtils.isNotEmpty(job.getGenerateTime())){
+                    SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+                    String generateTime = format.format(job.getGenerateTime());
+                    onlineTaskVo.setGenerateTime(generateTime);
+                }
+                if(!"07".equals(job.getType())&&StringUtils.isNotEmpty(job.getBarcode().trim())){
+                    Inventory inventory=(Inventory)session.createQuery("from Inventory i where i.skuCode not in ('ktp','yl') and  i.container.barcode=:barcode")
+                            .setString("barcode",job.getBarcode()).setMaxResults(1).uniqueResult();
+                    if(inventory!=null){
+                        Inventory inventory11=(Inventory)session.createQuery("from Inventory i where  i.container.barcode=:barcode")
+                                .setString("barcode",job.getBarcode()).setMaxResults(1).uniqueResult();
+                        if(StringUtils.isNotEmpty(inventory11.getSkuCode())){
+                            Sku sku=(Sku)session.createQuery("from Sku where skuCode=:skuCode")
+                                    .setString("skuCode",inventory11.getSkuCode()).setMaxResults(1).uniqueResult();
+                            if(StringUtils.isNotEmpty(sku.getSkuSpec())){
+                                onlineTaskVo.setSkuSpec(sku.getSkuSpec());
+                                onlineTaskVo.setSkuCode(sku.getSkuCode());
+                            }
+                        }
+                    }
+                }
                 onlineTaskVos.add(onlineTaskVo);
             }
             Map<String, Object> map = new HashMap<>();
@@ -425,7 +451,7 @@ public class WebService {
                 m3.CycleOrder = msg03.getCycleOrder();
                 m3.Height = msg03.getHeight();
                 m3.Width = msg03.getWidth();
-                m3.Station = msg03.getStation();
+                m3.Station = StringUtils.isEmpty(msg03.getStation()) ? "0000" : msg03.getStation();
                 m3.Bank = msg03.getBank();
                 m3.Bay = msg03.getBay();
                 m3.Level = msg03.getLevel();
@@ -551,6 +577,7 @@ public class WebService {
 
                     Query q = HibernateUtil.getCurrentSession().createQuery("from MCar where level=:level and position=:po");
                     q.setParameter("level", Integer.parseInt(level));
+                    //q.setParameter("po", Location.LEFT);
                     q.setParameter("po", sCar.getPosition());
                     q.setMaxResults(1);
                     MCar toMcar = (MCar) q.uniqueResult();
@@ -842,34 +869,34 @@ public class WebService {
                 }
 
 
-                Location location = Location.getByLocationNo(sCar.getChargeLocation());
-                Srm fromSrm = Srm.getSrmByPosition(location.getPosition());
+                //Location location = Location.getByLocationNo(sCar.getChargeLocation());
+                MCar mCarByGroupNo = MCar.getMCarByGroupNo(sCar.getGroupNo());
                 Srm toSrm = Srm.getSrmByGroupNo(sCar.getGroupNo());
 
-                if (fromSrm.getBlockNo().equals(toSrm.getBlockNo())) {
+                //if (mCarByGroupNo.getBlockNo().equals(toSrm.getBlockNo())) {
                     sCar.setStatus(SCar.STATUS_RUN);
                     //欧普适用
                     MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
 
-                } else {
-
-                    AsrsJob newJob = new AsrsJob();
-
-                    newJob.setWareHouse(sCar.getWareHouse());
-                    newJob.setType(AsrsJobType.RECHARGEDOVER);
-                    newJob.setMcKey(Mckey.getNext());
-                    newJob.setGenerateTime(new Date());
-                    newJob.setStatus(AsrsJobStatus.RUNNING);
-                    newJob.setStatusDetail(AsrsJobStatusDetail.WAITING);
-                    newJob.setFromLocation(sCar.getChargeLocation());
-                    newJob.setFromStation(fromSrm.getBlockNo());
-                    newJob.setToStation(toSrm.getBlockNo());
-
-                    HibernateUtil.getCurrentSession().save(newJob);
-                    sCar.setMcKey(newJob.getMcKey());
-                    sCar.setStatus(SCar.STATUS_RUN);
-
-                }
+//                } else {
+//
+//                    AsrsJob newJob = new AsrsJob();
+//
+//                    newJob.setWareHouse(sCar.getWareHouse());
+//                    newJob.setType(AsrsJobType.RECHARGEDOVER);
+//                    newJob.setMcKey(Mckey.getNext());
+//                    newJob.setGenerateTime(new Date());
+//                    newJob.setStatus(AsrsJobStatus.RUNNING);
+//                    newJob.setStatusDetail(AsrsJobStatusDetail.WAITING);
+//                    newJob.setFromLocation(sCar.getChargeLocation());
+//                    newJob.setFromStation(mCarByGroupNo.getBlockNo());
+//                    newJob.setToStation(mCarByGroupNo.getBlockNo());
+//
+//                    HibernateUtil.getCurrentSession().save(newJob);
+//                    sCar.setMcKey(newJob.getMcKey());
+//                    sCar.setStatus(SCar.STATUS_RUN);
+//
+//                }
 
             } else {
                 Transaction.rollback();
@@ -910,8 +937,8 @@ public class WebService {
                 }
 
 
-                Location location = Location.getByLocationNo(sCar.getChargeLocation());
-                Srm fromSrm = Srm.getSrmByPosition(location.getPosition());
+                //Location location = Location.getByLocationNo(sCar.getChargeLocation());
+                MCar fromSrm = MCar.getMCarByGroupNo(sCar.getGroupNo());
 
                 if (StringUtils.isNotEmpty(sCar.getMcKey()) || StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
                     Transaction.rollback();
@@ -923,14 +950,14 @@ public class WebService {
                 if (StringUtils.isNotEmpty(fromSrm.getMcKey()) || StringUtils.isNotEmpty(fromSrm.getReservedMcKey())) {
                     Transaction.rollback();
                     httpMessage.setSuccess(false);
-                    httpMessage.setMsg("堆垛机存在任务");
+                    httpMessage.setMsg("母车存在任务");
                     return httpMessage;
                 }
 
                 if (StringUtils.isEmpty(sCar.getOnMCar())) {
                     Transaction.rollback();
                     httpMessage.setSuccess(false);
-                    httpMessage.setMsg("子车不在堆垛机上");
+                    httpMessage.setMsg("子车不在母车上");
                     return httpMessage;
                 }
 
@@ -938,8 +965,8 @@ public class WebService {
                 asrsJob.setMcKey(Mckey.getNext());
                 asrsJob.setToLocation(sCar.getChargeLocation());
                 asrsJob.setFromStation(fromSrm.getBlockNo());
-                Srm chargeSrm = fromSrm.getSrmByPosition(location.getPosition());
-                asrsJob.setToStation(chargeSrm.getBlockNo());
+                //Srm chargeSrm = fromSrm.getSrmByPosition(location.getPosition());
+                asrsJob.setToStation(fromSrm.getBlockNo());
                 asrsJob.setStatus(AsrsJobStatus.RUNNING);
                 asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                 asrsJob.setType(AsrsJobType.RECHARGED);
@@ -970,4 +997,78 @@ public class WebService {
         return httpMessage;
 
     }
+
+    public HttpMessage onTheMLCar(String blockNo) {
+        HttpMessage httpMessage = new HttpMessage();
+        try {
+
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+            Block block = Block.getByBlockNo(blockNo);
+            if (block instanceof SCar) {
+                SCar sCar = (SCar) block;
+                if (sCar.getStatus().equals(SCar.STATUS_CHARGE)) {
+                    Transaction.rollback();
+                    httpMessage.setSuccess(false);
+                    httpMessage.setMsg("子车充电中");
+                    return httpMessage;
+                }
+                session.saveOrUpdate(sCar);
+                MCar mCar = MCar.getMCarByGroupNo(sCar.getGroupNo());
+                sCar.setOnMCar(mCar.getBlockNo());
+                sCar.setBank(0);
+                sCar.setBay(mCar.getBay());
+                sCar.setLevel(mCar.getLevel());
+                sCar.setPosition(mCar.getPosition());
+            } else {
+                Transaction.rollback();
+                httpMessage.setSuccess(false);
+                httpMessage.setMsg("设备非子车");
+                return httpMessage;
+            }
+            Transaction.commit();
+
+            httpMessage.setSuccess(true);
+            httpMessage.setMsg("成功");
+
+        } catch (Exception e) {
+            Transaction.rollback();
+            httpMessage.setSuccess(false);
+            httpMessage.setMsg("出错了。");
+            e.printStackTrace();
+        }
+        return httpMessage;
+    }
+    public HttpMessage getTheSCCar(String blockNo) {
+        HttpMessage httpMessage = new HttpMessage();
+        try {
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+            Block block = Block.getByBlockNo(blockNo);
+            if (block instanceof MCar) {
+                MCar mCar = (MCar) block;
+                session.saveOrUpdate(mCar);
+                SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
+                mCar.setsCarBlockNo(sCar.getBlockNo());
+            } else {
+                Transaction.rollback();
+                httpMessage.setSuccess(false);
+                httpMessage.setMsg("设备非母车");
+                return httpMessage;
+            }
+            Transaction.commit();
+            httpMessage.setSuccess(true);
+            httpMessage.setMsg("成功");
+
+        } catch (Exception e) {
+            Transaction.rollback();
+            httpMessage.setSuccess(false);
+            httpMessage.setMsg("出错了。");
+            e.printStackTrace();
+        }
+        return httpMessage;
+    }
+
+
+
 }

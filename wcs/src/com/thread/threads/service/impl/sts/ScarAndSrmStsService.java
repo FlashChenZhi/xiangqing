@@ -39,12 +39,24 @@ public class ScarAndSrmStsService extends ScarAndSrmServiceImpl {
 
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
         ScarOperator operator = new ScarOperator(sCar, asrsJob.getMcKey());
-        if (StringUtils.isBlank(sCar.getOnMCar())) {
-            operator.tryPickingGoods(asrsJob.getFromLocation());
-        } else {
-            Srm srm = (Srm) Block.getByBlockNo(sCar.getOnMCar());
-            operator.tryUnloadGoods(srm);
+        if(sCar.getLoad().equals("1")) {
+            if(org.apache.commons.lang.StringUtils.isNotBlank(sCar.getOnMCar())) {
+                MCar srm = MCar.getMCarByGroupNo(sCar.getGroupNo());
+                operator.tryOffCarCarryGoodsFromMcar(srm);
+            }else {
+                MCar mCar = (MCar) MCar.getByBlockNo(asrsJob.getFromStation());
+                operator.tryCarryGoodsToMCar(mCar);
+            }
         }
+        if(org.apache.commons.lang.StringUtils.isBlank(sCar.getOnMCar())){
+            if(sCar.getLoad().equals("0")){
+                operator.tryPickingGoods(asrsJob.getFromLocation());
+            }else {
+                MCar srm = MCar.getMCarByGroupNo(sCar.getGroupNo());
+                operator.tryUnloadGoods(srm);
+            }
+        }
+
 
     }
 }

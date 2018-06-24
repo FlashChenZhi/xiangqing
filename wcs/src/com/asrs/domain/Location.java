@@ -6,6 +6,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Author: Zhouyue
@@ -59,6 +61,17 @@ public class Location {
     public void setLocationNo(String locationNo) {
         _locationNo = locationNo;
     }
+    private String _wmslocationNo;
+
+    @Basic
+    @Column(name = "WMSLOCATIONNO")
+    public String getWmsLocationNo() {
+        return _wmslocationNo;
+    }
+
+    public void setWmsLocationNo(String wmslocationNo) {
+        _wmslocationNo = wmslocationNo;
+    }
 
     private int _aisle;
 
@@ -85,6 +98,17 @@ public class Location {
         _bank = bank;
     }
 
+    private boolean _empty;
+
+    @Basic
+    @Column(name = "EMPTY")
+    public boolean getEmpty() {
+        return _empty;
+    }
+
+    public void setEmpty(boolean empty) {
+        _empty = empty;
+    }
     private int _bay;
 
     @Basic
@@ -214,6 +238,17 @@ public class Location {
 
     public void setHeight(Double height) {
         this.height = height;
+    }
+
+    private Collection<ScarChargeLocation> _scarChargeLocation = new ArrayList<ScarChargeLocation>();
+
+    @OneToMany(mappedBy = "chargeLocation")
+    public Collection<ScarChargeLocation> get_scarChargeLocation() {
+        return _scarChargeLocation;
+    }
+
+    public void set_scarChargeLocation(Collection<ScarChargeLocation> _scarChargeLocation) {
+        this._scarChargeLocation = _scarChargeLocation;
     }
 
     public static Location getByLocationNo(String locationNo) {

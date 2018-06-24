@@ -3,12 +3,11 @@ package com.thread.threads.operator;
 import com.asrs.domain.AsrsJob;
 import com.asrs.domain.Location;
 import com.asrs.message.Message03;
-import com.thread.blocks.Block;
-import com.thread.blocks.Conveyor;
-import com.thread.blocks.MCar;
-import com.thread.blocks.SCar;
+import com.thread.blocks.*;
 import com.thread.utils.MsgSender;
+import com.util.hibernate.HibernateUtil;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
 
 /**
  * Created by van on 2017/11/2.
@@ -105,7 +104,7 @@ public class MCarOperator {
         ScarOperator scarOperator = new ScarOperator(sCar, reservedMcKey);
         if (mCar.getCheckLocation() && mCar.getLevel() == location.getLevel() && mCar.getBay() == location.getBay()) {
             unLoadCar(sCar.getBlockNo(), reservedMcKey, location);
-            scarOperator.offCar(mCar.getBlockNo(), location.getLocationNo());
+//            scarOperator.offCar(mCar.getBlockNo(), location.getLocationNo());
         } else {
             move(location);
         }
@@ -123,7 +122,8 @@ public class MCarOperator {
             this.move(block.getBlockNo());
         } else {
             //从block移栽卸货
-            if (StringUtils.isBlank(block.getMcKey()) && StringUtils.isBlank(block.getReservedMcKey())) {
+            Conveyor conveyor=(Conveyor) block;
+            if ((StringUtils.isBlank(block.getMcKey()) && StringUtils.isBlank(block.getReservedMcKey()))||conveyor.isManty()) {
                 this.moveUnloadGoods(block.getBlockNo());
                 ConveyorOperator conveyorOperator = new ConveyorOperator((Conveyor) block, job.getMcKey());
                 conveyorOperator.tryMoveCarryGoodsFromMcar(mCar);
@@ -159,13 +159,14 @@ public class MCarOperator {
     }
 
     public void tryUnloadGoodsToConvery(Conveyor conveyor)throws Exception{
-        if (conveyor.getBlockNo().equals(mCar.getDock())){
-            MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, mCar, "", conveyor.getBlockNo(), "", "");
-            MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, conveyor, "", mCar.getBlockNo(), "", "");
-
-        }else{
-            move(conveyor.getBlockNo());
-        }
+            if (conveyor.getBlockNo().equals(mCar.getDock())) {
+                if(com.util.common.StringUtils.isEmpty(conveyor.getMcKey())) {
+                    MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, mCar, "", conveyor.getBlockNo(), "", "");
+                    MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, conveyor, "", mCar.getBlockNo(), "", "");
+                }
+            } else {
+                move(conveyor.getBlockNo());
+            }
     }
 
 
@@ -174,17 +175,55 @@ public class MCarOperator {
      *
      * @param conveyor
      */
-    public void tryLoadToConvery(Conveyor conveyor) throws Exception {
+    public void tryLoadToConvery(Block conveyor) throws Exception {
+
         if (conveyor.getBlockNo().equals(mCar.getDock())) {
             SCar sCar = (SCar) SCar.getByBlockNo(mCar.getsCarBlockNo());
-            MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
-            MsgSender.send03(Message03._CycleOrder.offCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
-            MsgSender.send03(Message03._CycleOrder.loadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
+            if(conveyor instanceof Conveyor){
+                MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
+                //MsgSender.send03(Message03._CycleOrder.offCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
+                MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
+                MsgSender.send03(Message03._CycleOrder.loadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
+            }else if(conveyor instanceof Lift){
+                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock())){
+                    //备用
+                    MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
+                    //MsgSender.send03(Message03._CycleOrder.offCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
+                    MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
+
+                }
+
+            }
 
         } else {
             move(conveyor.getBlockNo());
         }
     }
+    /*
+     * @author：ed_chen
+     * @date：2018/6/25 1:06
+     * @description：母车从提升机上接子车
+     * @param conveyor
+     * @return：void
+     */
+    public void tryLoadFromLift(Block conveyor) throws Exception {
 
+        if (conveyor.getBlockNo().equals(mCar.getDock())) {
+            Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+            SCar sCar = (SCar) query.uniqueResult();
+            if(conveyor instanceof Conveyor){
+                MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
+            }else if(conveyor instanceof Lift){
+                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock())){
+                    //备用
+                    MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
+                }
+
+            }
+
+        } else {
+            move(conveyor.getBlockNo());
+        }
+    }
 
 }

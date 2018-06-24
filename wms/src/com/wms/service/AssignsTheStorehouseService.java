@@ -379,9 +379,10 @@ public class AssignsTheStorehouseService {
         String mckey = Mckey.getNext();
         //查询1303状态
         Station station = Station.getStation("1303");
-        if(station.get){
+        //未完善
+        /*if(station.get){
 
-        }
+        }*/
         String toStation = position.equals("1") ? "1201" : "1301";//到达站台
         String fromStation = mCar.getBlockNo();//出发地点
         String type = AsrsJobType.RETRIEVAL; //出库

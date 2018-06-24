@@ -24,7 +24,7 @@ public class Const {
 
     public static final String RECHARGE_LOCATION = "1303";
 
-    public static final Integer LOWER_POWER = 30;
+    public static final Integer LOWER_POWER = 40;
 
     public static final String RETRIEVAL_MCKEY = "RETRIEVAL_MCKEY";
 

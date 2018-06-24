@@ -561,6 +561,17 @@ public class Location {
         _containers = containers;
     }
 
+    private Collection<ScarChargeLocation> _scarChargeLocation = new ArrayList<ScarChargeLocation>();
+
+    @OneToMany(mappedBy = "chargeLocation")
+    public Collection<ScarChargeLocation> get_scarChargeLocation() {
+        return _scarChargeLocation;
+    }
+
+    public void set_scarChargeLocation(Collection<ScarChargeLocation> _scarChargeLocation) {
+        this._scarChargeLocation = _scarChargeLocation;
+    }
+
 
     public static Location getByLocationNo(String locationNo) {
         Session session = HibernateUtil.getCurrentSession();
@@ -587,11 +598,11 @@ public class Location {
         Session session = HibernateUtil.getCurrentSession();
         //存在同批次的库存同一边的可用，并且托盘是整托
         Query q = session.createQuery("from Location l where exists( select 1 from Inventory i where l.bay=i.container.location.bay and l.actualArea=i.container.location.actualArea " +
-                " and l.level =i.container.location.level  and i.skuCode=:skuCode and i.lotNum = :batchNO " +
+                " and l.level =i.container.location.level  and i.skuCode=:skuCode and i.lotNum=:lotNum " +
                 " and  l.position=i.container.location.position and  i.container.location.seq<l.seq  ) and not exists( select 1 from Inventory i " +
                 " where l.bay=i.container.location.bay and l.level =i.container.location.level  and l.actualArea=i.container.location.actualArea and l.position=i.container.location.position and i.container.reserved =true )  " +
-                "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po) order by l.seq asc")
-                .setString("skuCode", skuCode).setString("batchNO", batchNo);
+                " and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po) order by l.position desc, l.seq asc")
+                .setString("skuCode", skuCode).setParameter("lotNum", batchNo);
 
         //若传入的positon值为0，则默认查询整个仓库的库位
         List<String> list = new ArrayList<>();
@@ -608,9 +619,11 @@ public class Location {
         } else {
             //查找正在执行的入库任务
             q = session.createQuery("from Location l where exists( select 1 from Job j where " +
-                    " j.lotNum =:batchNo and l.actualArea= j.toLocation.actualArea " +
-                    " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and j.skuCode=:skuCode and l.position=j.toLocation.position )  " +
-                    "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po)  order by l.seq asc")
+                    " and l.actualArea= j.toLocation.actualArea " +
+                    " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and " +
+                    " j.skuCode=:skuCode and j.lotNum=:batchNo and l.position=j.toLocation.position )  " +
+                    " and l.empty=true and l.reserved=false and l.asrsFlag = true and " +
+                    " l.putawayRestricted = false and l.position in (:po)  order by l.position desc, l.seq asc ")
                     .setParameter("batchNo", batchNo).setParameter("skuCode", skuCode);
             list = new ArrayList<>();
             if("0".equals(po)){

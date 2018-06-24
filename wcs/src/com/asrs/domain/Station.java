@@ -157,22 +157,11 @@ public class Station
     @Basic
     @Column(name = "STATUS")
     public boolean isStatus() {
-        return _status;
+            return _status;
     }
 
     public void setStatus(boolean status) {
-        this._status = status;
-    }
-
-    private boolean  _direction;
-    @Basic
-    @Column(name = "DIRECTION")
-    public boolean is_direction() {
-        return _direction;
-    }
-
-    public void set_direction(boolean _direction) {
-        this._direction = _direction;
+           this._status = status;
     }
 
     @Override

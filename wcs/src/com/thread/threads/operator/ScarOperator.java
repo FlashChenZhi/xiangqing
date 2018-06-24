@@ -240,14 +240,12 @@ public class ScarOperator {
      * @throws Exception
      */
     public void tryCharge(SCar sCar, Location location) throws Exception {
-        MsgSender.send03(Message03._CycleOrder.charge, sCar.getMcKey(), sCar, location.getLocationNo(), "", "", "");
+        if (sCar.getLevel() == location.getLevel()
+                && sCar.getBay() == location.getBay()) {
+            MsgSender.send03(Message03._CycleOrder.charge, sCar.getMcKey(), sCar, location.getLocationNo(), "", "", "");
+        }
     }
 
-    /**
-     * 子车尝试上车
-     * @param mCar
-     * @throws Exception
-     */
     public void tryOnMCar(MCar mCar) throws Exception {
         if (sCar.getLevel() == mCar.getLevel()
                 && sCar.getBay() == mCar.getBay()) {

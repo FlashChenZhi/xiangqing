@@ -37,7 +37,7 @@ public class BccGenerator
     }
 
     public static void main(String[] args) {
-        System.out.println(GetBcc("11101199993241C__________100000000"));
+        System.out.println(GetBcc("1120414114000000000000000000000000"));
 
     }
 }

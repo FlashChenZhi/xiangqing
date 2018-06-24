@@ -1,4 +1,4 @@
-package com.web.vo;
+package com.asrs.domain;
 
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;

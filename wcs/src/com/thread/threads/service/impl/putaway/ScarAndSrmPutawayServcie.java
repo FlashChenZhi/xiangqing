@@ -1,12 +1,18 @@
 package com.thread.threads.service.impl.putaway;
 
 import com.asrs.domain.AsrsJob;
+import com.asrs.domain.Location;
+import com.thread.blocks.Block;
 import com.thread.blocks.MCar;
 import com.thread.blocks.SCar;
 import com.thread.blocks.Srm;
 import com.thread.threads.operator.ScarOperator;
 import com.thread.threads.service.impl.ScarAndSrmServiceImpl;
+import com.util.hibernate.HibernateUtil;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Session;
+
+import java.util.List;
 
 /**
  * Created by van on 2017/11/9.
@@ -54,7 +60,7 @@ public class ScarAndSrmPutawayServcie extends ScarAndSrmServiceImpl {
             operator.tryOffCarCarryGoodsFromMcar(srm);
         }else{
             MCar srm = MCar.getMCarByGroupNo(sCar.getGroupNo());
-            operator.tryUnloadGoods(srm);
+                operator.tryUnloadGoods(srm);
         }
     }
 }

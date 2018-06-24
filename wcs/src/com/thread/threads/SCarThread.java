@@ -48,9 +48,12 @@ public class SCarThread extends BlockThread<SCar> {
                 } else if (!sCar.getStatus().equals(SCar.STATUS_RUN)) {
                     if (sCar.getStatus().equals(SCar.STATUS_CHARGE)) {
                         if (sCar.getPower() > 95) {
+                            /*sCar.setStatus(SCar.STATUS_RUN);
+                            //充电完成简单动作，子车开车到巷道口，然后上车，
+                            MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);*/
                             //获取一层母车
-                            MCar srm = MCar.getMCarByPosition(sCar.getPosition(),sCar.getLevel());
-                            if(srm.getGroupNo() == null){
+                            MCar srm = MCar.getMCarByPosition(sCar.getPosition(), sCar.getLevel());
+                            if (srm.getGroupNo() == null) {
                                 //小车在一层，并且一层母车没有绑定小车，
                                 // 并且此母车没有mckey和reservedmckey（即没有换层任务到这个母车）
 
@@ -66,72 +69,71 @@ public class SCarThread extends BlockThread<SCar> {
                                 sCar.setStatus(SCar.STATUS_RUN);
                                 //充电完成简单动作，子车开车到巷道口，然后上车，
                                 MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
-                            }else{
+                            } else {
 
                             }
+                            /*MCar srm = MCar.getMCarByPosition(sCar.getPosition(),sCar.getLevel());
+                            Query query = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where (toStation=:st or fromStation=:st) and type<>:tp and status=:stat");
+                            query.setParameter("st", srm.getBlockNo());
+                            query.setParameter("tp",AsrsJobType.RECHARGED);
+                            query.setParameter("stat",AsrsJobStatus.RUNNING);
+                            List<AsrsJob> jobs = query.list();
+                            if (!jobs.isEmpty()&&sCar.getPower() > 35) {
+                                sCar.setStatus(SCar.STATUS_RUN);
+                                //充电完成简单动作，子车开车到巷道口，然后上车，
+                                MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
+                            }*/
+                        }
+                    } else {
+                        //小车在运行状态
+                        if (StringUtils.isEmpty(sCar.getReservedMcKey()) && StringUtils.isEmpty(sCar.getMcKey())) {
+
+                            ScarAndMCarServiceImpl service = new ScarAndMCarServiceImpl(sCar);
+                            if (sCar != null)
+                                service.withOutJob();
+
+                        } else if (StringUtils.isNotEmpty(sCar.getMcKey())) {
+
+                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
+                            ScarService service = null;
+                            if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                                service = new ScarAndSrmPutawayServcie(sCar);
+
+                            } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                                service = new ScarAndSrmRetrievalService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                                service = new ScarCharageService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                                service = new ScarCharageOverService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
+                                service = new ScarAndSrmStsService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
+                                service = new ScarChangeLev(sCar);
+                            }
+                            service.withMckey();
+
+                        } else if (StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
+                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getReservedMcKey());
+                            ScarService service = null;
+                            if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                                service = new ScarAndSrmPutawayServcie(sCar);
+
+                            } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                                service = new ScarAndSrmRetrievalService(sCar);
+
+                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                                service = new ScarCharageService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                                service = new ScarCharageOverService(sCar);
+                            } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
+                                service = new ScarAndSrmStsService(sCar);
+                            }
+                            service.withReserveMckey();
 
                         }
-                        /*MCar srm = MCar.getMCarByPosition(sCar.getPosition(),sCar.getLevel());
-                        Query query = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where (toStation=:st or fromStation=:st) and type<>:tp and status=:stat");
-                        query.setParameter("st", srm.getBlockNo());
-                        query.setParameter("tp",AsrsJobType.RECHARGED);
-                        query.setParameter("stat",AsrsJobStatus.RUNNING);
-                        List<AsrsJob> jobs = query.list();
-                        if (!jobs.isEmpty()) {
-                            sCar.setStatus(SCar.STATUS_RUN);
-                            //充电完成简单动作，子车开车到巷道口，然后上车，
-                            MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
-                        }*/
                     }
-                } else {
-                    //小车在运行状态
-                    if (StringUtils.isEmpty(sCar.getReservedMcKey()) && StringUtils.isEmpty(sCar.getMcKey())) {
-
-                        ScarAndMCarServiceImpl service = new ScarAndMCarServiceImpl(sCar);
-                        if(sCar!=null)
-                        service.withOutJob();
-
-                    } else if (StringUtils.isNotEmpty(sCar.getMcKey())) {
-
-                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
-                        ScarService service = null;
-                        if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                            service = new ScarAndSrmPutawayServcie(sCar);
-
-                        } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
-                            service = new ScarAndSrmRetrievalService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                            service = new ScarCharageService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-                            service = new ScarCharageOverService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
-                            service = new ScarAndSrmStsService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
-                            service = new ScarChangeLev(sCar);
-                        }
-                        service.withMckey();
-
-                    } else if (StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
-                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getReservedMcKey());
-                        ScarService service = null;
-                        if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                            service = new ScarAndSrmPutawayServcie(sCar);
-
-                        } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
-                            service = new ScarAndSrmRetrievalService(sCar);
-
-                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                            service = new ScarCharageService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-                            service = new ScarCharageOverService(sCar);
-                        } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
-                            service = new ScarAndSrmStsService(sCar);
-                        }
-                        service.withReserveMckey();
-
-                    }
+                    Transaction.commit();
                 }
-                Transaction.commit();
             } catch (Exception e) {
                 Transaction.rollback();
                 e.printStackTrace();

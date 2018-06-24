@@ -104,17 +104,18 @@ public class LoadUnitAtID extends XMLProcess {
                 String barcode = dataArea.getScanData().replaceAll("_","");
                 String stationNo = dataArea.getXMLLocation().getMHA();
                 Station station = Station.getNormalStation(stationNo);
-//      ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
-                Job job=new Job();
+                //ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
+
                 Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
                         .setString("station",stationNo)
                         .setString("waiting", AsrsJobStatus.WAITING)
                         .setMaxResults(1);
-                job = (Job) jobQuery.uniqueResult();
-                if(station!=null) {
+                Job job = (Job) jobQuery.uniqueResult();
+                if(station!=null && AsrsJobType.PUTAWAY.equals(station.getMode())) {
                     if (job == null) {
                         job=createJob(stationNo);
                     }
+                    barcode=job.getContainer();
                     //分配货位，并向队列中压入TransportOrder
                     Location newLocation = getToLocation(stationNo,job,barcode);
                 }else {
@@ -123,7 +124,7 @@ public class LoadUnitAtID extends XMLProcess {
 
 
 
-    /*                job = new Job();
+                 /* job = new Job();
                     job.setToLocation(newLocation);
                     job.setMcKey(ri.getReferenceId());
                     job.setStatus("1");
@@ -252,7 +253,11 @@ public class LoadUnitAtID extends XMLProcess {
         job.setType(AsrsJobType.PUTAWAY);
         job.setMcKey(Mckey.getNext());
         job.setStatus(AsrsJobStatus.WAITING);
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        //以天数为批次
+        String lotNum = sdf.format(new Date());
+        job.setLotNum(lotNum);
+        job.setContainer(Const.containerCode);
         JobDetail jobDetail = new JobDetail();
         session.save(jobDetail);
         jobDetail.setJob(job);
@@ -261,12 +266,12 @@ public class LoadUnitAtID extends XMLProcess {
         InventoryView inventoryView = new InventoryView();
         session.save(inventoryView);
         inventoryView.setPalletCode(Const.containerCode);//托盘号
-        inventoryView.setQty(new BigDecimal(Const.containerQty)));//托盘上的货物数量
+        inventoryView.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
         inventoryView.setSkuCode(Const.skuCode); //商品代码
         inventoryView.setSkuName(Const.skuName);//商品名称
         inventoryView.setWhCode(Const.warehouseCode);//仓库代码
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        inventoryView.setLotNum(sdf.format(new Date()));//批次号
+
+        inventoryView.setLotNum(lotNum);//批次号
 
         return job;
     }

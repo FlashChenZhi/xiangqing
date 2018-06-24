@@ -8,6 +8,7 @@ import com.asrs.domain.WcsMessage;
 import com.asrs.message.Message03;
 import com.thread.blocks.Block;
 import com.thread.blocks.Conveyor;
+import com.thread.blocks.MCar;
 import com.thread.blocks.Srm;
 import com.util.common.Const;
 import com.util.common.LogWriter;
@@ -37,6 +38,11 @@ public class MsgSender {
 
         if (StringUtils.isNotBlank(locationNo)) {
             Location location = Location.getByLocationNo(locationNo);
+            /*if(StringUtils.isNotBlank(location.getOutPosition()) && (blockNo.equals("MC05") || block.getBlockNo().equals("MC05"))){
+                m3.Bank = StringUtils.leftPad(16 + "", 2, '0');
+            }else {
+                m3.Bank = StringUtils.leftPad(location.getBank() + "", 2, '0');
+            }*/
             m3.Bank = StringUtils.leftPad(location.getBank() + "", 2, '0');
             m3.Bay = StringUtils.leftPad(location.getBay() + "", 2, '0');
             m3.Level = StringUtils.leftPad(location.getLevel() + "", 2, '0');
@@ -81,9 +87,15 @@ public class MsgSender {
         _wcsproxy.addSndMsg(m3);
         block.setWaitingResponse(true);
 
-        if (block instanceof Srm) {
-            HibernateUtil.getCurrentSession().createQuery("update Srm set waitingResponse=true,checkLocation = false where blockNo =:blockNo ")
-                    .setParameter("blockNo", block.getBlockNo()).executeUpdate();
+        if (block instanceof MCar) {
+            if(cycleOrder.equals(Message03._CycleOrder.move)){
+                HibernateUtil.getCurrentSession().createQuery("update MCar set waitingResponse=true,checkLocation = false,bay = 0 where blockNo =:blockNo ")
+                        .setParameter("blockNo", block.getBlockNo()).executeUpdate();
+            }else{
+                HibernateUtil.getCurrentSession().createQuery("update MCar set waitingResponse=true where blockNo =:blockNo ")
+                        .setParameter("blockNo", block.getBlockNo()).executeUpdate();
+
+            }
         } else {
             if (block instanceof Conveyor) {
                 Conveyor conveyor = (Conveyor) block;

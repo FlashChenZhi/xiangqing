@@ -6,7 +6,6 @@ import com.asrs.message.MessageBuilder;
 import com.asrs.message.MsgException;
 import com.util.common.LogWriter;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -45,12 +44,9 @@ public class WcsMsgProcCenter implements Runnable {
     }
 
     public MsgProcess GetNewIDProcess(String id) {
-        //获取对应的包名，获取类的路径
         String classname = MsgProcess.class.getPackage().getName() + ".Msg" + id + "Proc";
         try {
-            //返回一个给定类或者接口的一个Class对象，初始化
             Class c = Class.forName(classname);
-            //实例化对象
             Object obj = c.newInstance();
             if (obj instanceof MsgProcess) {
                 MsgProcess proc = (MsgProcess) obj;
@@ -69,7 +65,12 @@ public class WcsMsgProcCenter implements Runnable {
         while (true) {
             try {
                 MessageBuilder msg = _wcsProxy.getRcvdMsg();
-                DoMsg(msg);
+
+//                DoMsg(msg);
+
+                Thread thread = new Thread(new WcsMsgProcCenterSubThread(_procFactory,msg,_wmsProxy,_wcsProxy));
+                thread.start();
+
             } catch (RemoteException e) {
                 LogWriter.writeError(this.getClass(), "RMI发生错误,MsgProcCenter终止");
                 return;

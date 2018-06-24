@@ -8,10 +8,13 @@ import com.util.hibernate.*;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.*;
+import org.hibernate.Query;
 
 import javax.persistence.*;
 import javax.persistence.Version;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2016/10/26.
@@ -58,7 +61,6 @@ public abstract class Block {
     public int getVersion() {
         return version;
     }
-
     public void setVersion(int version) {
         this.version = version;
     }
@@ -133,6 +135,18 @@ public abstract class Block {
     public void setWareHouse(String wareHouse) {
         this.wareHouse = wareHouse;
     }
+
+   // private int version;
+
+//    @Version
+//    @Column(name = "VERSION")
+//    public int getVersion() {
+//        return version;
+//    }
+//
+//    public void setVersion(int version) {
+//        this.version = version;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -254,44 +268,49 @@ public abstract class Block {
 
     @Transient
     public Block getPreBlockByJobType(String jobType) {
-        org.hibernate.Query q = HibernateUtil.getCurrentSession().createQuery("from RouteDetail  rd where rd.nextBlockNo=:currentBlock " +
-                " and rd.route.type=:type  and rd.route.status=:status")
-                .setString("currentBlock", getBlockNo())
-                .setString("type", jobType)
-                .setString("status","1");
-
-        List<RouteDetail> rds = q.list();
-
-        if (rds.isEmpty()) {
-            return null;
-        }
-
-        return getByBlockNo(rds.get(0).getCurrentBlockNo());
-    }
-
-    @Transient
-    public Block getPreBlockHasMckey(String jobType) {
-        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where d.currentBlockNo = b.blockNo and " +
+        org.hibernate.Query q = HibernateUtil.getCurrentSession().createQuery("from RouteDetail  rd where " +
+                "rd.nextBlockNo=:currentBlock" +
                 "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo desc ")
                 .setString("cb", getBlockNo()).setString("type", jobType)
                 .setString("status","1");
-
-        List<RouteDetail> rds = query.list();
-
+        List<RouteDetail> rds = q.list();
         if (rds.isEmpty()) {
-            return null;
+             return null;
         }
-
         return getByBlockNo(rds.get(0).getCurrentBlockNo());
-
-    }
+     }
 
     @Transient
     public Block getPreBlockHasMckeyByLevel(String jobType,String blockNo) {
         org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where d.currentBlockNo = b.blockNo and " +
-                "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo desc")
-                .setString("cb", getBlockNo()).setString("type", jobType)
+                " and rd.route.type=:type  and rd.route.status=:status")
+                .setString("currentBlock", getBlockNo())
+                .setString("type", jobType)
                 .setString("status","1");
+        List<RouteDetail> rds = query.list();
+        if (rds.isEmpty()) {
+            return null;
+        }
+
+        return getByBlockNo(rds.get(0).getCurrentBlockNo());
+    }
+
+    private static Map<String,String> preBlockNoMap = new HashMap<>();
+
+    @Transient
+    public Block getPreBlockHasMckey(String jobType) {
+        org.hibernate.Query query;
+        if("03".equals(jobType)){
+            query= HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b,AsrsJob a where a.mcKey=b.mcKey and d.currentBlockNo = b.blockNo and " +
+                    "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and a.type=:type and d.route.status=:status order by a.generateTime,b.blockNo asc")
+                    .setString("cb", getBlockNo()).setString("type", jobType)
+                    .setString("status","1");
+        }else {
+            query= HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where  d.currentBlockNo = b.blockNo and " +
+                    "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo asc")
+                    .setString("cb", getBlockNo()).setString("type", jobType)
+                    .setString("status","1");
+        }
 
         List<RouteDetail> rds = query.list();
 
@@ -299,7 +318,53 @@ public abstract class Block {
             return null;
         }
 
-        return getByBlockNo(rds.get(0).getCurrentBlockNo());
+        RouteDetail routeDetail = null;
+        String preBlockNo = null;
+        for(RouteDetail rd : rds){
+            preBlockNo = preBlockNoMap.get(this.getBlockNo());
+            if(preBlockNo == null || preBlockNo.compareTo(rd.getCurrentBlockNo()) > 0){
+                preBlockNo = rd.getCurrentBlockNo();
+                routeDetail = rd;
+                break;
+            }
+
+        }
+
+        if(routeDetail == null){
+            preBlockNo = rds.get(0).getCurrentBlockNo();
+            routeDetail = rds.get(0);
+        }
+
+        preBlockNoMap.put(this.getBlockNo(),preBlockNo);
+        return getByBlockNo(routeDetail.getCurrentBlockNo());
 
     }
+
+    @Transient
+    public Block getBlockByMckey(String mcKey) {
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("from Block b where b.mcKey=:mcKey ")
+                .setString("mcKey", mcKey);
+        query.setMaxResults(1);
+
+        return (Block)query.uniqueResult();
+    }
+
+
+    /*
+     * @author：ed_chen
+     * @date：2018/6/24 22:58
+     * @description：获取提升机要到达下一个block所需要的接驳站台号
+     * @param toBlockNo
+     * @param liftNo
+     * @return：java.lang.String
+     */
+    @Transient
+    public String getDock(String toBlockNo, String liftNo) {
+        Query query = HibernateUtil.getCurrentSession().createQuery("from Dock where mCarNo=:toBlockNo and liftNo=:liftNO").setMaxResults(1);
+        query.setParameter("toBlockNo", toBlockNo);
+        query.setParameter("liftNO", liftNo);
+        Dock dock = (Dock) query.uniqueResult();
+        return  dock.getDockNo();
+    }
+
 }

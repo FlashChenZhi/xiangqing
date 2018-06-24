@@ -1,5 +1,7 @@
 package com.web.vo;
 
+import java.util.Date;
+
 /**
  * Created by Administrator on 2016/11/14.
  */
@@ -12,7 +14,32 @@ public class OnlineTaskVo {
     private String toStation;
     private String jobType;
     private String jobStatus;
+    private String skuSpec;
+    private String skuCode;
+    private String generateTime;
 
+    public String getGenerateTime() {
+        return generateTime;
+    }
+
+    public void setGenerateTime(String generateTime) {
+        this.generateTime = generateTime;
+    }
+
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
+    }
+    public String getSkuSpec() {
+        return skuSpec;
+    }
+
+    public void setSkuSpec(String skuSpec) {
+        this.skuSpec = skuSpec;
+    }
     public String getMcKey() {
         return mcKey;
     }

@@ -70,6 +70,8 @@ public class MCarThread extends BlockThread<MCar> {
                             service = new MCarAndScarStsService(mCar);
                         }else if(asrsJob.getType().equals(AsrsJobType.ST2ST)){
 
+                        }else if(asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)){
+                            service = new MCarChangeLevService(mCar);
                         }
                         if(service!=null)
                         service.withReserveMckey();

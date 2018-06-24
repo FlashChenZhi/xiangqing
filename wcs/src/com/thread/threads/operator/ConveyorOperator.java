@@ -32,12 +32,24 @@ public class ConveyorOperator {
     public void tryMoveToAnotherCrane(Block nextBlock) throws Exception {
         Conveyor coy = (Conveyor) nextBlock;
         if (coy.isManty()) {
-            MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, conveyor, "", nextBlock.getBlockNo(), "", "");
-            MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", conveyor.getBlockNo(), "", "");
-        } else {
-            if (!nextBlock.isWaitingResponse() && StringUtils.isBlank(nextBlock.getMcKey()) && StringUtils.isBlank(nextBlock.getReservedMcKey())) {
                 MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, conveyor, "", nextBlock.getBlockNo(), "", "");
                 MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", conveyor.getBlockNo(), "", "");
+
+
+        } else {
+            if (!nextBlock.isWaitingResponse() && StringUtils.isBlank(nextBlock.getMcKey()) && StringUtils.isBlank(nextBlock.getReservedMcKey())) {
+
+                /*Block byBlockNo = Block.getByBlockNo("0034");
+                Block byBlockNo1 = Block.getByBlockNo("0012");
+                Block byBlockNo2 = Block.getByBlockNo("0042");
+                if((nextBlock.getBlockNo().equals("0026")&&StringUtils.isNotBlank(byBlockNo.getMcKey())&&conveyor.getBlockNo().equals("0027"))
+                        ||(nextBlock.getBlockNo().equals("0011")&&StringUtils.isNotBlank(byBlockNo1.getMcKey())&&conveyor.getBlockNo().equals("0009"))
+                        ||(nextBlock.getBlockNo().equals("0045")&&StringUtils.isNotBlank(byBlockNo2.getMcKey())&&conveyor.getBlockNo().equals("0044"))){
+                }else{*/
+                    MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, conveyor, "", nextBlock.getBlockNo(), "", "");
+                    MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", conveyor.getBlockNo(), "", "");
+                /*}*/
+
             }
         }
     }
@@ -51,7 +63,8 @@ public class ConveyorOperator {
      */
     public void tryMoveUnloadGoodsToLift(Lift nextBlock) throws Exception {
         if (mckey.equals(nextBlock.getReservedMcKey())) {
-            if (nextBlock.getDock() != null && nextBlock.getDock().equals(conveyor.getBlockNo())) {
+            if (nextBlock.getDock() != null && (nextBlock.getDock().equals(conveyor.getBlockNo())
+                    || nextBlock.getDock().equals(conveyor.getDock(conveyor.getBlockNo(), nextBlock.getBlockNo())) )) {
                 MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, conveyor, "", nextBlock.getBlockNo(), "", "");
             }
         }
@@ -95,7 +108,7 @@ public class ConveyorOperator {
      * @throws Exception
      */
     public void tryMoveUnloadGoodsToStation(StationBlock nextBlock) throws Exception {
-        if (StringUtils.isBlank(nextBlock.getMcKey())) {
+        if ((!nextBlock.isWaitingResponse() && StringUtils.isBlank(nextBlock.getMcKey()))||nextBlock.isManty()) {
             MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, conveyor, "", nextBlock.getBlockNo(), "", "");
             MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", conveyor.getBlockNo(), "", "");
         }
@@ -159,13 +172,16 @@ public class ConveyorOperator {
      */
     public void tryUnLoadCarToLift(Lift lift) throws Exception {
 
+        /*Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);*/
+        //修改
         Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+
         SCar sCar = (SCar) query.uniqueResult();
 
         if (conveyor.getBlockNo().equals(lift.getDock())) {
-        MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
-        MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", lift.getBlockNo(), "", "");
-        MsgSender.send03(Message03._CycleOrder.loadCar, mckey, lift, "", conveyor.getBlockNo(), "", "");
+            MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
+            MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", lift.getBlockNo(), "", "");
+            MsgSender.send03(Message03._CycleOrder.loadCar, mckey, lift, "", conveyor.getBlockNo(), "", "");
 
         } else {
             if(!lift.isWaitingResponse()&&!sCar.isWaitingResponse())
@@ -174,7 +190,10 @@ public class ConveyorOperator {
     }
 
     public void tryUnLoadCarToMCar(MCar mCar) throws Exception {
+        /*Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);*/
+        //修改
         Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+
         SCar sCar = (SCar) query.uniqueResult();
         if (conveyor.getBlockNo().equals(mCar.getDock())) {
             MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
