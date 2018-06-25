@@ -243,7 +243,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                         boolean hasJob = false;
 
                         //堆垛机上的子车电量不足，生成充电任务
-                        if (sCar.getPower() <= 40) {
+                        if (sCar.getPower() <= Const.LOWER_POWER) {
                             //生成充电任务
                             hasJob = createCharge(hasJob, mCar);
                         }

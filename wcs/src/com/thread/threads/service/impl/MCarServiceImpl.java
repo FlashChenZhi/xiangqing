@@ -106,7 +106,7 @@ public class MCarServiceImpl implements MCarService {
                             "a.toStation = m.blockNo and m.position=:position and m.blockNo=:blockNo ) ");
             query.setString("tp", AsrsJobType.RECHARGED);
             query.setString("tp2", AsrsJobType.RECHARGEDOVER);
-            query.setString("tp2", AsrsJobType.CHANGELEVEL);
+            query.setString("tp3", AsrsJobType.CHANGELEVEL);
             query.setString("blockNo", mCar.getBlockNo());
             query.setString("position", mCar.getPosition());
             query.setMaxResults(1);

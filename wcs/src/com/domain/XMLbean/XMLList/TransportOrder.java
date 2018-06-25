@@ -173,7 +173,7 @@ public class TransportOrder extends XMLProcess {
                     List<String> locationS = dataArea.getFromLocation().getRack();
 
                     String blockNo = dataArea.getFromLocation().getMHA();
-                    Srm srm = (Srm) Block.getByBlockNo(blockNo);
+                    MCar srm = (MCar) Block.getByBlockNo(blockNo);
 
                     Location location = Location.getByBankBayLevel(Integer.parseInt(locationS.get(0)), Integer.parseInt(locationS.get(1)), Integer.parseInt(locationS.get(2)), srm.getPosition());
 
@@ -222,13 +222,11 @@ public class TransportOrder extends XMLProcess {
     public void sendReport(String result) throws Exception {
         AcceptTransportOrder acceptTransportOrder = new AcceptTransportOrder();
 
-
         ControlArea controlArea = new ControlArea();
         RefId refId = new RefId();
         refId.setReferenceId(this.controlArea.getRefId().getReferenceId());
         controlArea.setRefId(refId);
         controlArea.setCreationDateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-
 
         Sender sender = new Sender();
         if(this.controlArea.getReceiver()!=null) {
@@ -245,7 +243,6 @@ public class TransportOrder extends XMLProcess {
         da.setStUnitID(this.dataArea.getStUnitId());
         da.setRouteChange(this.dataArea.getRouteChange());
 
-
         acceptTransportOrder.setDataArea(da);
         acceptTransportOrder.setControlArea(controlArea);
 
@@ -259,8 +256,6 @@ public class TransportOrder extends XMLProcess {
         xmlMessage.setRecv("WMS");
         xmlMessage.setMessageInfo(XMLUtil.getSendXML(el));
         HibernateUtil.getCurrentSession().save(xmlMessage);
-
-
 
     }
 }
