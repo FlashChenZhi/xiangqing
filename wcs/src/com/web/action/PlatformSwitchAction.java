@@ -1,7 +1,9 @@
 package com.web.action;
 
-import com.util.common.ReturnObj;
+import com.asrs.domain.Station;
+
 import com.web.service.PlatformSwitchService;
+import com.web.vo.ReturnObj;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,7 +25,7 @@ public class PlatformSwitchAction {
      */
     @RequestMapping(value = "findPlatformSwitch.do",method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObj<com.wms.domain.Station> findPlatformSwitch(String direction, String stationNo){
+    public ReturnObj<Station> findPlatformSwitch(String direction, String stationNo){
         return platformSwitchService.findPlatformSwitch(direction,stationNo);
     }
 
@@ -35,7 +37,7 @@ public class PlatformSwitchAction {
      */
     @RequestMapping(value = "updatePlatformSwitch.do",method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObj<String> updatePlatformSwitch(String direction,String stationNo){
+    public ReturnObj<String> updatePlatformSwitch(String direction, String stationNo){
         return platformSwitchService.updatePlatformSwitch(direction,stationNo);
     }
 }

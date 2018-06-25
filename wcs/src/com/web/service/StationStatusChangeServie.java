@@ -1,8 +1,9 @@
 package com.web.service;
 import com.asrs.domain.Station;
-import com.util.common.ReturnObj;
+
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
+import com.web.vo.ReturnObj;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class StationStatusChangeServie {
      * 1.查询AsrsJob对象是否存在入库任务
      * 2.没有任务时可切换站台状态
      */
-    public ReturnObj<String> updateStatusChange(String pattern,String stationNo) {
+    public ReturnObj<String> updateStatusChange(String pattern, String stationNo) {
         ReturnObj<String> stationReturnObj = new ReturnObj();
         try {
             Transaction.begin();

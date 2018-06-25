@@ -1,8 +1,9 @@
 package com.web.action;
 
 import com.asrs.domain.Station;
-import com.util.common.ReturnObj;
+
 import com.web.service.StationStatusChangeServie;
+import com.web.vo.ReturnObj;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,13 +14,14 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping(value = "/stationStatusChange")
 public class StationStatusChangeAction {
-        @Resource
-        private StationStatusChangeServie stationStatusChangeServie;
-        @RequestMapping(value = "findStatusChange.do",method = RequestMethod.POST)
-        @ResponseBody
-        public ReturnObj<Station> findStatusChange(String pattern, String stationNo){
-            return  stationStatusChangeServie.findStatusChange(pattern,stationNo);
-         }
+    @Resource
+    private StationStatusChangeServie stationStatusChangeServie;
+
+    @RequestMapping(value = "findStatusChange.do",method = RequestMethod.POST)
+    @ResponseBody
+    public ReturnObj<Station> findStatusChange(String pattern, String stationNo){
+        return  stationStatusChangeServie.findStatusChange(pattern,stationNo);
+     }
 
       @RequestMapping(value = "updateStatusChange.do",method = RequestMethod.POST)
       @ResponseBody
