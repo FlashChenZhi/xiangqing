@@ -127,16 +127,16 @@ public class ConnectionManager implements Runnable {
                             conn.connect();
 
                             Transaction.begin();
-//                            Block block = Block.getByBlockNo(conn.getPlcName());
-//                            if (block != null) {
-//                                if (block instanceof MCar) {
-//                                    MCar mCar = (MCar) block;
-//                                    mCar.setCheckLocation(false);
-//                                } else if (block instanceof Srm) {
-//                                    Srm srm = (Srm) block;
-//                                    srm.setCheckLocation(false);
-//                                }
-//                            }
+                            Block block = Block.getByBlockNo(conn.getPlcName());
+                            if (block != null) {
+                                if (block instanceof MCar) {
+                                    MCar mCar = (MCar) block;
+                                    mCar.setCheckLocation(false);
+                                } else if (block instanceof Srm) {
+                                    Srm srm = (Srm) block;
+                                    srm.setCheckLocation(false);
+                                }
+                            }
                             //PLC连接成功
                             Plc plc = Plc.getPlcByPlcName(conn.getPlcName());
                             plc.setStatus("1");

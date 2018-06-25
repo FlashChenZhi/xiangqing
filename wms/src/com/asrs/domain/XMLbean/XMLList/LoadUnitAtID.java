@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -236,42 +237,57 @@ public class LoadUnitAtID extends XMLProcess {
             return newLocation;
     }
 
-    public Job createJob(String stationNo){
+    public Job createJob(String stationNo) throws Exception{
         Session session = HibernateUtil.getCurrentSession();
-
-        Job job = new Job();
-        session.save(job);
-        job.setFromStation(stationNo);
-        job.setContainer(Const.containerCode);//托盘号
-        job.setCreateDate(new Date());
-        /*if (zhantai.equals("1101")) {
-            job.setToStation("ML01");
+        String barcode = null;
+        boolean flag = false;
+        for(int i =0;i<10;i++){
+            barcode = UUID.randomUUID().toString().substring(0, 15);
+            Container container = Container.getByBarcode(barcode);
+            if(container==null){
+                flag=true;
+                break;
+            }
         }
-        if (zhantai.equals("1301")) {
-            job.setToStation("ML02");
-        }*/
-        job.setType(AsrsJobType.PUTAWAY);
-        job.setMcKey(Mckey.getNext());
-        job.setStatus(AsrsJobStatus.WAITING);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        //以天数为批次
-        String lotNum = sdf.format(new Date());
-        job.setLotNum(lotNum);
-        job.setContainer(Const.containerCode);
-        JobDetail jobDetail = new JobDetail();
-        session.save(jobDetail);
-        jobDetail.setJob(job);
-        jobDetail.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
+        Job job = new Job();
+        if(flag){
+            session.save(job);
+            job.setFromStation(stationNo);
+            job.setContainer(barcode);//托盘号
+            job.setCreateDate(new Date());
+            /*if (zhantai.equals("1101")) {
+                job.setToStation("ML01");
+            }
+            if (zhantai.equals("1301")) {
+                job.setToStation("ML02");
+            }*/
+            job.setType(AsrsJobType.PUTAWAY);
+            job.setMcKey(Mckey.getNext());
+            job.setStatus(AsrsJobStatus.WAITING);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            //以天数为批次
+            String lotNum = sdf.format(new Date());
+            job.setLotNum(lotNum);
+            JobDetail jobDetail = new JobDetail();
+            session.save(jobDetail);
+            jobDetail.setJob(job);
+            jobDetail.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
 
-        InventoryView inventoryView = new InventoryView();
-        session.save(inventoryView);
-        inventoryView.setPalletCode(Const.containerCode);//托盘号
-        inventoryView.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
-        inventoryView.setSkuCode(Const.skuCode); //商品代码
-        inventoryView.setSkuName(Const.skuName);//商品名称
-        inventoryView.setWhCode(Const.warehouseCode);//仓库代码
+            InventoryView inventoryView = new InventoryView();
+            session.save(inventoryView);
 
-        inventoryView.setLotNum(lotNum);//批次号
+            inventoryView.setPalletCode(barcode);//托盘号
+            inventoryView.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
+            inventoryView.setSkuCode(Const.skuCode); //商品代码
+            inventoryView.setSkuName(Const.skuName);//商品名称
+            inventoryView.setWhCode(Const.warehouseCode);//仓库代码
+
+            inventoryView.setLotNum(lotNum);//批次号
+        }else{
+            throw new Exception("托盘号已存在");
+        }
+
+
 
         return job;
     }

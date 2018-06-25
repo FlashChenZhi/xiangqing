@@ -168,6 +168,18 @@ public class Job {
         this.lotNum = lotNum;
     }
 
+    @Basic
+    @Column(name = "SENDREPORT")
+    private boolean sendReport;
+
+    public boolean isSendReport() {
+        return sendReport;
+    }
+
+    public void setSendReport(boolean sendReport) {
+        this.sendReport = sendReport;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

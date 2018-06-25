@@ -11,17 +11,13 @@ import org.hibernate.Session;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class Test {
     public static void main(String[] args) {
         Transaction.begin();
-        Session session = HibernateUtil.getCurrentSession();
-        Query query = session.createQuery("from ScarChargeLocation s where scarBlockNo=:scarBlockNo and status=true ");
-        query.setParameter("scarBlockNo", "SC01");
-        List<ScarChargeLocation> scarChargeLocationList = query.list();
-        for(ScarChargeLocation s :scarChargeLocationList){
-            System.out.println(s.getChargeLocation().getLocationNo());
-        }
+        String s = UUID.randomUUID().toString().substring(0, 15);
+        System.out.println(s);
         Transaction.commit();
     }
 }

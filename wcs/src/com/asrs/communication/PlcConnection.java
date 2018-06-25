@@ -1,6 +1,7 @@
 package com.asrs.communication;
 
 import com.asrs.domain.MessageLog;
+import com.asrs.domain.Plc;
 import com.asrs.message.*;
 import com.util.common.*;
 import com.util.hibernate.HibernateUtil;
@@ -92,8 +93,33 @@ public class PlcConnection
                     _socket = null;
                     _reader = null;
                     _writer = null;
+                      try {
+                            Transaction.begin();
+                            //PLC连接失败
+                            System.out.println(getPlcName()+"disconnect连接失败");
+                            Plc plc = Plc.getPlcByPlcName(getPlcName());
+                            plc.setStatus("2");
+                            Transaction.commit();
+                      } catch (Exception e1) {
+                            Transaction.rollback();
+                            e1.printStackTrace();
+                      }
                 }catch (IOException e)
                 {
+                      _socket = null;
+                      _reader = null;
+                      _writer = null;
+                      try {
+                            Transaction.begin();
+                            //PLC连接失败
+                            System.out.println(getPlcName()+"disconnect连接失败");
+                            Plc plc = Plc.getPlcByPlcName(getPlcName());
+                            plc.setStatus("2");
+                            Transaction.commit();
+                      } catch (Exception e1) {
+                            Transaction.rollback();
+                            e1.printStackTrace();
+                      }
                     String errMsg = "断开" + _plcName + "时发生异常 |" + e.getMessage();
                     throw new CommunicationException(errMsg);
                 }
