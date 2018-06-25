@@ -71,11 +71,11 @@ const SlideMenu = React.createClass({
                                 <Icon type="setting"/><span className="nav-text">日志查询</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='7'>
+                        {/*<Menu.Item key='7'>
                             <Link to='TransferPanel'>
                                 <Icon type="setting"/><span className="nav-text">移库</span>
                             </Link>
-                        </Menu.Item>
+                        </Menu.Item>*/}
                         {/*<Menu.Item key='8'>*/}
                             {/*<Link to='PutInStorage'>*/}
                                 {/*<Icon type="setting"/><span className="nav-text">入库</span>*/}

@@ -545,16 +545,28 @@ public class WebService {
             if (block == null) {
                 throw new Exception("block不存在");
             }
-            Query jobQ = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:jtype ");
-            jobQ.setParameter("jtype", AsrsJobType.CHANGELEVEL);
-            List<AsrsJob> jobs = jobQ.list();
-            if (!jobs.isEmpty()) {
-                throw new Exception("有换层作业");
-            }
+
 
             if (block instanceof SCar) {
 
                 SCar sCar = (SCar) block;
+
+                Query charQuery = HibernateUtil.getCurrentSession().createQuery("from AsrsJob a where (a.type=:tp or a.type=:ttp or " +
+                        "a.type=:tttp) and exists(select 1 from MCar m where m.blockNo=a.fromStation and " +
+                        "m.position = :position )");
+                charQuery.setParameter("tp", AsrsJobType.RECHARGED);
+                charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
+                charQuery.setParameter("ttp", AsrsJobType.CHANGELEVEL);
+                /*charQuery.setParameter("status", AsrsJobStatus.DONE);*/
+                charQuery.setParameter("position", sCar.getPosition());
+                List<AsrsJob> charQuerys = charQuery.list();
+
+                /*Query jobQ = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:jtype ");
+                jobQ.setParameter("jtype", AsrsJobType.CHANGELEVEL);
+                List<AsrsJob> jobs = jobQ.list();*/
+                if (charQuerys.size()!=0) {
+                    throw new Exception("有换层作业或充电作业！");
+                }
 
                 if (StringUtils.isEmpty(sCar.getOnMCar())) {
                     throw new Exception("子车不在母车上");
@@ -563,8 +575,9 @@ public class WebService {
                     throw new Exception("子车有任务，不能执行换层操作");
                 }
 
-                Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level");
+                Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level and position=:position");
                 query.setParameter("level", Integer.parseInt(level));
+                query.setParameter("position", sCar.getPosition());
                 query.setMaxResults(1);
                 SCar levlScar = (SCar) query.uniqueResult();
                 if (levlScar != null) {

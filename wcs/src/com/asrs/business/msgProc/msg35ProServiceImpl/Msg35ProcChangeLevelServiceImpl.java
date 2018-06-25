@@ -73,6 +73,7 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
             mCar.setGroupNo(null);
         } else if (message35.isLoadCar()) {
             mCar.setsCarBlockNo(message35.Station);
+
             aj.setStatus(AsrsJobStatus.DONE);
             mCar.clearMckeyAndReservMckey();
         }

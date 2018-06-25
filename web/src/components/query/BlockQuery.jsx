@@ -310,7 +310,8 @@ let BlockQuery = React.createClass({
                     <a onClick={this.chargeFinish.bind(this, record.blockNo)}>充电完成</a >
                     &nbsp;&nbsp;||&nbsp;&nbsp;
                     <a onClick={this.recoveryException.bind(this, record.blockNo)}>解除异常</a >
-
+                    &nbsp;&nbsp;||&nbsp;&nbsp;
+                    <a onClick={this.changeLevel.bind(this, record.blockNo)}>换层</a >
                 </span>
             )
         }];

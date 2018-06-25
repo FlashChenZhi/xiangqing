@@ -83,7 +83,7 @@ public class LiftOperator {
      */
     public void unloadSCar(SCar sCar,Block block) throws Exception {
         MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, lift, "", sCar.getBlockNo(), "", "");
-        MsgSender.send03(Message03._CycleOrder.offCar, mckey, sCar, "", block.getBlockNo(), "", "");
+        MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", block.getBlockNo(), "", "");
     }
 
     /**
