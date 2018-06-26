@@ -2,19 +2,26 @@ import {Button,Modal, Popover,Tabs ,Form, Radio, Table, Badge, DatePicker, Selec
 import React from 'react';
 const FormItem = Form.Item;
 import reqwest from 'reqwest';
-import {reqwestError, dateFormat} from '../common/Golbal';
 import './css/jquery.seat-charts.css';
 import './js/jquery-1.9.1';
 import './js/jquery.seat-charts';
 
 
-
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
+const confirm = Modal.confirm;
+const RangePicker = DatePicker.RangePicker;
+const RadioGroup = Radio.Group;
 
 var sc ="";
+var content = (
+    <div>
+        <p>Content</p>
+        <p>Content</p>
+    </div>
+);
 
-let OutputArea = React.createClass({
+let AssignsTheStorehouse = React.createClass({
     getInitialState(){
         return {
             commodityCodeList:[],
@@ -33,19 +40,46 @@ let OutputArea = React.createClass({
             lotNum:"",
             barcode:"",
             qty:"",
+            commodityStationNoList:[],
+            commodityStationFirst:"",
+            stationNo:"",
+            name:"",
             selectLocation:[],
             cancelLocation:[],
         };
     },
     componentDidMount(){
         this.getCommodityCode();
+        this.getCommodityStattionNo();
         this.getStorageLocationData(1);
         this.initChart();
     },
-
+    getCommodityStattionNo(){
+        // let stationNo =JSON.stringify(this.state.commodityStationNoList);
+        reqwest({
+            url:'/wms/master/AssignsTheStorehouseAction/getStationNo',
+            dataType:'json',
+            method:'post',
+            data:{},
+            success:function(json){
+                if(json.success){
+                    this.setState({
+                        commodityStationNoList:json.res,
+                        commodityStationFirst:json.res[0],
+                    })
+                }else{
+                    message.error("初始化站台号失败！");
+                }
+            }.bind(this),
+            error:function () {
+                message.error("获取站台号失败");
+            }.bind(this),
+            }
+        )
+    },
     getCommodityCode(){
         reqwest({
-            url: '/wms/master/AssignsTheStorehouseAction/getSkuCode.do',
+            url: '/wms/master/FindOutOrInWarehouseAction/getSkuCode',
             dataType: 'json',
             method: 'post',
             data: {},
@@ -68,7 +102,7 @@ let OutputArea = React.createClass({
         const values = this.props.form.getFieldsValue();
         console.log(values);
         reqwest({
-            url: '/wms/master/AssignsTheStorehouseAction/getStorageLocationData.do',
+            url: '/wms/master/AssignsTheStorehouseAction/getStorageLocationData',
             dataType: 'json',
             method: 'post',
             data: {productId:values.productId,tier:level},
@@ -118,16 +152,13 @@ let OutputArea = React.createClass({
         var $cart = $('#selected-seats'), //库位
             $counter = $('#counter'), //票数
             $total = $('#total'); //总计金额
-
-
-         sc = $(divId).seatCharts({
+        sc = $(divId).seatCharts({
             map: map,
             naming:{
                 top    : true,
                 left   : true,
-
                 getId  : function(character, row, column) {
-                    return row + '_' + column;
+                    return column + '_' + row;
                 },
                 getLabel : function (character, row, column) {
                     return column;
@@ -146,12 +177,13 @@ let OutputArea = React.createClass({
                     [ 'a', 'reservedOut', '已有出库任务'],
                     [ 'a', 'reservedIn', '已有入库任务'],
                     [ 'a', 'empty', '空货位'],
-                    [ 'a', 'selected', '已选择货位']
+                    [ 'a', 'selected', '已选货位']
                 ]
             },
-            click: function () { //点击事件
+            //点击事件
+            click: function () {
                 if (this.status() == 'available') {
-                    $('<li>'+(this.settings.row+1)+'排'+this.settings.label+'座</li>')
+                    $('<li>'+(this.settings.column+1)+'排'+this.settings.label+'座</li>')
                         .attr('id', 'cart-item-'+this.settings.id)
                         .data('seatId', this.settings.id)
                         .appendTo($cart);
@@ -171,20 +203,22 @@ let OutputArea = React.createClass({
                     return this.style();
                 }
             },
+            //获取焦点事件
             focus  : function() {
-                 thisOut.outFocus(this.settings);
+                thisOut.outFocus(this.settings);
 
-                 if (this.status() == 'available') {
-                     return 'focused';
-                 } else  {
-                     return this.style();
-                 }
-             },
-             blur   : function() {
-                 thisOut.outBlur(this.settings);
+                if (this.status() == 'available') {
+                    return 'focused';
+                } else  {
+                    return this.style();
+                }
+            },
+            //失去焦点事件
+            blur   : function() {
+                thisOut.outBlur(this.settings);
 
-                 return this.status();
-             },
+                return this.status();
+            },
         });
         console.log(sc.data);
         //已售出的座位
@@ -194,23 +228,24 @@ let OutputArea = React.createClass({
         this.setState({blockNo: null, changeLevelModel: false});
     },
     outClick(settings){
-        let bay = settings.row+1;
         let bank = settings.column+1;
+        let bay = settings.row+1;
         let level = this.state.tabKey;
-
+        // let stationNo=this.state.stationNo;
         if(settings.status=='available'){
             reqwest({
-                url: '/wms/master/AssignsTheStorehouseAction/getNextAvailableLocation.do',
+                url: '/wms/master/AssignsTheStorehouseAction/getNextAvailableLocation',
                 dataType: 'json',
                 method: 'post',
                 data: {bank:bank,bay:bay,level:level},
                 success: function (json) {
                     if(json.success) {
                         if(json.res.status){
-                           sc.get(json.res.location).status('available');
+                            sc.get(json.res.location).status('available');
                         }
                         let locationNo = this.PrefixInteger(bank,3)+this.PrefixInteger(bay,3)+this.PrefixInteger(level,3);
                         this.state.selectLocation.push(locationNo);
+                        // this.state.commodityStationNoList.push(stationNo);
                         console.log(this.state.selectLocation);
                     }else{
                         message.error("获取下一位库位代码失败！");
@@ -222,7 +257,7 @@ let OutputArea = React.createClass({
             })
         }else if(settings.status=='selected'){
             reqwest({
-                url: '/wms/master/AssignsTheStorehouseAction/getAgoUnavailableLocation.do',
+                url: '/wms/master/AssignsTheStorehouseAction/getAgoUnavailableLocation',
                 dataType: 'json',
                 method: 'post',
                 data: {bank:bank,bay:bay,level:level},
@@ -260,18 +295,17 @@ let OutputArea = React.createClass({
 
     },
     outFocus(settings){
-        let bay = settings.row+1;
         let bank = settings.column+1;
+        let bay = settings.row+1;
         let level = this.state.tabKey;
         this.setState({PopoverModelVisible: true});
         reqwest({
-            url: '/wms/master/AssignsTheStorehouseAction/getLocationInfo.do',
+            url: '/wms/master/AssignsTheStorehouseAction/getLocationInfo',
             dataType: 'json',
             method: 'post',
             data: {bank:bank,bay:bay,level:level},
             success: function (json) {
                 if(json.success) {
-
                     this.setState({
                         skuName:json.res.skuName,
                         skuCode:json.res.skuCode,
@@ -306,12 +340,14 @@ let OutputArea = React.createClass({
         return ( "000" + num ).substr( -length );
     },
     handleSubmit2(e) {
+        e.preventDefault();
         let locationList =JSON.stringify(this.state.selectLocation);
+        const values = this.props.form.getFieldsValue();
         reqwest({
-            url: '/wms/master/AssignsTheStorehouseAction/assignsTheStorehouse.do',
+            url: '/wms/master/AssignsTheStorehouseAction/assignsTheStorehouse',
             dataType: 'json',
             method: 'post',
-            data: { selectLocation:locationList},
+            data: { selectLocation:locationList,stationNo:values.stationNo},
             success: function (json) {
                 if(json.success) {
                     message.success(json.msg);
@@ -330,8 +366,7 @@ let OutputArea = React.createClass({
         e.preventDefault();
         let level = this.state.tabKey;
         this.getStorageLocationData(level);
-    },
-
+     },
     handleReset(e) {
         this.props.form.resetFields();
         for(let i =1;i<5;i++){
@@ -347,8 +382,8 @@ let OutputArea = React.createClass({
         this.getStorageLocationData(key);
     },
 
-    render() {
 
+    render() {
         const {getFieldProps} = this.props.form;
         const formItemLayout = {
             labelCol: {span: 5},
@@ -357,7 +392,6 @@ let OutputArea = React.createClass({
         const formItemLayout2 = {
             labelCol: {span: 5},
             wrapperCol: {span: 10},
-
         };
         const commodityCodeProps = getFieldProps('productId', {
             initialValue:"",
@@ -365,13 +399,23 @@ let OutputArea = React.createClass({
         const tierProps = getFieldProps('tier', {
             initialValue:"1",
         });
+
+        const commodityStationNoProps = getFieldProps('stationNo', {
+            initialValue:"",
+        });
         const commodityCodeListSelect =[];
         commodityCodeListSelect.push(<Option value="">---请选择---</Option>);
         this.state.commodityCodeList.forEach((commodityCode)=>{
             commodityCodeListSelect.push(<Option value={commodityCode.skuCode}>{commodityCode.skuName}</Option>);
         });
+
+        const commodityStationNoSelect=[];
+        commodityStationNoSelect.push(<Option value="">---请选择---</Option>);
+        this.state.commodityStationNoList.forEach((commodityCode)=>{
+            commodityStationNoSelect.push(<Option value={commodityCode.stationNo}>{commodityCode.stationNo}</Option>);
+        });
         return (
-            <div style={{overflow:"auto",width:"1600px"}}>
+            <div style={{overflow:"auto",width:"1800px"}}>
                 <Form horizontal>
                     <Row>
                         <Col lg={9}>
@@ -386,18 +430,25 @@ let OutputArea = React.createClass({
                                     {...commodityCodeProps} >
                                     {commodityCodeListSelect}
                                 </Select>
-                            </FormItem>
-
-                            <FormItem wrapperCol={{offset: 10}}>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <Button type="primary" onClick={this.handleSubmit}>查询</Button>
-                                &nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <Button type="ghost" onClick={this.handleReset}>重置</Button>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </FormItem><br/>
+                            <FormItem  {...formItemLayout}  label="出库站台：" >
+                                <Select
+                                    showSearch
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    id="select" size="large" style={{ width: 200 }}
+                                    {...commodityStationNoProps} >
+                                    {commodityStationNoSelect}
+                                </Select>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <Button type="primary" onClick={this.handleSubmit2}>提交</Button>
                             </FormItem>
-
+                            {/*<FormItem wrapperCol={{offset: 10}}>*/}
+                            {/*</FormItem>*/}
                         </Col>
-
 
                         <Col lg={15}>
                             <br/><br/><br/>
@@ -408,18 +459,18 @@ let OutputArea = React.createClass({
 
                         </Col>
                         <Col lg={3}>
-                            <div id="Info1" style={{paddingLeft:"30px",fontWeight: "bold"}}>
-                                <span >货位状态：</span>{this.state.msg}<br/>
-                                <span >位置信息：</span>{this.state.locationInfo}<br/>
-                                <span>商品数量：</span>{this.state.qty}
+                            <div id="Info1" style={{paddingLeft:"50px",fontWeight: "bold"}}>
+                                <span >货位状态：{this.state.msg}</span><br/>
+                                <span >位置信息：{this.state.locationInfo}</span><br/>
+                                <span >商品数量：{this.state.qty}</span>
 
                             </div>
                         </Col>
                         <Col lg={10}>
-                            <div id="Info1" style={{paddingLeft:"10px",fontWeight: "bold"}}>
-                                <span >商品名称：</span>{this.state.skuName}<br/>
-                                <span >托盘号码：</span>{this.state.barcode}<br/>
-                                <span >商品批次：</span>{this.state.lotNum}
+                            <div id="Info1" style={{paddingLeft:"50px",fontWeight: "bold"}}>
+                                <span >商品名称：{this.state.skuName}</span><br/>
+                                <span >托盘号码：{this.state.barcode}</span><br/>
+                                <span >商品批次：{this.state.lotNum}</span>
                             </div>
                         </Col>
                     </Row>
@@ -448,14 +499,10 @@ let OutputArea = React.createClass({
                         </TabPane>
                     </Tabs>
                 </Row>
-                {/*<PopoverModel*/}
-                    {/*code={this.state.blockNo}*/}
-                    {/*visible={this.state.PopoverModelVisible}*/}
-                    {/*hideModel={this.hideChangeLevelModel.bind(this)}*/}
                 {/*/>*/}
             </div>
         );
     },
 });
-OutputArea = Form.create({})(OutputArea);
-export default OutputArea;
+AssignsTheStorehouse = Form.create({})(AssignsTheStorehouse);
+export default AssignsTheStorehouse;

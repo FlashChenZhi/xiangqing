@@ -9,90 +9,41 @@ import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
 import com.wms.domain.blocks.Block;
-import com.wms.domain.blocks.MCar;
 import net.sf.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.transform.Transformers;
+import org.junit.Test;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
-/**
- * @Author: ed_chen
- * @Date: Create in 15:20 2018/4/8
- * @Description:
- * @Modified By:
- */
 @Service
 public class AssignsTheStorehouseService {
-
     /*
-     * @author：ed_chen
-     * @date：2018/4/27 15:13
-     * @description：获取商品代码
-     * @param
-     * @return：com.util.common.ReturnObj<java.util.List<java.util.Map<java.lang.String,java.lang.String>>>
-     */
-    public ReturnObj<List<Map<String, String>>> getSkuCode(){
-        ReturnObj<List<Map<String, String>>> s = new ReturnObj();
-        try {
-            Transaction.begin();
-            Session session = HibernateUtil.getCurrentSession();
-            Query query = session.createQuery("select skuCode,skuName from Sku");
-            List<Object[]> retList = query.list();
-            List<Map<String,String>> mapList = new ArrayList<>();
-            for (Object[] objects: retList) {
-                Map<String, String> map = new HashMap();
-                map.put("skuCode", objects[0].toString() );
-                map.put("skuName",objects[1].toString() );
-                mapList.add(map);
-            }
-            s.setSuccess(true);
-            s.setRes(mapList);
-            Transaction.commit();
-        } catch (JDBCConnectionException ex) {
-            s.setSuccess(false);
-            s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
-        } catch (Exception ex) {
-            Transaction.rollback();
-            s.setSuccess(false);
-            s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
-        }
-        return s;
-    }
-    /*
-     * @author：ed_chen
-     * @date：2018/4/10 16:16
      * @description：初始化map
-     * @param productId
-     * @param tier
-     * @return：com.util.common.ReturnObj<java.util.Map<java.lang.String,java.lang.Object>>
      */
-    public ReturnObj<Map<String, Object>> getStorageLocationData(String productId, String tier){
+    public ReturnObj<Map<String, Object>> getStorageLocationData(String productId,String tier){
         ReturnObj<Map<String, Object>> s = new ReturnObj();
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            String bank ="bay";
-            String bay ="bank";
-            String database ="xiangqing.dbo";
             //查询总货位
-            Query query1 = session.createQuery("select convert(varchar,"+bank+")+'_'+convert(varchar,"+bay+") as coordinate from Location where " +
-                    "putawayRestricted = false and retrievalRestricted = false and level=:level  order by "+bank+" , "+bay+" ");
+            Query query1 = session.createQuery("select convert(varchar,bank)+'_'+convert(varchar,bay) as coordinate from Location where " +
+                    "putawayRestricted = false and retrievalRestricted = false and level=:level  order by bank , bay ");
             query1.setString("level", tier);
             List<String> list = query1.list();
             int bankCount = Const.bankCount;
             int bayCount = Const.bayCount;
             List<String> LocationList = new ArrayList<>();
             Map<String,Object> map = new HashMap<>();
-            for(int i = 1;i<=bayCount;i++){
+            //外层循环
+            for(int i =1;i<=bayCount;i++){
                 StringBuffer sb = new StringBuffer();
+                //内层循环
                 for(int j =1; j<=bankCount;j++){
-                    if(list.contains(i+"_"+j)){
+                    if(list.contains(j+"_"+i)){
                         sb.append("a");
                     }else{
                         sb.append("_");
@@ -100,54 +51,49 @@ public class AssignsTheStorehouseService {
                 }
                 LocationList.add(sb.toString());
             }
-
             //查询空货位
-            Query query2 = session.createQuery("select convert(varchar,a."+bank+")+'_'+convert(varchar,a."+bay+") as coordinate from Location a where " +
+            Query query2 = session.createQuery("select convert(varchar,a.bank)+'_'+convert(varchar,a.bay) as coordinate from Location a where " +
                     "a.empty = true and a.level = :level ");
             query2.setString("level", tier);
-
             //判断可以定点出库的货位
             StringBuffer sb = new StringBuffer(
-                    " select convert(varchar,e."+bank+")+'_'+convert(varchar,e."+bay+") as coordinate from "+database+".Inventory i , "+database+".CONTAINER d " +
-                    ",( " +
-                        "select a.id as id ,a.BANK,a.BAY from "+database+".location a , " +
+                    " select convert(varchar,e.bank)+'_'+convert(varchar,e.bay) as coordinate from Inventory i , CONTAINER d " +
+                            ",( " +
+                            "select a.id as id ,a.BANK,a.BAY from Location a , " +
                             "(select max(seq) as seq,bay,POSITION,AREA " +
-                            "from "+database+".LOCATION where empty=0 and lev=:level   and PUTAWAYRESTRICTED=0 and " +
+                            "from LOCATION where empty=0 and lev=:level   and PUTAWAYRESTRICTED=0 and " +
                             "RETRIEVALRESTRICTED=0 and ABNORMAL =0 group by bay,POSITION,AREA " +
                             ") b " +
-                        "where a.seq=b.seq and a.bay = b.bay and " +
-                        "a.position = b.position and a.area = b.area and a.lev=:level and PUTAWAYRESTRICTED=0 and " +
-                        "RETRIEVALRESTRICTED=0 and ABNORMAL =0 and  not exists( " +
-                            "select 1 from "+database+".Location l where l.bay=a.bay and " +
+                            "where a.seq=b.seq and a.bay = b.bay and " +
+                            "a.position = b.position and a.area = b.area and a.lev=:level and PUTAWAYRESTRICTED=0 and " +
+                            "RETRIEVALRESTRICTED=0 and ABNORMAL =0 and  not exists( " +
+                            "select 1 from Location l where l.bay=a.bay and " +
                             "l.area=a.area and l.lev =a.lev " +
-                            "and  l.position=a.position  and " +
+                            "and  l.position=a.position and l.seq < a.seq and " +
                             " l.seq > a.seq and l.reserved = 1 " +
-                        "  ) " +
-                    ") e  where i.CONTAINERID=d.ID and e.ID = d.LOCATIONID and d.RESERVED=0 ");
+                            "  ) " +
+                            ") e  where i.CONTAINERID=d.ID and e.ID = d.LOCATIONID and d.RESERVED=0 ");
             if(StringUtils.isNotBlank(productId)){
                 sb.append(" and i.skucode=:skucode ");
             }
             Query query3 = session.createSQLQuery(sb.toString());
-
             if(StringUtils.isNotBlank(productId)){
                 query3.setString("skucode", productId);
             }
             query3.setString("level", tier);
             //查询已经有出库任务的货位
-            Query query4 = session.createQuery("select convert(varchar,c.location."+bank+")+'_'+convert(varchar,c.location."+bay+") as coordinate from Container c where " +
+            Query query4 = session.createQuery("select convert(varchar,c.location.bank)+'_'+convert(varchar,c.location.bay) as coordinate from Container c where " +
                     " c.location.level = :level and c.reserved = true  ");
             query4.setString("level", tier);
-
             //查询已经有入库任务的货位
-            Query query5 = session.createQuery("select convert(varchar,l."+bank+")+'_'+convert(varchar,l."+bay+") as coordinate from Location l where " +
+            Query query5 = session.createQuery("select convert(varchar,l.bank)+'_'+convert(varchar,l.bay) as coordinate from Location l where " +
                     " l.level = :level and l.reserved = true  ");
             query5.setString("level", tier);
-
             map.put("map", LocationList); //总货位
             map.put("emptyList", query2.list()); //空货位
             map.put("availableList", query3.list()); //可被选择的货位
-            map.put("reservedOutList", query4.list()); //已经有任务的货位
-            map.put("reservedInList", query5.list()); //已经有任务的货位
+            map.put("reservedOutList", query4.list()); //已有出库任务货位
+            map.put("reservedInList", query5.list()); //已有入库任务货位
             map.put("unavailableList", list);
             s.setRes(map);
             s.setSuccess(true);
@@ -155,23 +101,17 @@ public class AssignsTheStorehouseService {
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
             s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
         } catch (Exception ex) {
             Transaction.rollback();
             s.setSuccess(false);
             s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
         }
-        return s;
+            return s;
     }
     /*
-     * @author：ed_chen
-     * @date：2018/4/10 16:16
      * @description：查询货位货物信息
-     * @param productId
-     * @param tier
-     * @return：com.util.common.ReturnObj<java.util.Map<java.lang.String,java.lang.Object>>
      */
-    public ReturnObj<Map<String, Object>> getLocationInfo(String bank, String bay, String level){
+    public ReturnObj<Map<String, Object>> getLocationInfo(String bank,String bay,String level){
         ReturnObj<Map<String, Object>> s = new ReturnObj();
         try {
             Transaction.begin();
@@ -185,7 +125,6 @@ public class AssignsTheStorehouseService {
             query.setInteger("bank", Integer.parseInt(bank));
             query.setInteger("bay", Integer.parseInt(bay));
             query.setInteger("level", Integer.parseInt(level));
-
             List<Map<String,Object>> mapList = query.list();
             Map<String,Object> map = new HashMap<>();
             if(mapList.size()==0){
@@ -202,7 +141,6 @@ public class AssignsTheStorehouseService {
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
             s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
         } catch (Exception ex) {
             Transaction.rollback();
             s.setSuccess(false);
@@ -210,16 +148,11 @@ public class AssignsTheStorehouseService {
         }
         return s;
     }
+
     /*
-     * @author：ed_chen
-     * @date：2018/4/10 18:27
      * @description：查询下一个可选货位信息
-     * @param bank
-     * @param bay
-     * @param level
-     * @return：com.util.common.ReturnObj<java.util.Map<java.lang.String,java.lang.Object>>
      */
-    public ReturnObj<Map<String, Object>> getNextAvailableLocation(String bank, String bay, String level){
+    public ReturnObj<Map<String, Object>> getNextAvailableLocation(String bank,String bay,String level){
         ReturnObj<Map<String, Object>> s = new ReturnObj();
         try {
             Transaction.begin();
@@ -229,12 +162,11 @@ public class AssignsTheStorehouseService {
                     "+convert(varchar,a.bay) as coordinate from Location a " +
                     "where a.position=(select position from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
                     "and a.actualArea = (select actualArea from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
-                    "and a.seq2=(select seq2+1 from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
+                    "and a.seq=(select seq-1 from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
                     "and a.level = :level  and a.bay=:bay and a.empty = false");
             query.setString("bank", bank);
             query.setString("bay", bay);
             query.setString("level", level);
-
             List<String> list = query.list();
             Map<String,Object> map = new HashMap<>();
             if(list.size()==0){
@@ -249,7 +181,6 @@ public class AssignsTheStorehouseService {
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
             s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
         } catch (Exception ex) {
             Transaction.rollback();
             s.setSuccess(false);
@@ -257,16 +188,11 @@ public class AssignsTheStorehouseService {
         }
         return s;
     }
+
     /*
-     * @author：ed_chen
-     * @date：2018/4/10 19:27
      * @description：获取里面的货位代码
-     * @param bank
-     * @param bay
-     * @param level
-     * @return：com.util.common.ReturnObj<java.util.Map<java.lang.String,java.lang.Object>>
      */
-    public ReturnObj<Map<String, Object>> getAgoUnavailableLocation(String bank, String bay, String level){
+    public ReturnObj<Map<String, Object>> getAgoUnavailableLocation(String bank,String bay,String level){
         ReturnObj<Map<String, Object>> s = new ReturnObj();
         try {
             Transaction.begin();
@@ -276,7 +202,7 @@ public class AssignsTheStorehouseService {
                     "+convert(varchar,a.bay) as coordinate from Location a " +
                     "where a.position=(select position from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
                     "and a.actualArea = (select actualArea from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
-                    "and a.seq2>(select seq2 from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
+                    "and a.seq<(select seq from Location c where c.bank=:bank and c.bay=:bay and c.level=:level) " +
                     "and a.level = :level  and a.bay=:bay and a.empty = false");
             query.setString("bank", bank);
             query.setString("bay", bay);
@@ -296,24 +222,18 @@ public class AssignsTheStorehouseService {
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
             s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
         } catch (Exception ex) {
             Transaction.rollback();
             s.setSuccess(false);
             s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
         }
-        return s;
+         return s;
     }
 
     /*
-     * @author：ed_chen
-     * @date：2018/4/11 10:28
      * @description：设定出库任务
-     * @param selectLocation
-     * @return：com.util.common.ReturnObj<java.util.Map<java.lang.String,java.lang.Object>>
      */
-    public ReturnObj<Map<String, Object>> assignsTheStorehouse(String selectLocation){
-
+    public ReturnObj<Map<String, Object>> assignsTheStorehouse(String selectLocation,String stationNo){
         ReturnObj<Map<String, Object>> s = new ReturnObj();
         JSONArray jsonArray = JSONArray.fromObject(selectLocation);
         List<String> list = (List<String>) JSONArray.toCollection(jsonArray,String.class);
@@ -326,21 +246,28 @@ public class AssignsTheStorehouseService {
                 location = list.get(i);
                 //按照Container中的reserved判断
                 Query query = session.createQuery(" from Container c where reserved = false and c.location.locationNo=:locationNo");
-
                 query.setString("locationNo", location);
                 Container container =(Container) query.uniqueResult();
-
+                System.out.println("站台号："+stationNo);
                 if(container!=null){
-                    outKu(session,location);
+                    boolean b = outKu(session, location, stationNo);
+                    if(!b){
+                        Transaction.rollback();
+                        s.setSuccess(false);
+                        s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                    }else {
+                        s.setMsg("设定出库成功");
+                        s.setSuccess(true);
+                        Transaction.commit();return s;
+                    }
                 }else{
                     flag=false;
                     break;
                 }
             }
             if(flag){
-                s.setMsg("设定出库成功");
-                s.setSuccess(true);
-                Transaction.commit();
+                s.setSuccess(false);
+                s.setMsg("test");
             }else{
                 Transaction.rollback();
                 s.setSuccess(false);
@@ -349,62 +276,285 @@ public class AssignsTheStorehouseService {
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
             s.setMsg(LogMessage.DB_DISCONNECTED.getName());
-
         } catch (Exception ex) {
             Transaction.rollback();
             s.setSuccess(false);
             s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
         }
-        return s;
+            return s;
     }
 
-    public void outKu(Session session, String locationNo){
-        Query query2 = session.createQuery("from Inventory i where i.container.location.locationNo = :locationNo");
-        query2.setString("locationNo",locationNo);
-        List<Inventory> inventoryList = query2.list();
-        Inventory inventory =inventoryList.get(0);
-        int qty = inventory.getQty().intValue();//货品数量
+    //生成出库任务
+    public boolean outKu(Session session,String locationNo,String stationNo){
+        try {
+            Query query = session.createQuery("from Inventory i where i.container.location.locationNo = :locationNo").setString("locationNo",locationNo);
+            List<Inventory> inventoryList = query.list();
+            Inventory inventory =inventoryList.get(0);
+            int qty = inventory.getQty().intValue();//货品数量
+            String position = inventory.getContainer().getLocation().getPosition();
+            JobDetail jobDetail = new JobDetail();
+            Job job = new Job();
+            //session准备存入job，commit时才会执行sql
+//            session.save(job);
+//            session.save(jobDetail);
+            //数据准备
+            String mckey = Mckey.getNext();
+            String type = AsrsJobType.RETRIEVAL; //出库
+            String fromStation="MC0";
+            Integer bank=Integer.parseInt(locationNo.substring(1,3));
+            Integer bay=Integer.parseInt(locationNo.substring(4,6));
+            Integer lev=Integer.parseInt(locationNo.substring(locationNo.length()-2,locationNo.length()));
+            if(bank>=26){
+                if(lev==1){         fromStation+=lev;   }
+                else if(lev==2){    fromStation+=lev;   }
+                else if(lev==3){    fromStation+=lev;   }
+                else if(lev==4){    fromStation+=lev;   }
+            }if(bank<26){            int i=4;
+                if(lev==1){         fromStation+=lev+i; }
+                else if(lev==2){    fromStation+=lev+i; }
+                else if(lev==3){    fromStation+=lev+i; }
+                else if(lev==4){    fromStation+=lev+i; }
+            }
+            job.setFromStation(fromStation);
+//            String toStation=ToStation(position,stationNo,job);
+            job.setToStation(stationNo);
+            if(job.getToStation()==null ||
+               job.getToStation().equals("")){
+                return false;
+            }
+            //存入jobDetail
+            jobDetail.setInventory(inventory);
+            jobDetail.setQty(inventory.getQty());
+            //存入job
+            job.setContainer(inventory.getContainer().getBarcode());
+            job.setMcKey(mckey);
+            job.setOrderNo("4200026559");
+            job.setSendReport(false);
+            job.setStatus("1");
+            job.setToStation(stationNo);
+            job.setType(type);
+            job.addJobDetail(jobDetail);
+            job.setCreateDate(new Date());
+            job.setFromLocation(inventory.getContainer().getLocation());
+            //修改此托盘
+            Container container = inventory.getContainer();
+            container.setReserved(true);
+            session.saveOrUpdate(container);
+            } catch (JDBCConnectionException ex ) {
+                ex.printStackTrace();
+            }
+            return true;
+        }
 
-        Location fromLocation =inventory.getContainer().getLocation();
-        String position = fromLocation.getOutPosition();
-
-        JobDetail jobDetail = new JobDetail();
-        Job job = new Job();
-        //session准备存入job，commit时才会执行sql
-        session.save(job);
-        session.save(jobDetail);
-        //数据准备
-        //查找所出货物的所在层的母车
-        MCar mCar = MCar.getMCarByPosition(fromLocation.getPosition(), fromLocation.getLevel());
-        String mckey = Mckey.getNext();
-        //查询1303状态
-        Station station = Station.getStation("1303");
-        //未完善
-        /*if(station.get){
-
-        }*/
-        String toStation = position.equals("1") ? "1201" : "1301";//到达站台
-        String fromStation = mCar.getBlockNo();//出发地点
-        String type = AsrsJobType.RETRIEVAL; //出库
-        //存入jobDetail
-        jobDetail.setInventory(inventory);
-        jobDetail.setQty(inventory.getQty());
-        //存入job
-        job.setContainer(inventory.getContainer().getBarcode());
-        job.setFromStation(fromStation);
-        job.setMcKey(mckey);
-        job.setOrderNo("4200026559");
-        //job.setSendReport(false);
-        job.setStatus("1");
-        job.setToStation(toStation);
-        job.setType(type);
-        job.addJobDetail(jobDetail);
-        job.setCreateDate(new Date());
-        job.setFromLocation(inventory.getContainer().getLocation());
-
-        //修改此托盘
-        Container container = inventory.getContainer();
-        container.setReserved(true);
-        session.saveOrUpdate(container);
+    //获取站台集合
+    public ReturnObj<List<Map<String,String>>> getStationNo(String stationNo){
+        ReturnObj<List<Map<String,String>>> stationList=new ReturnObj<>();
+        System.out.println("获取出库站台号方法");
+        try {
+           Transaction.begin();
+           Session session=HibernateUtil.getCurrentSession();
+           String hql="select stationNo , name from Station where type = '03' ";
+           if(StringUtils.isNotBlank(stationNo)){
+               hql+=" and stationNo= '"+stationNo+" '";
+           }
+           Query query=session.createQuery(hql);
+           List<Object[]> stations=query.list();
+           List<Map<String,String>> mapList=new ArrayList<>();
+           for(Object[] obj:stations){
+               Map<String,String> map=new HashMap<>();
+               map.put("stationNo",obj[0].toString());
+               map.put("name",obj[1].toString());
+               mapList.add(map);
+           }
+            stationList.setSuccess(true);
+            stationList.setRes(mapList);
+           Transaction.commit();
+        }catch (JDBCConnectionException je){
+            stationList.setSuccess(false);
+            stationList.setMsg(LogMessage.DB_DISCONNECTED.getName());
+        }catch (Exception e) {
+            Transaction.rollback();
+            stationList.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
+            e.printStackTrace();
+        }
+            return stationList;
     }
+
+    //判断目标站台
+//    public String  ToStation(String position,String stationNo,Job job) {
+//        String toStation = "";
+//        try {
+//            Transaction.begin();
+//            String[] footStation = {"1202", "1204", "1206"};
+//            String[] topStation = {"1201", "1203", "1205"};
+//            String[] leftStationNo = {"1201", "1202"};
+//            String[] centerStationNo = {"1203", "1204"};
+//            String[] rightStationNo = {"1205", "1206"};
+//            Station station1303 = Station.getStation("1303");
+//            List<String> topList = Arrays.asList(topStation);
+//            List<String> footList = Arrays.asList(footStation);
+//            List<String> leftList = Arrays.asList(leftStationNo);
+//            List<String> centerList = Arrays.asList(centerStationNo);
+//            List<String> rightList = Arrays.asList(rightStationNo);
+//            Block stationBlock=Block.getByBlockNo(stationNo);
+////            Station stationBlock = Station.getStation(stationNo);
+//            if (station1303.is_direction() == true) {
+//                if (position.equals("1") && !position.equals("2")) {
+//                    if (footList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation = stationNo;
+//                            } else {
+//                                toStation = "";
+//                            }
+//                        } else if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation = stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation = stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        }
+//                    } else if (topList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        }
+//                    }
+//                } else if (position.equals("2") && !position.equals("1")) {
+//                    if (footList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else {
+//                            toStation="";
+//                        }
+//                    } else if (topList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else {
+//                                toStation="";
+//                        }
+//                    }
+//                }
+//            } else if (station1303.is_direction() == false) {
+//                if (position.equals("2") && !position.equals("1")) {
+//                    if (footList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        }
+//                    } else if (topList.contains(stationNo)) {
+//                        if (leftList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        }
+//                    }
+//                } else if (position.equals("1") && !position.equals("2")) {
+//                    if (footList.contains(stationNo)) {
+//                        if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else {
+//                            toStation="";
+//                        }
+//                    } else if (topList.contains(stationNo)) {
+//                        if (centerList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else if (rightList.contains(stationNo)) {
+//                            if (stationBlock.isOutload() == false) {
+//                                toStation=stationNo;
+//                            } else {
+//                                toStation="";
+//                            }
+//                        } else {
+//                                toStation="";
+//                        }
+//                    }
+//                }
+//            } else {
+//                if (stationNo == null || stationNo.equals("")) {
+//                    toStation="";
+//                }
+//            }
+//        } catch (JDBCConnectionException je) {
+//            Transaction.rollback();
+//            je.printStackTrace();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//            return toStation;
+//    }
+
 }
+
