@@ -17,36 +17,20 @@ let StationStatusSwitch = React.createClass({
         };
     },
     componentDidMount(){
-        this.findPlatformSwitch();
+        this.findPlatformSwitch("1101");
     },
-    findPlatformSwitch(){
-        let stationNo = this.state.stationNo;
-        let pattern=this.state.pattern;
+    findPlatformSwitch(stationNo){
         reqwest({
             url: '/wcs/stationStatusChange/findStatusChange.do',
             dataType: 'json',
             method: 'post',
-            data: {pattern:pattern,stationNo:stationNo},
+            data: {stationNo:stationNo},
             success: function (json) {
                 if(json.success){
-                    if(json.stationNo=="1101"){
-                        this.props.form.setFieldsValue({
-                            stationNo: stationNo,
-                        });
-                    }else if(json.stationNo=="1102"){
-                        this.props.form.setFieldsValue({
-                            stationNo:stationNo,
-                        })
-                    }
-                    if(json.pattern=="0"){
-                        this.props.form.setFieldsValue({
-                            pattern:pattern,
-                        });
-                    }else if(json.pattern=="1"){
-                        this.props.form.setFieldsValue({
-                            pattern:pattern,
-                        });
-                    }
+                    console.log(json.res);
+                    this.props.form.setFieldsValue({
+                        pattern:json.res,
+                    });
                 }
             }.bind(this),
             error: function (err) {
@@ -93,12 +77,10 @@ let StationStatusSwitch = React.createClass({
     },
     onChange1(value){
         console.log(value);
-        this.setState({
-            stationNo:value,
-        });
         this.props.form.setFieldsValue({
             stationNo: value,
         });
+        this.findPlatformSwitch(value);
     },
     onChange2(value){
         console.log('Change2'+value);
@@ -125,7 +107,7 @@ let StationStatusSwitch = React.createClass({
                         {...formItemLayout}
                         label="站台：">
                         <Select id="select" size="large" defaultValue="1101" style={{ width: 200 }}
-                                {...getFieldProps('stationNo', { initialValue: '1101' })} onChange={this.onChange1}>
+                                {...getFieldProps('stationNo', { initialValue: "1101" })} onChange={this.onChange1}>
                             <Option value="1101">1101</Option>
                             <Option value="1102">1102</Option>
                         </Select>
@@ -134,7 +116,7 @@ let StationStatusSwitch = React.createClass({
                         {...formItemLayout}
                         label="状态：">
                         <Select id="select" size="large" defaultValue="1" style={{ width: 200 }}
-                                {...getFieldProps('pattern', { initialValue: '1' })} onChange={this.onChange2} >
+                                {...getFieldProps('pattern')} onChange={this.onChange2} >
                             <Option value="1">启用</Option>
                             <Option value="0">禁用</Option>
                         </Select>

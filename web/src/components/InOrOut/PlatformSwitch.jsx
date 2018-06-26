@@ -14,6 +14,7 @@ let PlatformSwitch = React.createClass({
             selectedRowKeys: [],
             stationNo:this.stationNo,
             direction:this.direction,
+            stationNos:[],
         };
     },
     componentDidMount(){
@@ -109,7 +110,11 @@ let PlatformSwitch = React.createClass({
             labelCol: {span: 5},
             wrapperCol: {span: 14},
         };
-
+        const commodityCodeListSelect =[];
+        commodityCodeListSelect.push(<Option value="">---请选择---</Option>);
+        this.state.stationNos.forEach((commodityCode)=>{
+            commodityCodeListSelect.push(<Option value={commodityCode.skuCode}>{commodityCode.skuName}</Option>);
+        });
         return (
             <div>
                 <Form horizontal >

@@ -15,8 +15,8 @@ public class StationStatusChangeServie {
      * 1.根据站台号查询站台
      * 2.根据站台设定状态，并设定返回对象
      */
-    public ReturnObj<Station> findStatusChange(String pattern,String stationNo){
-        ReturnObj<Station> stationReturnObj=new ReturnObj<>();
+    public ReturnObj<String> findStatusChange(String stationNo){
+        ReturnObj<String> stationReturnObj=new ReturnObj<>();
         try {
             Transaction.begin();
             System.out.println("开始查询站台号");
@@ -24,22 +24,20 @@ public class StationStatusChangeServie {
             Station station= (Station) session.createQuery("from Station s where s.stationNo = :stationNo").
                     setParameter("stationNo",stationNo).uniqueResult();
             if(station != null){
-                if("0".equals(pattern)){
-                    station.setStatus(false);
-                }else if("1".equals(pattern)){
-                    station.setStatus(true);
-                }
-            }
-                stationReturnObj.setRes(station);
+                stationReturnObj.setRes(station.isStatus()?"1":"0");
                 stationReturnObj.setSuccess(true);
-                Transaction.commit();
-            }catch (Exception e){
-                Transaction.rollback();
-                e.printStackTrace();
+            }else{
                 stationReturnObj.setSuccess(false);
             }
-                return stationReturnObj;
+
+            Transaction.commit();
+        }catch (Exception e){
+            Transaction.rollback();
+            e.printStackTrace();
+            stationReturnObj.setSuccess(false);
         }
+        return stationReturnObj;
+    }
 
     /**
      * 更新站台状态

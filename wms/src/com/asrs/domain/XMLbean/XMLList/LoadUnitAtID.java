@@ -251,20 +251,16 @@ public class LoadUnitAtID extends XMLProcess {
         }
         Job job = new Job();
         if(flag){
+            Sku sku = Sku.getByCode("1");
             session.save(job);
             job.setFromStation(stationNo);
             job.setContainer(barcode);//托盘号
             job.setCreateDate(new Date());
-            /*if (zhantai.equals("1101")) {
-                job.setToStation("ML01");
-            }
-            if (zhantai.equals("1301")) {
-                job.setToStation("ML02");
-            }*/
+
             job.setType(AsrsJobType.PUTAWAY);
             job.setMcKey(Mckey.getNext());
             job.setStatus(AsrsJobStatus.WAITING);
-            job.setSkuCode("test");
+            job.setSkuCode(sku.getSkuCode());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             //以天数为批次
             String lotNum = sdf.format(new Date());
@@ -278,9 +274,9 @@ public class LoadUnitAtID extends XMLProcess {
             session.save(inventoryView);
 
             inventoryView.setPalletCode(barcode);//托盘号
-            inventoryView.setQty(new BigDecimal(Const.containerQty));//托盘上的货物数量
-            inventoryView.setSkuCode(Const.skuCode); //商品代码
-            inventoryView.setSkuName(Const.skuName);//商品名称
+            inventoryView.setQty(sku.getPalletLoadQTy());//托盘上的货物数量
+            inventoryView.setSkuCode(sku.getSkuCode()); //商品代码
+            inventoryView.setSkuName(sku.getSkuName());//商品名称
             inventoryView.setWhCode(Const.warehouseCode);//仓库代码
             inventoryView.setLotNum(lotNum);//批次号
         }else{

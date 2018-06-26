@@ -6,6 +6,7 @@ import com.asrs.domain.AsrsJob;
 import com.thread.blocks.*;
 import com.thread.threads.service.StationService;
 import com.thread.threads.service.impl.putaway.StationPutawayService;
+import com.thread.threads.service.impl.retrieval.StationRetrievalService;
 import com.util.common.StringUtils;
 import com.util.hibernate.Transaction;
 
@@ -36,6 +37,10 @@ public class StationThread extends BlockThread<StationBlock> {
                         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(station.getMcKey());
                         if (AsrsJobType.RETRIEVAL.equals(asrsJob.getType())) {
                             //出库到达
+                            if(!asrsJob.getToStation().equals(station.getBlockNo())){
+                                StationService service = new StationRetrievalService(station);
+                                service.withMckey();
+                            }
                         } else if (AsrsJobType.PUTAWAY.equals(asrsJob.getType())) {
                             StationService service = new StationPutawayService(station);
                             service.withMckey();

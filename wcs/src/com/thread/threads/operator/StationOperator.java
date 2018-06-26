@@ -90,4 +90,12 @@ public class StationOperator {
             MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
         }
     }
+
+    public void tryMoveToStationBlock(StationBlock nextBlock) throws Exception {
+        if ((!nextBlock.isWaitingResponse() && StringUtils.isBlank(nextBlock.getMcKey()))||nextBlock.isManty()) {
+            MsgSender.send03(Message03._CycleOrder.moveUnloadGoods, mckey, stationBlock, "", nextBlock.getBlockNo(), "", "");
+            MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, nextBlock, "", stationBlock.getBlockNo(), "", "");
+        }
+    }
+
 }

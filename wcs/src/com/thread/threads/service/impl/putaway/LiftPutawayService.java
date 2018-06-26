@@ -26,7 +26,8 @@ public class LiftPutawayService extends LiftServiceImpl {
         Block preBlock = lift.getPreBlock(lift.getReservedMcKey(), asrsJob.getType(), asrsJob.getFromStation());
         LiftOperator operator = new LiftOperator(lift, lift.getReservedMcKey());
 
-        operator.tryCarryFromConvery(preBlock);
+        //operator.tryCarryFromConvery(preBlock);
+        operator.tryCarryFromPreBlock(preBlock);
     }
 
     @Override

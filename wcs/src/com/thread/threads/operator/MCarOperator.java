@@ -121,13 +121,25 @@ public class MCarOperator {
             //移动到dock
             this.move(block.getBlockNo());
         } else {
-            //从block移栽卸货
-            Conveyor conveyor=(Conveyor) block;
-            if ((StringUtils.isBlank(block.getMcKey()) && StringUtils.isBlank(block.getReservedMcKey()))||conveyor.isManty()) {
-                this.moveUnloadGoods(block.getBlockNo());
-                ConveyorOperator conveyorOperator = new ConveyorOperator((Conveyor) block, job.getMcKey());
-                conveyorOperator.tryMoveCarryGoodsFromMcar(mCar);
+            if(block instanceof Conveyor){
+                //从block移栽卸货
+                Conveyor conveyor=(Conveyor) block;
+                if ((StringUtils.isBlank(block.getMcKey()) && StringUtils.isBlank(block.getReservedMcKey()))||conveyor.isManty()) {
+                    this.moveUnloadGoods(block.getBlockNo());
+                    ConveyorOperator conveyorOperator = new ConveyorOperator((Conveyor) block, job.getMcKey());
+                    conveyorOperator.tryMoveCarryGoodsFromMcar(mCar);
+                }
+            }else if(block instanceof Lift){
+                //从block移栽卸货
+                Lift lift=(Lift) block;
+                if (StringUtils.isBlank(lift.getMcKey()) && StringUtils.isNotBlank(lift.getReservedMcKey())
+                        && lift.getDock(mCar.getBlockNo(),lift.getBlockNo()).equals(lift.getDock())) {
+                    this.moveUnloadGoods(block.getBlockNo());
+                    /*ConveyorOperator conveyorOperator = new ConveyorOperator((Conveyor) block, job.getMcKey());
+                    conveyorOperator.tryMoveCarryGoodsFromMcar(mCar);*/
+                }
             }
+
         }
     }
 

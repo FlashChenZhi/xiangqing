@@ -100,6 +100,21 @@ public class LiftOperator {
             moveToDock(block);
         }
     }
+    /*
+     * @author：ed_chen
+     * @date：2018/6/26 17:40
+     * @description：尝试从上一个block取货
+     * @param block
+     * @return：void
+     */
+    public void tryCarryFromPreBlock(Block block) throws Exception {
+        if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
+            moveCarryGoods(block.getBlockNo());
+        } else {
+            //move(block.getDock(block.getBlockNo(), lift.getBlockNo()));
+            moveToDock(block);
+        }
+    }
 
     /**
      * 往输送机卸货
@@ -108,7 +123,7 @@ public class LiftOperator {
      * @throws Exception
      */
     public void tryUnloadGoodsToConvery(Block block) throws Exception {
-        if (isMoveSuccess(block)) {
+        if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
             /*if (StringUtils.isEmpty(block.getMcKey()) && StringUtils.isEmpty(block.getReservedMcKey())) {
                 moveUnLoadGoods(block.getBlockNo());
                 MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, block, "", lift.getBlockNo(), "", "");
@@ -138,7 +153,7 @@ public class LiftOperator {
      * @throws Exception
      */
     public void tryUnloadGoodsToMCar(Block block) throws Exception {
-        if (isMoveSuccess(block)) {
+        if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
             /*if (StringUtils.isEmpty(block.getMcKey()) && StringUtils.isEmpty(block.getReservedMcKey())) {
                 moveUnLoadGoods(block.getBlockNo());
                 MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, block, "", lift.getBlockNo(), "", "");
@@ -205,8 +220,9 @@ public class LiftOperator {
         SCar sCar = (SCar) query.uniqueResult();
         if(block instanceof MCar && StringUtils.isEmpty(((MCar) block).getsCarBlockNo()) ){
             if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
-                unloadSCar(sCar,block);
-
+                if(lift.getBlockNo().equals(((MCar) block).getDock())){
+                    unloadSCar(sCar,block);
+                }
             } else {
                 //move(block.getDock(block.getBlockNo(), lift.getBlockNo()));
                 if(!sCar.isWaitingResponse())

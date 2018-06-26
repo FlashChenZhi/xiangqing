@@ -19,8 +19,8 @@ public class StationStatusChangeAction {
 
     @RequestMapping(value = "findStatusChange.do",method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObj<Station> findStatusChange(String pattern, String stationNo){
-        return  stationStatusChangeServie.findStatusChange(pattern,stationNo);
+    public ReturnObj<String> findStatusChange(String stationNo){
+        return  stationStatusChangeServie.findStatusChange(stationNo);
      }
 
       @RequestMapping(value = "updateStatusChange.do",method = RequestMethod.POST)

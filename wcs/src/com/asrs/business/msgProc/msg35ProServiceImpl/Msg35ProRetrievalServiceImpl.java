@@ -196,7 +196,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         } else if (message35.isMove()) {
 
             mCar.setCheckLocation(true);
-//                                mCar.setLevel(Integer.parseInt(message35.Level));
+            //mCar.setLevel(Integer.parseInt(message35.Level));
 
             Location location = Location.getByBankBayLevel(Integer.parseInt(message35.Bank), Integer.parseInt(message35.Bay), Integer.parseInt(message35.Level), mCar.getPosition());
 
@@ -300,6 +300,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
     @Override
     public void station35Proc() throws Exception {
         Session session = HibernateUtil.getCurrentSession();
+        StationBlock stationBlock = (StationBlock)block;
         if (message35.isMoveCarryGoods()) {
             block.setMcKey(message35.McKey);
             /*Location fromLocation = Location.getByLocationNo(aj.getFromLocation());
@@ -307,42 +308,46 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
                 fromLocation.setReserved(false);
                 fromLocation.setEmpty(true);
             }*/
-
-            StationBlock stationBlock= (StationBlock) block;
-            LedMessage ledMessage = LedMessage.getByLedNo(stationBlock.getStationNo());
-            if(ledMessage != null&&!ledMessage.isProcessed()) {
-                Query query1 =session.createQuery("from Inventory i where i.container.barcode=:barcode")
-                        .setString("barcode", aj.getBarcode())
-                        .setMaxResults(1);
-                Inventory inventory = (Inventory) query1.uniqueResult();
-                if (StringUtils.isNotBlank(stationBlock.getStationNo()) && inventory != null && !aj.getMcKey().equals(ledMessage.getMcKey())) {
-                    String skuName=inventory.getSkuCode();
-                    if(StringUtils.isNotBlank(inventory.getSkuCode())){
-                        Sku sku = Sku.getByCode(inventory.getSkuCode());
-                        if(sku!=null){
-                            skuName=sku.getSkuSpec();
+            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(message35.McKey);
+            if(asrsJob.getToStation().equals(stationBlock.getBlockNo())){
+                /*LedMessage ledMessage = LedMessage.getByLedNo(stationBlock.getStationNo());
+                if(ledMessage != null&&!ledMessage.isProcessed()) {
+                    Query query1 =session.createQuery("from Inventory i where i.container.barcode=:barcode")
+                            .setString("barcode", aj.getBarcode())
+                            .setMaxResults(1);
+                    Inventory inventory = (Inventory) query1.uniqueResult();
+                    if (StringUtils.isNotBlank(stationBlock.getStationNo()) && inventory != null *//*&& !aj.getMcKey().equals(ledMessage.getMcKey())*//*) {
+                        String skuName=inventory.getSkuCode();
+                        if(StringUtils.isNotBlank(inventory.getSkuCode())){
+                            Sku sku = Sku.getByCode(inventory.getSkuCode());
+                            if(sku!=null){
+                                skuName=sku.getSkuName();
+                            }
                         }
-                    }
-                    Query query2 = session.createQuery("from Job where mcKey=:mcKey").setMaxResults(1);
-                    Job job= (Job) query2.setString("mcKey",aj.getMcKey()).uniqueResult();
-                    String p=stationBlock.getStationNo();
-                    if(job!=null){
-                        p=job.getFinalLoc();
-                    }
+                        Query query2 = session.createQuery("from Job where mcKey=:mcKey").setMaxResults(1);
+                        Job job= (Job) query2.setString("mcKey",aj.getMcKey()).uniqueResult();
+                        String p=stationBlock.getStationNo();
+                        if(job!=null){
+                            p=job.getFinalLoc();
+                        }
 
-                    Qty qty=(Qty) session.createQuery("from Qty where skuCode=:skuCode").setString("skuCode",inventory.getSkuCode()).setMaxResults(1).uniqueResult();
-                    double count=inventory.getQty().intValue();
-                    if(qty!=null&&!"ktp".equals(inventory.getSkuCode())) {
-                        float i = inventory.getQty().intValue();
-                        float j = qty.getQty().intValue();
-                        float qqq = i / j;
-                        count = Math.ceil(qqq);
+                        Qty qty=(Qty) session.createQuery("from Qty where skuCode=:skuCode").setString("skuCode",inventory.getSkuCode()).setMaxResults(1).uniqueResult();
+                        double count=inventory.getQty().intValue();
+                        if(qty!=null&&!"ktp".equals(inventory.getSkuCode())) {
+                            float i = inventory.getQty().intValue();
+                            float j = qty.getQty().intValue();
+                            float qqq = i / j;
+                            count = Math.ceil(qqq);
+                        }
+                        LedMessage.show(stationBlock.getStationNo(), p, skuName, inventory.getLotNum(), aj.getBarcode()+"  "+count);
+                        ledMessage.setMcKey(aj.getMcKey());
                     }
-                    LedMessage.show(stationBlock.getStationNo(), p, skuName, inventory.getLotNum(), aj.getBarcode()+"  "+count);
-                    ledMessage.setMcKey(aj.getMcKey());
-                }
+                }*/
+                retrievalFinish(aj);
             }
-            retrievalFinish(aj);
+
+        }else if (message35.isMoveUnloadGoods()) {
+            block.clearMckeyAndReservMckey();
         }
     }
 
@@ -393,12 +398,13 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         Envelope el = new Envelope();
         el.setMovementReport(mr);
 
-        XMLMessage xmlMessage = new XMLMessage();
+        XMLUtil.sendEnvelope(el);
+        /*XMLMessage xmlMessage = new XMLMessage();
         xmlMessage.setRecv("WMS");
         xmlMessage.setStatus("1");
         xmlMessage.setMessageInfo(XMLUtil.getSendXML(el));
 //        HibernateUtil.getCurrentSession().save(xmlMessage);
-        XMLUtil.sendEnvelope(el);
+        XMLUtil.sendEnvelope(el);*/
 
     }
 
