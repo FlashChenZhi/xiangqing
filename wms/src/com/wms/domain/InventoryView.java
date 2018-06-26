@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Table(name = "INVENTORY_IFAC")
 public class InventoryView {
 
-    private String id;
+    private int id;
     private String whCode;
     private String palletCode;
     private String skuCode;
@@ -23,15 +23,18 @@ public class InventoryView {
     private BigDecimal caseQty;
     private String caseBarCode;
 
+
     @Id
     @Column(name = "INV_STOR_ID")
-    public String getId() {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
+
 
     @Basic
     @Column(name = "WH_CODE")

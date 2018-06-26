@@ -100,7 +100,7 @@ public class LoadUnitAtID extends XMLProcess {
 
             try {
                 Transaction.begin();
-                Session session = HibernateUtil.getCurrentSession();
+                //Session session = HibernateUtil.getCurrentSession();
 
                 String barcode = dataArea.getScanData().replaceAll("_","");
                 String stationNo = dataArea.getXMLLocation().getMHA();
@@ -264,6 +264,7 @@ public class LoadUnitAtID extends XMLProcess {
             job.setType(AsrsJobType.PUTAWAY);
             job.setMcKey(Mckey.getNext());
             job.setStatus(AsrsJobStatus.WAITING);
+            job.setSkuCode("test");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             //以天数为批次
             String lotNum = sdf.format(new Date());
@@ -281,7 +282,6 @@ public class LoadUnitAtID extends XMLProcess {
             inventoryView.setSkuCode(Const.skuCode); //商品代码
             inventoryView.setSkuName(Const.skuName);//商品名称
             inventoryView.setWhCode(Const.warehouseCode);//仓库代码
-
             inventoryView.setLotNum(lotNum);//批次号
         }else{
             throw new Exception("托盘号已存在");

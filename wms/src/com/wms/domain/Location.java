@@ -618,8 +618,8 @@ public class Location {
             return (Location) q.list().get(0);
         } else {
             //查找正在执行的入库任务
-            q = session.createQuery("from Location l where exists( select 1 from Job j where " +
-                    " and l.actualArea= j.toLocation.actualArea " +
+              q = session.createQuery("from Location l where exists( select 1 from Job j where " +
+                    "  l.actualArea= j.toLocation.actualArea " +
                     " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and " +
                     " j.skuCode=:skuCode and j.lotNum=:batchNo and l.position=j.toLocation.position )  " +
                     " and l.empty=true and l.reserved=false and l.asrsFlag = true and " +
