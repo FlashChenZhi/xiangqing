@@ -49,8 +49,8 @@ public class ScarAndMCarServiceImpl implements ScarService {
             charQuery.setParameter("tp", AsrsJobType.RECHARGED);
             charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
             charQuery.setParameter("status", AsrsJobStatus.DONE);
-            charQuery.setParameter("fs", mCar);
-            charQuery.setParameter("ts", mCar);
+            charQuery.setParameter("fs", mCar.getBlockNo());
+            charQuery.setParameter("ts",  mCar.getBlockNo());
             charQuery.setMaxResults(1);
             AsrsJob chargedJob = (AsrsJob) charQuery.uniqueResult();
 
