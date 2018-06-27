@@ -201,6 +201,7 @@ public class LiftOperator {
                 loadSCar(((MCar) block).getsCarBlockNo());
             } else {
                 //move(block.getDock(block.getBlockNo(), lift.getBlockNo()));
+
                 moveToDock(block);
             }
         }

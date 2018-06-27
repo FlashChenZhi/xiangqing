@@ -556,7 +556,7 @@ public class WebService {
                         "m.position = :position )");
                 charQuery.setParameter("tp", AsrsJobType.RECHARGED);
                 charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
-                charQuery.setParameter("ttp", AsrsJobType.CHANGELEVEL);
+                charQuery.setParameter("tttp", AsrsJobType.CHANGELEVEL);
                 /*charQuery.setParameter("status", AsrsJobStatus.DONE);*/
                 charQuery.setParameter("position", sCar.getPosition());
                 List<AsrsJob> charQuerys = charQuery.list();
