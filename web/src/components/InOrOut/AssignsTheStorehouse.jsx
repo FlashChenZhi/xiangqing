@@ -440,8 +440,12 @@ let AssignsTheStorehouse = React.createClass({
                                     showSearch
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     id="select" size="large" style={{ width: 200 }}
-                                    {...commodityStationNoProps} >
-                                    {commodityStationNoSelect}
+                                    {...commodityStationNoProps}  >
+                                    {/*{commodityStationNoSelect}*/}
+                                    <Option value="">---请选择---</Option>
+                                    <option value={"1"}>出库口一</option>
+                                    <option value={"2"}>出库口二</option>
+                                    <option value={"3"}>出库口三</option>
                                 </Select>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 <Button type="primary" onClick={this.handleSubmit2}>提交</Button>

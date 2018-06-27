@@ -84,56 +84,56 @@ public class SCarThread extends BlockThread<SCar> {
                                 MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
                             }*/
                         }
-                    } else {
-                        //小车在运行状态
-                        if (StringUtils.isEmpty(sCar.getReservedMcKey()) && StringUtils.isEmpty(sCar.getMcKey())) {
-
-                            ScarAndMCarServiceImpl service = new ScarAndMCarServiceImpl(sCar);
-                            if (sCar != null)
-                                service.withOutJob();
-
-                        } else if (StringUtils.isNotEmpty(sCar.getMcKey())) {
-
-                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
-                            ScarService service = null;
-                            if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                service = new ScarAndSrmPutawayServcie(sCar);
-
-                            } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
-                                service = new ScarAndSrmRetrievalService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                                service = new ScarCharageService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-                                service = new ScarCharageOverService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
-                                service = new ScarAndSrmStsService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
-                                service = new ScarChangeLev(sCar);
-                            }
-                            service.withMckey();
-
-                        } else if (StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
-                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getReservedMcKey());
-                            ScarService service = null;
-                            if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                service = new ScarAndSrmPutawayServcie(sCar);
-
-                            } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
-                                service = new ScarAndSrmRetrievalService(sCar);
-
-                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                                service = new ScarCharageService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-                                service = new ScarCharageOverService(sCar);
-                            } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
-                                service = new ScarAndSrmStsService(sCar);
-                            }
-                            service.withReserveMckey();
-
-                        }
                     }
-                    Transaction.commit();
+                }else {
+                    //小车在运行状态
+                    if (StringUtils.isEmpty(sCar.getReservedMcKey()) && StringUtils.isEmpty(sCar.getMcKey())) {
+
+                        ScarAndMCarServiceImpl service = new ScarAndMCarServiceImpl(sCar);
+                        if (sCar != null)
+                            service.withOutJob();
+
+                    } else if (StringUtils.isNotEmpty(sCar.getMcKey())) {
+
+                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
+                        ScarService service = null;
+                        if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                            service = new ScarAndSrmPutawayServcie(sCar);
+
+                        } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                            service = new ScarAndSrmRetrievalService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                            service = new ScarCharageService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                            service = new ScarCharageOverService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
+                            service = new ScarAndSrmStsService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
+                            service = new ScarChangeLev(sCar);
+                        }
+                        service.withMckey();
+
+                    } else if (StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
+                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getReservedMcKey());
+                        ScarService service = null;
+                        if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                            service = new ScarAndSrmPutawayServcie(sCar);
+
+                        } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                            service = new ScarAndSrmRetrievalService(sCar);
+
+                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                            service = new ScarCharageService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                            service = new ScarCharageOverService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
+                            service = new ScarAndSrmStsService(sCar);
+                        }
+                        service.withReserveMckey();
+
+                    }
                 }
+                Transaction.commit();
             } catch (Exception e) {
                 Transaction.rollback();
                 e.printStackTrace();

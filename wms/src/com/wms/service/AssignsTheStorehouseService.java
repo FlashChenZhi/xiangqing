@@ -242,8 +242,36 @@ public class AssignsTheStorehouseService {
             Session session = HibernateUtil.getCurrentSession();
             boolean flag = true;
             String location="";
-            if(StringUtils.isNotBlank(stationNo)){
-
+            for(int i =0;i<list.size();i++){
+                location = list.get(i);
+                //按照Container中的reserved判断
+                Query query = session.createQuery(" from Container c where reserved = false and c.location.locationNo=:locationNo");
+                query.setString("locationNo", location);
+                Container container =(Container) query.uniqueResult();
+                System.out.println("站台号："+stationNo);
+                if(container!=null){
+                    boolean b = outKu(session, location, stationNo);
+                    if(!b){
+                        Transaction.rollback();
+                        s.setSuccess(false);
+                        s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                    }else {
+                        s.setMsg("设定出库成功");
+                        s.setSuccess(true);
+                        Transaction.commit();return s;
+                    }
+                }else{
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                s.setSuccess(false);
+                s.setMsg("test");
+            }else{
+                Transaction.rollback();
+                s.setSuccess(false);
+                s.setMsg("货位："+location+"前已有入库任务");
             }
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
