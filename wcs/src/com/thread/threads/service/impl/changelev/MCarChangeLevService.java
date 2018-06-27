@@ -22,7 +22,7 @@ public class MCarChangeLevService extends MCarServiceImpl {
 
     @Override
     public void withReserveMckey() throws Exception {
-        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());
+        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
         MCarOperator operator = new MCarOperator(mCar, mCar.getReservedMcKey());
         Block block = mCar.getPreBlock(asrsJob.getMcKey(), AsrsJobType.CHANGELEVEL);
         operator.tryLoadFromLift( block);
