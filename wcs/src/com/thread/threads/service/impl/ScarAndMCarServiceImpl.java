@@ -152,8 +152,8 @@ public class ScarAndMCarServiceImpl implements ScarService {
                                     "m.position=:position and " +
                                     "not exists (select 1 from AsrsJob a where a.type=:tp and a.toStation = m.blockNo ) " +
                                     "and " +
-                                    "exists (select d from RouteDetail d,Block b where d.currentBlockNo = b.blockNo and " +
-                                    "d.nextBlockNo =m.blockNo and b.mcKey is not null and d.route.type=:tp2 and d.route.status='1' )");
+                                    "exists (select d from RouteDetail d,Block b,AsrsJob a where a.mcKey=b.mcKey and d.currentBlockNo = b.blockNo and " +
+                                    "d.nextBlockNo =m.blockNo and b.mcKey is not null and a.type=:tp2 and a.toStation=m.blockNo and d.route.type=:tp2 and d.route.status='1' )");
                             query.setString("tp", AsrsJobType.CHANGELEVEL);
                             query.setString("position", sCar.getPosition());
                             query.setString("tp2", AsrsJobType.PUTAWAY);
@@ -501,6 +501,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
             asrsJob.setStatusDetail(AsrsJobStatusDetail.WAITING);
             asrsJob.setFromStation(sCar.getOnMCar());
             asrsJob.setToStation(toMcar.getBlockNo());
+            asrsJob.setBarcode(sCar.getGroupNo()+"");
             asrsJob.setGenerateTime(new Date());
             asrsJob.setMcKey(Mckey.getNext());
             HibernateUtil.getCurrentSession().save(asrsJob);

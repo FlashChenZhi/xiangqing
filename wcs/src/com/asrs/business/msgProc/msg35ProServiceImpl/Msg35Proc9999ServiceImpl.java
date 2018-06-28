@@ -4,10 +4,7 @@ import com.asrs.business.msgProc.msg35ProcService.Msg35ProcService;
 import com.asrs.domain.AsrsJob;
 import com.asrs.domain.Location;
 import com.asrs.message.Message35;
-import com.thread.blocks.Block;
-import com.thread.blocks.MCar;
-import com.thread.blocks.SCar;
-import com.thread.blocks.Srm;
+import com.thread.blocks.*;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -95,7 +92,14 @@ public class Msg35Proc9999ServiceImpl implements Msg35ProcService {
 
     @Override
     public void lift35Proc() throws Exception {
-
+        Lift lift = (Lift) block;
+        if (message35.isMove()) {
+            if ("9999".equals(message35.McKey)&&StringUtils.isBlank(lift.getMcKey())&&StringUtils.isBlank(lift.getReservedMcKey())) {
+                lift.setDock(message35.Station);
+                lift.setLevel(1);
+                lift.setWaitingResponse(false);
+            }
+        }
     }
 
     @Override

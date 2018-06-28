@@ -119,6 +119,7 @@ public class LoadUnitAtID extends XMLProcess {
                     barcode=job.getContainer();
                     //分配货位，并向队列中压入TransportOrder
                     Location newLocation = getToLocation(stationNo,job,barcode);
+                    job.setToLocation(newLocation);
                 }else {
                     System.out.println("入库站台不是正常状态！");
                 }
@@ -197,7 +198,7 @@ public class LoadUnitAtID extends XMLProcess {
             ca.setSender(sd);
 
             RefId ri = new RefId();
-            ri.setReferenceId(Mckey.getNext());
+            ri.setReferenceId(job.getMcKey());
             ca.setRefId(ri);
             ca.setCreationDateTime(new DateFormat().format(new Date(), DateFormat.YYYYMMDDHHMMSS));
             Query query  = HibernateUtil.getCurrentSession().createQuery("from MCar where position =:po and level =:lv");
@@ -261,7 +262,7 @@ public class LoadUnitAtID extends XMLProcess {
             job.setMcKey(Mckey.getNext());
             job.setStatus(AsrsJobStatus.WAITING);
             job.setSkuCode(sku.getSkuCode());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             //以天数为批次
             String lotNum = sdf.format(new Date());
             job.setLotNum(lotNum);

@@ -32,16 +32,12 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
             if(message35.Station.equals(aj.getToStation())){
                 sCar.clearMckeyAndReservMckey();
                 sCar.setOnMCar(message35.Station);
-                //
-                MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
-                mCar.setGroupNo(sCar.getGroupNo());
-                sCar.setLevel(mCar.getLevel());
+
             }
         }else if (message35.isOffCar()) {
             if (message35.Station.equals(aj.getToStation())) {
                 MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
                 sCar.setOnMCar(mCar.getBlockNo());
-                //sCar.setGroupNo(mCar.getGroupNo());
                 mCar.setGroupNo(sCar.getGroupNo());
             } else {
                 sCar.setOnMCar(null);
@@ -74,7 +70,7 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
             mCar.setGroupNo(null);
         } else if (message35.isLoadCar()) {
             mCar.setsCarBlockNo(message35.Station);
-
+            mCar.setGroupNo(Integer.valueOf(aj.getBarcode()));
             aj.setStatus(AsrsJobStatus.DONE);
             mCar.clearMckeyAndReservMckey();
         }
@@ -86,10 +82,17 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
         Lift lift = (Lift) block;
         if (message35.isLoadCar()) {
             lift.generateMckey(aj.getMcKey());
+            lift.setOnCar(message35.Station);
         } else if (message35.isUnLoadCar()) {
             lift.clearMckeyAndReservMckey();
+            lift.setOnCar(null);
         }else if(message35.isMove()){
             lift.setDock(message35.Station);
+            Dock dock =lift.getDockClass(message35.Station);
+            if(org.apache.commons.lang3.StringUtils.isNotBlank(lift.getOnCar()) && dock!=null){
+                SCar sCar =(SCar) SCar.getByBlockNo(lift.getOnCar());
+                sCar.setLevel(dock.getLevel());
+            }
         }
     }
 

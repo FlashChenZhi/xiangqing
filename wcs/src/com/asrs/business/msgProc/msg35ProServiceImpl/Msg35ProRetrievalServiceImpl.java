@@ -383,7 +383,6 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         toLocation.setMHA("");
         toLocation.setRack(list);
 
-
         //创建MovementReportDA数据域对象
         MovementReportDA mrd = new MovementReportDA();
         mrd.setReasonCode(ReasonCode.RETRIEVALFINISHED);
@@ -398,13 +397,12 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         Envelope el = new Envelope();
         el.setMovementReport(mr);
 
-        XMLUtil.sendEnvelope(el);
-        /*XMLMessage xmlMessage = new XMLMessage();
+        XMLMessage xmlMessage = new XMLMessage();
         xmlMessage.setRecv("WMS");
         xmlMessage.setStatus("1");
         xmlMessage.setMessageInfo(XMLUtil.getSendXML(el));
-//        HibernateUtil.getCurrentSession().save(xmlMessage);
-        XMLUtil.sendEnvelope(el);*/
+        HibernateUtil.getCurrentSession().save(xmlMessage);
+        XMLUtil.sendEnvelope(el);
 
     }
 

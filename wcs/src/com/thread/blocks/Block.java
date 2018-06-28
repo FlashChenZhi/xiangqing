@@ -371,5 +371,19 @@ public abstract class Block {
         Dock dock = (Dock) query.uniqueResult();
         return  dock.getDockNo();
     }
-
+    /*
+     * @author：ed_chen
+     * @date：2018/6/24 22:58
+     * @description：获取提升机要到达下一个block所需要的接驳站台号
+     * @param toBlockNo
+     * @param liftNo
+     * @return：java.lang.String
+     */
+    @Transient
+    public Dock getDockClass(String dockNo) {
+        Query query = HibernateUtil.getCurrentSession().createQuery("from Dock where dockNo=:dockNo ").setMaxResults(1);
+        query.setParameter("dockNo", dockNo);
+        Dock dock = (Dock) query.uniqueResult();
+        return  dock;
+    }
 }

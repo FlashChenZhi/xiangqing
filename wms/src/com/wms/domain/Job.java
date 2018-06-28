@@ -355,8 +355,6 @@ public class Job {
 
         JobLog jl = new JobLog();
 
-        session.save(jl);
-
         jl.setContainer(this.getContainer());
         jl.setCreateDate(new Date());
         jl.setCreateUser(this.getCreateUser());
@@ -373,7 +371,9 @@ public class Job {
             jl.setSkuCode(jd.getInventory().getSkuCode());
             jl.setSkuName(jd.getInventory().getSkuName());
             jl.setQty(jd.getInventory().getQty());
+            jl.setLotNum(jd.getInventory().getLotNum());
         }
+        session.save(jl);
     }
 
     public void asrsCancel() {

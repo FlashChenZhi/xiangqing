@@ -128,22 +128,25 @@ public class WebService {
                     String generateTime = format.format(job.getGenerateTime());
                     onlineTaskVo.setGenerateTime(generateTime);
                 }
-                if(!"07".equals(job.getType())&&StringUtils.isNotEmpty(job.getBarcode().trim())){
-                    Inventory inventory=(Inventory)session.createQuery("from Inventory i where i.skuCode not in ('ktp','yl') and  i.container.barcode=:barcode")
-                            .setString("barcode",job.getBarcode()).setMaxResults(1).uniqueResult();
-                    if(inventory!=null){
-                        Inventory inventory11=(Inventory)session.createQuery("from Inventory i where  i.container.barcode=:barcode")
+                if(!AsrsJobType.CHANGELEVEL.equals(job.getType())){
+                    if(!"07".equals(job.getType())&&StringUtils.isNotEmpty(job.getBarcode().trim())){
+                        Inventory inventory=(Inventory)session.createQuery("from Inventory i where i.skuCode not in ('ktp','yl') and  i.container.barcode=:barcode")
                                 .setString("barcode",job.getBarcode()).setMaxResults(1).uniqueResult();
-                        if(StringUtils.isNotEmpty(inventory11.getSkuCode())){
-                            Sku sku=(Sku)session.createQuery("from Sku where skuCode=:skuCode")
-                                    .setString("skuCode",inventory11.getSkuCode()).setMaxResults(1).uniqueResult();
-                            if(StringUtils.isNotEmpty(sku.getSkuSpec())){
-                                onlineTaskVo.setSkuSpec(sku.getSkuSpec());
-                                onlineTaskVo.setSkuCode(sku.getSkuCode());
+                        if(inventory!=null){
+                            Inventory inventory11=(Inventory)session.createQuery("from Inventory i where  i.container.barcode=:barcode")
+                                    .setString("barcode",job.getBarcode()).setMaxResults(1).uniqueResult();
+                            if(StringUtils.isNotEmpty(inventory11.getSkuCode())){
+                                Sku sku=(Sku)session.createQuery("from Sku where skuCode=:skuCode")
+                                        .setString("skuCode",inventory11.getSkuCode()).setMaxResults(1).uniqueResult();
+                                if(StringUtils.isNotEmpty(sku.getSkuSpec())){
+                                    onlineTaskVo.setSkuSpec(sku.getSkuSpec());
+                                    onlineTaskVo.setSkuCode(sku.getSkuCode());
+                                }
                             }
                         }
                     }
                 }
+
                 onlineTaskVos.add(onlineTaskVo);
             }
             Map<String, Object> map = new HashMap<>();
@@ -604,6 +607,7 @@ public class WebService {
                     asrsJob.setToStation(toMcar.getBlockNo());
                     asrsJob.setGenerateTime(new Date());
                     asrsJob.setMcKey(Mckey.getNext());
+                    asrsJob.setBarcode(sCar.getGroupNo()+"");
                     HibernateUtil.getCurrentSession().save(asrsJob);
 
 

@@ -22,6 +22,7 @@ import com.domain.XMLbean.XMLList.DataArea.ToLocation;
 import com.domain.XMLbean.XMLList.MovementReport;
 import com.domain.consts.xmlbean.XMLConstant;
 import com.thread.blocks.*;
+import com.util.hibernate.HibernateUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -299,7 +300,7 @@ public class Msg35ProPutawayServiceImpl implements Msg35ProcService {
         xmlMessage.setStatus("1");
         xmlMessage.setRecv("WMS");
         xmlMessage.setMessageInfo(XMLUtil.getSendXML(el));
-//        HibernateUtil.getCurrentSession().save(xmlMessage);
+        HibernateUtil.getCurrentSession().save(xmlMessage);
         XMLUtil.sendEnvelope(el);
     }
 

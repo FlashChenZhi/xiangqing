@@ -119,13 +119,14 @@ public class MovementReport extends XMLProcess {
                         HibernateUtil.getCurrentSession().save(container);
                     }
                     InventoryLog inventoryLog = new InventoryLog();
-                    inventoryLog.setQty(BigDecimal.ZERO);
+
                     inventoryLog.setType(InventoryLog.TYPE_IN);
                     for (InventoryView view : views) {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
                         if (view != null) {
                             Inventory inventory = new Inventory();
+
                             inventory.setWhCode(view.getWhCode());
                             inventory.setSkuName(view.getSkuName());
                             inventory.setLotNum(view.getLotNum());
@@ -138,7 +139,7 @@ public class MovementReport extends XMLProcess {
                             j.getJobDetails().iterator().next().setInventory(inventory);
 
                             session.save(inventory);
-                            inventoryLog.setQty(inventoryLog.getQty().add(inventory.getQty()));
+                            inventoryLog.setQty(inventory.getQty());
                             inventoryLog.setSkuCode(inventory.getSkuCode());
                             inventoryLog.setWhCode(inventory.getWhCode());
                             inventoryLog.setToLocation(container.getLocation().getLocationNo());

@@ -68,4 +68,10 @@ public class Dock {
     public static Dock getDockBydockNo(String dockNo) {
         return (Dock) HibernateUtil.getCurrentSession().createQuery("from Dock where dockNo=:dockNo ").setString("dockNo", dockNo).setMaxResults(1).uniqueResult();
     }
+
+    @Transient
+    public static Dock getDockByLevAndLift(String liftNo,int level) {
+        return (Dock) HibernateUtil.getCurrentSession().createQuery("from Dock where liftNo=:liftNo and level=:level ")
+                .setString("liftNo", liftNo).setParameter("level",level).setMaxResults(1).uniqueResult();
+    }
 }
