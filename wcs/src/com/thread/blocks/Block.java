@@ -305,8 +305,13 @@ public abstract class Block {
                     "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and a.type=:type and d.route.status=:status order by a.generateTime,b.blockNo asc")
                     .setString("cb", getBlockNo()).setString("type", jobType)
                     .setString("status","1");
-        }else {
-            query= HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where  d.currentBlockNo = b.blockNo and " +
+        }else if(this instanceof MCar) {
+            query= HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b,AsrsJob a where a.mcKey=b.mcKey and d.currentBlockNo = b.blockNo and " +
+                    "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and a.type=:type and a.toStation=:toStation and d.route.status=:status order by a.generateTime,b.blockNo asc")
+                    .setString("cb", getBlockNo()).setString("type", jobType)
+                    .setString("status","1").setString("toStation",getBlockNo());
+        }else{
+            query= HibernateUtil.getCurrentSession().createQuery("select d from RouteDetail d,Block b where   d.currentBlockNo = b.blockNo and " +
                     "d.nextBlockNo =:cb and b.mcKey is not null and d.route.type=:type and d.route.status=:status order by b.blockNo asc")
                     .setString("cb", getBlockNo()).setString("type", jobType)
                     .setString("status","1");

@@ -296,7 +296,7 @@ public class AssignsTheStorehouseService {
                     s.setSuccess(false);
                     s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
                 }else {
-                    s.setMsg("设定出库成功");
+                    s.setMsg("设定出库成功,出库口剩余："+(10-(list2.get(0)+list2.get(1))));
                     s.setSuccess(true);
                     Transaction.commit();
                     return s;

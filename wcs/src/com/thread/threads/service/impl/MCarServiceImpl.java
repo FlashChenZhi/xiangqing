@@ -49,7 +49,7 @@ public class MCarServiceImpl implements MCarService {
                      */
                     String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey():sCar.getMcKey();
                     AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
-                    if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)){
+                    if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)&&!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
                         mCar.setReservedMcKey(sCar.getReservedMcKey());
                         hasJob=true;
                     }
@@ -59,20 +59,24 @@ public class MCarServiceImpl implements MCarService {
                     //检查子车上是否有任务,将其赋予母车的reservedMckey
                     if (!hasJob) {
                         //查找本层的入库任务
-                        if (StringUtils.isNotBlank(sCar.getMcKey())) {
-                            mCar.setReservedMcKey(sCar.getMcKey());
-                        } else if (StringUtils.isNotBlank(sCar.getReservedMcKey())) {
-                            mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        if (StringUtils.isNotBlank(sCar.getMcKey()) || StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+                            String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey() : sCar.getMcKey();
+                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
+                            if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
+                                mCar.setReservedMcKey(mckey);
+                            }
                         } else {
                             hasJob = findPutawayByLevelOfMcar(hasJob);
                         }
                     }
                     if (!hasJob) {
                         //查找本层的出库任务
-                        if (StringUtils.isNotBlank(sCar.getMcKey())) {
-                            mCar.setReservedMcKey(sCar.getMcKey());
-                        } else if (StringUtils.isNotBlank(sCar.getReservedMcKey())) {
-                            mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        if (StringUtils.isNotBlank(sCar.getMcKey()) || StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+                            String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey() : sCar.getMcKey();
+                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
+                            if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
+                                mCar.setReservedMcKey(mckey);
+                            }
                         } else {
                             hasJob = findStockRemovalByLevelOfMcar(hasJob);
                         }
@@ -80,11 +84,11 @@ public class MCarServiceImpl implements MCarService {
 
                     if (hasJob) {
                         //若查到任务改变一下任务状态
-                        AsrsJob asrsJob = null;
+                       /* AsrsJob asrsJob = null;
                         if (StringUtils.isNotBlank(mCar.getReservedMcKey()))
                             asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
                         else if (StringUtils.isNotBlank(mCar.getMcKey()))
-                            asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());
+                            asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());*/
                         /*asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);*/
                     } else {
                         //若没查到任务，且母车绑定有子车，并且子车不在母车上，给母车发上车
@@ -111,7 +115,7 @@ public class MCarServiceImpl implements MCarService {
             query.setString("position", mCar.getPosition());
             query.setMaxResults(1);
             AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
-            if (asrsJob != null) {
+            if (asrsJob != null && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                 mCar.setReservedMcKey(asrsJob.getMcKey());
             }
         }

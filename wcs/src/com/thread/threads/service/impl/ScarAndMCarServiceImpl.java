@@ -115,9 +115,9 @@ public class ScarAndMCarServiceImpl implements ScarService {
                         //母车有预约任务，子车预约任务(本层入库任务是母车找的，出库其他列是母车找的，本列在35中已经找了)
                         String mckey = StringUtils.isNotBlank(mCar.getReservedMcKey()) ? mCar.getReservedMcKey() : mCar.getMcKey();
                         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
-
-                        sCar.setReservedMcKey(mCar.getReservedMcKey());
-
+                        if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
+                            sCar.setReservedMcKey(mCar.getReservedMcKey());
+                        }
                     } else {
                         //母车上无任务
                         boolean hasJob = false;
@@ -461,7 +461,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                 "m.position = :position )");
         charQuery.setParameter("tp", AsrsJobType.RECHARGED);
         charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
-        charQuery.setParameter("ttp", AsrsJobType.CHANGELEVEL);
+        charQuery.setParameter("tttp", AsrsJobType.CHANGELEVEL);
         /*charQuery.setParameter("status", AsrsJobStatus.DONE);*/
         charQuery.setParameter("position", sCar.getPosition());
         List<AsrsJob> charQuerys = charQuery.list();
