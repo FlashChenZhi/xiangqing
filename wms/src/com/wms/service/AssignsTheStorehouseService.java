@@ -239,39 +239,21 @@ public class AssignsTheStorehouseService {
         List<String> list = (List<String>) JSONArray.toCollection(jsonArray,String.class);
         try {
             Transaction.begin();
-            Session session = HibernateUtil.getCurrentSession();
-            boolean flag = true;
-            String location="";
-            for(int i =0;i<list.size();i++){
-                location = list.get(i);
-                //按照Container中的reserved判断
-                Query query = session.createQuery(" from Container c where reserved = false and c.location.locationNo=:locationNo");
-                query.setString("locationNo", location);
-                Container container =(Container) query.uniqueResult();
-                System.out.println("站台号："+stationNo);
-                if(container!=null){
-                    boolean b = outKu(session, location, stationNo);
-                    if(!b){
-                        Transaction.rollback();
-                        s.setSuccess(false);
-                        s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
-                    }else {
-                        s.setMsg("设定出库成功");
-                        s.setSuccess(true);
-                        Transaction.commit();return s;
-                    }
-                }else{
-                    flag=false;
-                    break;
-                }
-            }
-            if(flag){
-                s.setSuccess(false);
-                s.setMsg("test");
-            }else{
-                Transaction.rollback();
-                s.setSuccess(false);
-                s.setMsg("货位："+location+"前已有入库任务");
+            List list1= new ArrayList<>();
+            list1.add("1201");
+            list1.add("1202");
+            List list2= new ArrayList<>();
+            list2.add("1203");
+            list2.add("1204");
+            List list3= new ArrayList<>();
+            list3.add("1205");
+            list3.add("1206");
+            Map<String,List> stations = new HashMap<>();
+            stations.put("1",list1);
+            stations.put("2",list2);
+            stations.put("3",list3);
+            if(stations.get(stationNo)!=null){
+                s=ku(list,s,stations.get(stationNo));
             }
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
@@ -283,9 +265,59 @@ public class AssignsTheStorehouseService {
         }
             return s;
     }
-
+    public static ReturnObj<Map<String, Object>> ku(List<String> list ,ReturnObj<Map<String, Object>> s,List<String> list1){
+        boolean flag = true;
+        String location="";
+        Session session = HibernateUtil.getCurrentSession();
+        for(int i =0;i<list.size();i++){
+            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=:toStation) " +
+                    "union all( select count(*) from AsrsJob where toStation=:toStation1)").setString("toStation",list1.get(0)+"").setString("toStation1",list1.get(1)+"");
+            List<Integer> list2 = query1.list();
+            if((list.size()>(10-(list2.get(0)+list2.get(1))))||list.size()>10){
+                s.setSuccess(false);
+                s.setMsg("该出库口没有足够存位");
+                return s;
+            }
+            location = list.get(i);
+            //按照Container中的reserved判断
+            Query query = session.createQuery(" from Container c where reserved = false and c.location.locationNo=:locationNo");
+            query.setString("locationNo", location);
+            Container container =(Container) query.uniqueResult();
+            if(container!=null){
+                String stationNo="";
+                if(list2.get(0)<=5){
+                    stationNo=list1.get(0);
+                }else {
+                    stationNo=list1.get(1);
+                }
+                boolean b = outKu(session, location, stationNo);
+                if(!b){
+                    Transaction.rollback();
+                    s.setSuccess(false);
+                    s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                }else {
+                    s.setMsg("设定出库成功");
+                    s.setSuccess(true);
+                    Transaction.commit();
+                    return s;
+                }
+            }else{
+                flag=false;
+                break;
+            }
+        }
+        if(flag){
+            s.setSuccess(false);
+            s.setMsg("test");
+        }else{
+            Transaction.rollback();
+            s.setSuccess(false);
+            s.setMsg("货位："+location+"前已有入库任务");
+        }
+        return s;
+    }
     //生成出库任务
-    public boolean outKu(Session session,String locationNo,String stationNo){
+    public static boolean outKu(Session session,String locationNo,String stationNo){
         try {
             Query query = session.createQuery("from Inventory i where i.container.location.locationNo = :locationNo").setString("locationNo",locationNo);
             List<Inventory> inventoryList = query.list();
@@ -295,8 +327,8 @@ public class AssignsTheStorehouseService {
             JobDetail jobDetail = new JobDetail();
             Job job = new Job();
             //session准备存入job，commit时才会执行sql
-//            session.save(job);
-//            session.save(jobDetail);
+            session.save(job);
+            session.save(jobDetail);
             //数据准备
             String mckey = Mckey.getNext();
             String type = AsrsJobType.RETRIEVAL; //出库

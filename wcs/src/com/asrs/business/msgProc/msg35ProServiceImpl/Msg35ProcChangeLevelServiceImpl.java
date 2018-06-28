@@ -35,6 +35,7 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
                 //
                 MCar mCar = (MCar) MCar.getByBlockNo(aj.getToStation());
                 mCar.setGroupNo(sCar.getGroupNo());
+                sCar.setLevel(mCar.getLevel());
             }
         }else if (message35.isOffCar()) {
             if (message35.Station.equals(aj.getToStation())) {

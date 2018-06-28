@@ -5,7 +5,10 @@ import org.hibernate.Cache;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -13,15 +16,30 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args) {
-        System.out.println(2);
         Transaction.begin();
-        System.out.println(1);
         Session session = HibernateUtil.getCurrentSession();
-        Query query = session.createQuery("from Station where status = true");
-        List<Station> list = query.list();
-        for(Station station : list){
-            System.out.println(station.getName());
+        List list= new ArrayList<>();
+        list.add(11);
+        list.add(12);
+        List list1= new ArrayList<>();
+        list.add(21);
+        list.add(22);
+        List list2= new ArrayList<>();
+        list.add(31);
+        list.add(32);
+        Map<String,List> stations = new HashMap<>();
+        stations.put("1",list);
+        stations.put("2",list1);
+        stations.put("3",list2);
+        if(stations.get("1")!=null){
+            System.out.println(1);
+
+            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob ) " +
+                    "union all( select count(*) from AsrsJob )");
+            List<Integer> list3 = query1.list();
+            System.out.println(list3.size());
         }
+        Transaction.commit();
     }
 
     //1到8排
