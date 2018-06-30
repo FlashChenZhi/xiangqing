@@ -108,8 +108,14 @@ public class LiftOperator {
      * @return：void
      */
     public void tryCarryFromPreBlock(Block block) throws Exception {
-        if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
-            moveCarryGoods(block.getBlockNo());
+        if (isMoveSuccess(block) && !lift.isWaitingResponse() ) {
+            if(block instanceof MCar){
+                if(((MCar)block).getDock()!=null && ((MCar)block).getDock().equals(lift.getBlockNo()) ){
+                    moveCarryGoods(block.getBlockNo());
+                }
+            }else{
+                moveCarryGoods(block.getBlockNo());
+            }
         } else {
             //move(block.getDock(block.getBlockNo(), lift.getBlockNo()));
             moveToDock(block);

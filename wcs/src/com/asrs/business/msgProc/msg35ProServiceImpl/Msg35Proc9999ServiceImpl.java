@@ -95,7 +95,7 @@ public class Msg35Proc9999ServiceImpl implements Msg35ProcService {
         Lift lift = (Lift) block;
         if (message35.isMove()) {
             if ("9999".equals(message35.McKey)&&StringUtils.isBlank(lift.getMcKey())&&StringUtils.isBlank(lift.getReservedMcKey())) {
-                lift.setDock(message35.Station);
+                lift.setDock(null);
                 lift.setLevel(1);
                 lift.setWaitingResponse(false);
             }

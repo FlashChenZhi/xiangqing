@@ -253,7 +253,7 @@ public class AssignsTheStorehouseService {
             stations.put("2",list2);
             stations.put("3",list3);
             if(stations.get(stationNo)!=null){
-                s=ku(list,s,stations.get(stationNo));
+                s=ku(list,s,stations.get(stationNo),stations);
             }
         } catch (JDBCConnectionException ex) {
             s.setSuccess(false);
@@ -265,7 +265,7 @@ public class AssignsTheStorehouseService {
         }
             return s;
     }
-    public static ReturnObj<Map<String, Object>> ku(List<String> list ,ReturnObj<Map<String, Object>> s,List<String> list1){
+    public static ReturnObj<Map<String, Object>> ku(List<String> list ,ReturnObj<Map<String, Object>> s,List<String> list1,Map<String,List> stations){
         boolean flag = true;
         String location="";
         Session session = HibernateUtil.getCurrentSession();
@@ -290,13 +290,33 @@ public class AssignsTheStorehouseService {
                 }else {
                     stationNo=list1.get(1);
                 }
+                Query query2 ;
+                if(stations.get("1").contains(stationNo)){
+                    query2=session.createQuery("select blockNo from Block where stationNo IN (:s)").setParameterList("s",stations.get("1"));
+                }else {
+                    query2=session.createQuery("select blockNo from Block where stationNo IN (:s,:ss)").setParameterList("s",stations.get("2")).setParameterList("ss",stations.get("3"));
+                }
+                List<String> list3 = query2.list();
+                Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation not IN (:s) ").setParameterList("s",list3);
+                List<String> list4 = query3.list();
+                if(list4.size()>0){
+                    Location byLocationNo = Location.getByLocationNo(location);
+                    for(int j=0 ; j<list4.size();j++){
+                        Location byLocationNo1 = Location.getByLocationNo(list4.get(j));
+                        if(byLocationNo.getPosition()!=byLocationNo1.getPosition()){
+                            Transaction.rollback();
+                            s.setSuccess(false);
+                            s.setMsg("出库路径不通");
+                        }
+                    }
+                }
                 boolean b = outKu(session, location, stationNo);
                 if(!b){
                     Transaction.rollback();
                     s.setSuccess(false);
                     s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
                 }else {
-                    s.setMsg("设定出库成功,出库口剩余："+(10-(list2.get(0)+list2.get(1))));
+                    s.setMsg("设定出库成功,出库口剩余："+(10-list.size()));
                     s.setSuccess(true);
                     Transaction.commit();
                     return s;

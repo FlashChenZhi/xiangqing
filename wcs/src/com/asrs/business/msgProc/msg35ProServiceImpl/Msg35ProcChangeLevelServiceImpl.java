@@ -89,6 +89,7 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
         }else if(message35.isMove()){
             lift.setDock(message35.Station);
             Dock dock =lift.getDockClass(message35.Station);
+            lift.setLevel(dock.getLevel());
             if(org.apache.commons.lang3.StringUtils.isNotBlank(lift.getOnCar()) && dock!=null){
                 SCar sCar =(SCar) SCar.getByBlockNo(lift.getOnCar());
                 sCar.setLevel(dock.getLevel());

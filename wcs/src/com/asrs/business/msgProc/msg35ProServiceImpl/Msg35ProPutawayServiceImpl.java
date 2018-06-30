@@ -213,10 +213,14 @@ public class Msg35ProPutawayServiceImpl implements Msg35ProcService {
         Lift lift = (Lift) block;
         if(message35.isMove()){
             lift.setDock(message35.Station);
+            Dock dock =lift.getDockClass(message35.Station);
+            lift.setLevel(dock.getLevel());
         }else if(message35.isMoveCarryGoods()){
             lift.generateMckey(message35.McKey);
+            lift.setDock(null);
         }else if(message35.isMoveUnloadGoods()){
             lift.clearMckeyAndReservMckey();
+            lift.setDock(null);
         }
     }
 

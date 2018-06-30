@@ -8,6 +8,7 @@ import com.thread.blocks.SCar;
 import com.thread.blocks.Srm;
 import com.thread.threads.operator.ScarOperator;
 import com.thread.threads.service.impl.ScarAndSrmServiceImpl;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Created by van on 2017/11/21.
@@ -32,10 +33,15 @@ public class ScarAndSrmRetrievalService extends ScarAndSrmServiceImpl {
 
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getReservedMcKey());
         ScarOperator operator = new ScarOperator(sCar, asrsJob.getMcKey());
-        MCar srm = (MCar) Block.getByBlockNo(sCar.getOnMCar());
-        Location location = Location.getByLocationNo(asrsJob.getFromLocation());
-        if (srm != null)
-            operator.tryOffSrm(srm.getBlockNo(), location);
+        MCar srm = MCar.getMCarByGroupNo(sCar.getGroupNo());
+        if (StringUtils.isBlank(sCar.getOnMCar())) {
+            operator.tryOnMCar(srm);
+        }else{
+            Location location = Location.getByLocationNo(asrsJob.getFromLocation());
+            if (srm != null)
+                operator.tryOffSrm(srm.getBlockNo(), location);
+        }
+
 
     }
 

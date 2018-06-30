@@ -103,7 +103,7 @@ public class LiftServiceImpl implements LiftService {
         if(!hasJob){
             LiftOperator operator = new LiftOperator(lift, "9999");
             Dock dock =Dock.getDockByLevAndLift(lift.getBlockNo(),1);
-            if(!dock.getDockNo().equals(lift.getDock()))
+            if(lift.getLevel()!=1)
             operator.move(dock.getDockNo());
         }
 

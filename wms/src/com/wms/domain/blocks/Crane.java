@@ -16,7 +16,7 @@ public class Crane extends Block {
     private int level;
 
     @Basic
-    @Column(name = "`LEVEL`")
+    @Column(name = "`LEV`")
     public int getLevel() {
         return level;
     }
@@ -36,7 +36,7 @@ public class Crane extends Block {
     }
 
     @Basic
-    @Column(name = "SCARNO")
+    @Column(name = "BLOCKNO")
     public String getsCarNo() {
         return sCarNo;
     }

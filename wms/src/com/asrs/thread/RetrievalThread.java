@@ -110,7 +110,7 @@ public class RetrievalThread implements Runnable{
         Location location = job.getFromLocation();
         location.setRetrievalRestricted(true);
         //获取容器Container
-        Container container = Container.getByBarcode(job.getContainer());
+        Container container = Container.getByBarcode(job.getContainer().trim());
         container.setReserved(true);
         HibernateUtil.getCurrentSession().update(container);
 

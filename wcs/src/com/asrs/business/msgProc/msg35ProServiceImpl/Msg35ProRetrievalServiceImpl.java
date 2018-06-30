@@ -77,6 +77,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
             sCar.setOnMCar(srm.getBlockNo());
             sCar.setBank(0);
             sCar.clearMckeyAndReservMckey();
+            aj.setStatus(AsrsJobStatus.OUTKU);
             Query query = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:ajType and status=:st and statusDetail=:detail and fromStation=:frs order by generateTime asc ");
             query.setParameter("ajType", AsrsJobType.RETRIEVAL);
             query.setParameter("detail", AsrsJobStatusDetail.WAITING);
@@ -277,13 +278,17 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         Lift lift = (Lift) block;
         if (message35.isMove()) {
             lift.setDock(message35.Station);
+            Dock dock =lift.getDockClass(message35.Station);
+            lift.setLevel(dock.getLevel());
             if (StringUtils.isBlank(lift.getMcKey())) {
                 lift.setReservedMcKey(message35.McKey);
             }
         } else if (message35.isMoveCarryGoods()) {
             lift.generateMckey(message35.McKey);
+            lift.setDock(null);
         } else if (message35.isMoveUnloadGoods()) {
             lift.clearMckeyAndReservMckey();
+            lift.setDock(null);
         }
     }
 

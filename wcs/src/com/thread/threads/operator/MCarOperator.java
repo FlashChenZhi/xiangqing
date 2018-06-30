@@ -197,7 +197,7 @@ public class MCarOperator {
                 MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
                 MsgSender.send03(Message03._CycleOrder.loadCar, mckey, conveyor, "", sCar.getBlockNo(), "", "");
             }else if(conveyor instanceof Lift){
-                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock())){
+                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock()) && sCar!=null){
                     //备用
                     MsgSender.send03(Message03._CycleOrder.unloadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
                     //MsgSender.send03(Message03._CycleOrder.offCar, mckey, sCar, "", conveyor.getBlockNo(), "", "");
@@ -226,7 +226,7 @@ public class MCarOperator {
             if(conveyor instanceof Conveyor){
                 MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
             }else if(conveyor instanceof Lift){
-                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock())){
+                if(conveyor.getDock(mCar.getBlockNo(), conveyor.getBlockNo()).equals(((Lift) conveyor).getDock()) && StringUtils.isNotBlank(((Lift) conveyor).getOnCar())){
                     //备用
                     MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");
                 }
