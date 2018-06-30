@@ -1,6 +1,7 @@
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
+import com.wms.domain.blocks.Block;
 import org.hibernate.Cache;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -19,25 +20,39 @@ public class Test {
         Transaction.begin();
         Session session = HibernateUtil.getCurrentSession();
         List list= new ArrayList<>();
-        list.add(11);
-        list.add(12);
+        list.add("1201");
+        list.add("1202");
         List list1= new ArrayList<>();
-        list.add(21);
-        list.add(22);
+        list1.add("1203");
+        list1.add("1204");
         List list2= new ArrayList<>();
-        list.add(31);
-        list.add(32);
+        list2.add("1205");
+        list2.add("1206");
         Map<String,List> stations = new HashMap<>();
         stations.put("1",list);
         stations.put("2",list1);
         stations.put("3",list2);
         if(stations.get("1")!=null){
-            System.out.println(1);
-
-            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob ) " +
-                    "union all( select count(*) from AsrsJob )");
-            List<Integer> list3 = query1.list();
-            System.out.println(list3.size());
+            Query query2 ;
+            if(stations.get("1").contains("1201")){
+                query2=session.createQuery("select blockNo from Block where stationNo IN (:s)").setParameterList("s",stations.get("1"));
+            }else {
+                query2=session.createQuery("select blockNo from Block where stationNo IN (:s,:ss)").setParameterList("s",stations.get("2")).setParameterList("ss",stations.get("3"));
+            }
+            List<String> list3 = query2.list();
+            Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation not IN (:s) ").setParameterList("s",list3);
+            List<String> list4 = query3.list();
+            if(list4.size()>0){
+                Location byLocationNo = Location.getByLocationNo("001001001");
+                for(int j=0 ; j<list4.size();j++){
+                    Location byLocationNo1 = Location.getByLocationNo(list4.get(j));
+                    if(byLocationNo.getPosition()!=byLocationNo1.getPosition()){
+                        System.out.println("出库路径不通");
+                    }else {
+                        System.out.println("出库路径通");
+                    }
+                }
+            }
         }
         Transaction.commit();
     }
