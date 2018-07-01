@@ -140,6 +140,7 @@ public class JobDoHelp {
             container.setReserved(false);
             Location location = container.getLocation();
             location.setReserved(false);
+            location.setRetrievalRestricted(false);
             session.delete(job);
         }
 

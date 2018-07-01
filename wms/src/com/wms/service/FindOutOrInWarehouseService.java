@@ -384,13 +384,13 @@ public class FindOutOrInWarehouseService {
         //查询sheet1，库存汇总表,当前时间
         StringBuffer sb1 = new StringBuffer("select a.SKUCODE as skuCode,a.SKUCODE as skuName,SUM(a.QTY) as qty,max(a.STORE_DATE+' '+a.STORE_TIME) as dateTime " +
                 " from Inventory a,Sku s where a.SKUCODE=s.SKU_CODE  group by a.SKUCODE,a.SKUNAME");
-        Query query1 = session.createQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        Query query1 = session.createSQLQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         List<Map<String,Object>> list1 = query1.list();
 
         //查询sheet2，库存明细表，当前时间
         StringBuffer sb2 = new StringBuffer(" select a.skuCode as skuCode,a.skuName as skuName,SUM(a.qty) as qty,  max(a.STORE_DATE+' '+a.STORE_TIME) as dateTime," +
                 "a.LOT_NUM as lotNum  from Inventory a,Sku s where a.skuCode=s.SKU_CODE  group by a.skuCode,a.skuName,a.LOT_NUM");
-        Query query2 = session.createQuery(sb2.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        Query query2 = session.createSQLQuery(sb2.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 
         List<Map<String,Object>> list2 = query2.list();
 

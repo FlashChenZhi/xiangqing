@@ -45,6 +45,12 @@ public class Envelope implements Serializable {
     @XStreamAlias("TransportOrder")
     private TransportOrder transportOrder;
 
+    @XStreamAlias("AcceptTransportOrder")
+    private AcceptTransportOrder acceptTransportOrder;
+
+
+
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "TransportModeChangeReportID", updatable = true)
     public TransportModeChangeReport getTransportModeChangeReport() {
@@ -133,6 +139,14 @@ public class Envelope implements Serializable {
 
     public void setAcceptLoadUnitID(AcceptLoadUnitAtID acceptLoadUnitID) {
         this.acceptLoadUnitID = acceptLoadUnitID;
+    }
+
+    public AcceptTransportOrder getAcceptTransportOrder() {
+        return acceptTransportOrder;
+    }
+
+    public void setAcceptTransportOrder(AcceptTransportOrder acceptTransportOrder) {
+        this.acceptTransportOrder = acceptTransportOrder;
     }
 
     @XStreamOmitField

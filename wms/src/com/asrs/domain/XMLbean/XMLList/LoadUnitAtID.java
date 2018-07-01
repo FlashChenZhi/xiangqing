@@ -120,6 +120,7 @@ public class LoadUnitAtID extends XMLProcess {
                     //分配货位，并向队列中压入TransportOrder
                     Location newLocation = getToLocation(stationNo,job,barcode);
                     job.setToLocation(newLocation);
+                    job.setStatus(AsrsJobStatus.RUNNING);
                 }else {
                     System.out.println("入库站台不是正常状态！");
                 }
