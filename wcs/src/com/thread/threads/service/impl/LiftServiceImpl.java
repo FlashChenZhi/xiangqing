@@ -10,7 +10,7 @@ import com.thread.threads.service.LiftService;
 import com.thread.utils.MsgSender;
 import com.util.common.StringUtils;
 import com.util.hibernate.HibernateUtil;
-import com.wms.domain.Msg03;
+
 
 import javax.management.Query;
 

@@ -285,10 +285,10 @@ public class AssignsTheStorehouseService {
             Container container =(Container) query.uniqueResult();
             if(container!=null){
                 String stationNo="";
-                if(list2.get(0)<=5){
-                    stationNo=list1.get(0);
-                }else {
+                if(list2.get(1)<=list2.get(0)){
                     stationNo=list1.get(1);
+                }else {
+                    stationNo=list1.get(0);
                 }
                 Query query2 ;
                 if(stations.get("1").contains(stationNo)){
@@ -297,7 +297,7 @@ public class AssignsTheStorehouseService {
                     query2=session.createQuery("select blockNo from Block where stationNo IN (:s,:ss)").setParameterList("s",stations.get("2")).setParameterList("ss",stations.get("3"));
                 }
                 List<String> list3 = query2.list();
-                Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation not IN (:s) ").setParameterList("s",list3);
+                Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation  IN (:s) ").setParameterList("s",list3);
                 List<String> list4 = query3.list();
                 if(list4.size()>0){
                     Location byLocationNo = Location.getByLocationNo(location);
