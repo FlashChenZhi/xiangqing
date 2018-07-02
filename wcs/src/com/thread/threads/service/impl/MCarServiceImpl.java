@@ -56,47 +56,47 @@ public class MCarServiceImpl implements MCarService {
 
                 }
                 if (sCar.getPower() > Const.LOWER_POWER){
-                    //检查子车上是否有任务,将其赋予母车的reservedMckey
-                    if (!hasJob) {
-                        //查找本层的入库任务
-                        /*if (StringUtils.isNotBlank(sCar.getMcKey()) || StringUtils.isNotBlank(sCar.getReservedMcKey())) {
-                            String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey() : sCar.getMcKey();
-                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
-                            if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)&& !asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                mCar.setReservedMcKey(mckey);
-                            }
-                        } else {*/
+                    Query charQuery = HibernateUtil.getCurrentSession().createQuery("from AsrsJob a where " +
+                            "a.type=:tttp and a.toStation=:toStation and a.status!=:status");
+                    charQuery.setParameter("tttp", AsrsJobType.CHANGELEVEL);
+                    charQuery.setParameter("status", AsrsJobStatus.DONE);
+                    charQuery.setParameter("toStation", mCar.getBlockNo());
+                    List<AsrsJob> charQuerys = charQuery.list();
+                    if(charQuerys.size()==0){
+                        //若无换到此层的
+                        //检查子车上是否有任务,将其赋予母车的reservedMckey
+                        if (!hasJob) {
+
                             hasJob = findPutawayByLevelOfMcar(hasJob);
-                        /*}*/
-                    }
-                    if (!hasJob) {
-                        //查找本层的出库任务
-                        if (StringUtils.isNotBlank(sCar.getMcKey()) || StringUtils.isNotBlank(sCar.getReservedMcKey())) {
-                            String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey() : sCar.getMcKey();
-                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
-                            if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
-                                mCar.setReservedMcKey(mckey);
+                        }
+                        if (!hasJob) {
+                            //查找本层的出库任务
+                            if (StringUtils.isNotBlank(sCar.getMcKey()) || StringUtils.isNotBlank(sCar.getReservedMcKey())) {
+                                String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey() : sCar.getMcKey();
+                                AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
+                                if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                                    mCar.setReservedMcKey(mckey);
+                                }
+                            } else {
+                                hasJob = findStockRemovalByLevelOfMcar(hasJob);
                             }
-                        } else {
-                            hasJob = findStockRemovalByLevelOfMcar(hasJob);
+                        }
+
+                        if (!hasJob) {
+                            //若没查到任务，且母车绑定有子车，并且子车不在母车上，给母车发上车
+                            if (sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
+                                if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
+                                    MCarOperator srmOperator = new MCarOperator(mCar, "9999");
+                                    srmOperator.tryLoadCar();
+                                }
+                            }
                         }
                     }
-
-                    if (hasJob) {
-                        //若查到任务改变一下任务状态
-                       /* AsrsJob asrsJob = null;
-                        if (StringUtils.isNotBlank(mCar.getReservedMcKey()))
-                            asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
-                        else if (StringUtils.isNotBlank(mCar.getMcKey()))
-                            asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getMcKey());*/
-                        /*asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);*/
-                    } else {
-                        //若没查到任务，且母车绑定有子车，并且子车不在母车上，给母车发上车
-                        if (sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
-                            if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
-                                MCarOperator srmOperator = new MCarOperator(mCar, "9999");
-                                srmOperator.tryLoadCar();
-                            }
+                }else{
+                    if (sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
+                        if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
+                            MCarOperator srmOperator = new MCarOperator(mCar, "9999");
+                            srmOperator.tryLoadCar();
                         }
                     }
                 }

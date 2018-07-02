@@ -25,6 +25,8 @@ public class ScarChargeLocation {
 
     private boolean status;
 
+    private boolean receved;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false, length = 8)
@@ -56,6 +58,8 @@ public class ScarChargeLocation {
         this.scarBlockNo = scarBlockNo;
     }
 
+    @Basic
+    @Column(name = "STATUS")
     public boolean isStatus() {
         return status;
     }
@@ -64,13 +68,33 @@ public class ScarChargeLocation {
         this.status = status;
     }
 
+    @Basic
+    @Column(name = "RECEVED")
+    public boolean isReceved() {
+        return receved;
+    }
+
+    public void setReceved(boolean receved) {
+        this.receved = receved;
+    }
 
     @Transient
-    public static List<ScarChargeLocation> getBySCarBlockNo(String scarBlockNo) {
+    public static List<ScarChargeLocation> getAbleChargeLocationBySCarBlockNo(String scarBlockNo) {
         Session session = HibernateUtil.getCurrentSession();
 
-        Query query = session.createQuery("from ScarChargeLocation s where scarBlockNo=:scarBlockNo and status=true ");
+        Query query = session.createQuery("from ScarChargeLocation s where s.scarBlockNo=:scarBlockNo " +
+                "and s.status=true and s.receved=false ");
         query.setParameter("scarBlockNo", scarBlockNo);
         return query.list();
+    }
+
+    @Transient
+    public static ScarChargeLocation getReservedChargeLocationBySCarBlockNo(String scarBlockNo) {
+        Session session = HibernateUtil.getCurrentSession();
+
+        Query query = session.createQuery("from ScarChargeLocation s where s.scarBlockNo=:scarBlockNo " +
+                "and s.status=true and s.receved=true ");
+        query.setParameter("scarBlockNo", scarBlockNo);
+        return (ScarChargeLocation)query.uniqueResult();
     }
 }

@@ -323,6 +323,25 @@ public class AsrsJob {
         return (AsrsJob) q.uniqueResult();
     }
 
+    public static AsrsJob getAsrsJobByTypeAndFromStation(String type,String fromStation) {
+        Session session = HibernateUtil.getCurrentSession();
+        Query query = session.createQuery("from AsrsJob where " +
+                "fromStation=:fromStation and type=:type and status=:status");
+        query.setParameter("type", type);
+        query.setParameter("fromStation", fromStation);
+        return (AsrsJob) query.uniqueResult();
+    }
+
+    public static AsrsJob getAsrsJobByTypeAndBarcode(String type,String barcode) {
+        Session session = HibernateUtil.getCurrentSession();
+        Query query = session.createQuery("from AsrsJob where " +
+                "barcode=:barcode and type=:type and status=:status");
+        query.setParameter("type", type);
+        query.setParameter("barcode", barcode);
+        return (AsrsJob) query.uniqueResult();
+    }
+
+
     public void delete(){
         Session session = HibernateUtil.getCurrentSession();
         session.delete(this);
