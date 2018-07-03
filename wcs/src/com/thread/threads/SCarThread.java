@@ -1,8 +1,13 @@
 package com.thread.threads;
 
+import com.asrs.Mckey;
 import com.asrs.business.consts.AsrsJobStatus;
+import com.asrs.business.consts.AsrsJobStatusDetail;
 import com.asrs.business.consts.AsrsJobType;
+import com.asrs.business.consts.CreateAsrsJob;
 import com.asrs.domain.AsrsJob;
+import com.asrs.domain.Location;
+import com.asrs.domain.ScarChargeLocation;
 import com.asrs.message.Message03;
 import com.thread.blocks.*;
 import com.thread.threads.service.ScarService;
@@ -15,9 +20,10 @@ import com.thread.threads.service.impl.putaway.ScarAndSrmPutawayServcie;
 import com.thread.threads.service.impl.retrieval.ScarAndSrmRetrievalService;
 import com.thread.threads.service.impl.sts.ScarAndSrmStsService;
 import com.thread.utils.MsgSender;
-import com.util.common.StringUtils;
+
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -48,11 +54,14 @@ public class SCarThread extends BlockThread<SCar> {
                 } else if (!sCar.getStatus().equals(SCar.STATUS_RUN)) {
                     if (sCar.getStatus().equals(SCar.STATUS_CHARGE)) {
                         if (sCar.getPower() > 95) {
+                            boolean hasJob=false;
+                            CreateAsrsJob createAsrsJob = new CreateAsrsJob(sCar);
+                            hasJob = createAsrsJob.createChargeOver(hasJob);
                             /*sCar.setStatus(SCar.STATUS_RUN);
                             //充电完成简单动作，子车开车到巷道口，然后上车，
                             MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);*/
                             //获取一层母车
-                            MCar srm = MCar.getMCarByPosition(sCar.getPosition(), sCar.getLevel());
+                            /*MCar srm = MCar.getMCarByPosition(sCar.getPosition(), sCar.getLevel());
                             if (srm.getGroupNo() == null) {
                                 //小车在一层，并且一层母车没有绑定小车，
                                 // 并且此母车没有mckey和reservedmckey（即没有换层任务到这个母车）
@@ -71,7 +80,7 @@ public class SCarThread extends BlockThread<SCar> {
                                 MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
                             } else {
 
-                            }
+                            }*/
                             /*MCar srm = MCar.getMCarByPosition(sCar.getPosition(),sCar.getLevel());
                             Query query = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where (toStation=:st or fromStation=:st) and type<>:tp and status=:stat");
                             query.setParameter("st", srm.getBlockNo());
@@ -145,4 +154,6 @@ public class SCarThread extends BlockThread<SCar> {
             }
         }
     }
+
+
 }

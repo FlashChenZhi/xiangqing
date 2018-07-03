@@ -75,6 +75,36 @@ public class MCarOperator {
 
     }
 
+    public void tryLoadCar2(SCar sCar) throws Exception {
+        //移动提升机上没有子车，先去接子车，去子车所在的层列
+
+
+        if (sCar != null && sCar.getStatus().equals("1")) {
+            Location sCarLocation = Location.getByBankBayLevel(sCar.getBank(), sCar.getBay(), sCar.getLevel(), sCar.getPosition());
+            if (sCarLocation != null) {
+                //判断移动提升机的位置排列层，实绩位置，和目标货位是否一致
+                if (mCar.arrive(sCarLocation)) {
+                    //移动提升机移动到指定层列，开始装载子车
+                    this.loadCar(sCar.getBlockNo(), mckey, sCarLocation);
+                } else {
+                    //移动堆垛机移动到指定的层，列
+                    this.move(sCarLocation);
+                }
+
+            } else {
+                if (StringUtils.isNotBlank(mCar.getReservedMcKey())) {
+                    if (StringUtils.isNotBlank(sCar.getMcKey())) {
+                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
+                        Location location = Location.getByLocationNo(asrsJob.getFromLocation());
+                        if (!mCar.arrive(location))
+                            this.move(location);
+                    }
+                }
+            }
+        }
+
+    }
+
     private void loadCar(String sCar, String mckey, Location toLocation) throws Exception {
         MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, toLocation.getLocationNo(), sCar, "", "");
 

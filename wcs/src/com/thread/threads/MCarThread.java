@@ -7,6 +7,7 @@ import com.thread.threads.service.MCarService;
 import com.thread.threads.service.impl.MCarServiceImpl;
 import com.thread.threads.service.impl.changelev.MCarChangeLevService;
 import com.thread.threads.service.impl.charage.MCarCharageService;
+import com.thread.threads.service.impl.charageover.MCarCharageOverService;
 import com.thread.threads.service.impl.putaway.MCarAndSCarPutawayService;
 import com.thread.threads.service.impl.retrieval.MCarAndScarRetrievalService;
 import com.thread.threads.service.impl.sts.MCarAndScarStsService;
@@ -63,9 +64,9 @@ public class MCarThread extends BlockThread<MCar> {
                         } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
                             service = new MCarAndScarRetrievalService(mCar);
                         } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                            service = (MCarService) new MCarCharageService(mCar);
+                            service =  new MCarCharageService(mCar);
                         } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-
+                            service = new MCarCharageOverService(mCar);
                         }else if(asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)){
                             service = new MCarAndScarStsService(mCar);
                         }else if(asrsJob.getType().equals(AsrsJobType.ST2ST)){
@@ -84,15 +85,17 @@ public class MCarThread extends BlockThread<MCar> {
                         } else if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
                             service = new MCarAndScarRetrievalService(mCar);
                         } else if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
-                            service = (MCarService) new MCarCharageService(mCar);
+                            service = new MCarCharageService(mCar);
                         } else if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
-
+                            service = new MCarCharageOverService(mCar);
                         }else if(asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)){
                             service = new MCarAndScarStsService(mCar);
                         }else if(asrsJob.getType().equals(AsrsJobType.ST2ST)){
+
                         }else if(asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)){
                             service = new MCarChangeLevService(mCar);
                         }
+                        if(service!=null)
                         service.withMckey();
                     }
 

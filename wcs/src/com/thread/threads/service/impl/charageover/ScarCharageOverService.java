@@ -2,7 +2,9 @@ package com.thread.threads.service.impl.charageover;
 
 import com.asrs.domain.AsrsJob;
 import com.asrs.domain.Location;
+import com.asrs.domain.ScarChargeLocation;
 import com.thread.blocks.Block;
+import com.thread.blocks.MCar;
 import com.thread.blocks.SCar;
 import com.thread.blocks.Srm;
 import com.thread.threads.operator.ScarOperator;
@@ -29,27 +31,45 @@ public class ScarCharageOverService extends ScarAndSrmServiceImpl {
     public void withMckey() throws Exception {
         ScarOperator scarOperator = new ScarOperator(sCar, sCar.getMcKey());
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
-        Srm endSrm = (Srm) Block.getByBlockNo(asrsJob.getToStation());
-
-        Srm srm = Srm.getSrmByPosition(sCar.getPosition());
-        if (!sCar.getPosition().equals(endSrm.getPosition())) {
-            if (sCar.getBay() == 1) {
-                if (StringUtils.isBlank(sCar.getOnMCar())) {
-//                    Location location = Location.getByLocationNo(Const.CHARGE_LOCATION);
-                    scarOperator.tryOnSrm(srm, sCar.getChargeLocation());
+        Block block =  Block.getByBlockNo(asrsJob.getToStation());
+        if(block instanceof Srm){
+            Srm endSrm = (Srm) block;
+            Srm srm = Srm.getSrmByPosition(sCar.getPosition());
+            if (!sCar.getPosition().equals(endSrm.getPosition())) {
+                if (sCar.getBay() == 1) {
+                    if (StringUtils.isBlank(sCar.getOnMCar())) {
+                        scarOperator.tryOnSrm(srm, sCar.getChargeLocation());
+                    }
+                } else {
+                    Location location = Location.getByLocationNo(sCar.getChargeChanel());
+                    if (StringUtils.isNotBlank(sCar.getOnMCar())) {
+                        scarOperator.tryOffSrm(srm.getBlockNo(), location);
+                    } else {
+                        scarOperator.move(location.getLocationNo());
+                    }
                 }
             } else {
-                Location location = Location.getByLocationNo(sCar.getChargeChanel());
-                if (StringUtils.isNotBlank(sCar.getOnMCar())) {
-                    scarOperator.tryOffSrm(srm.getBlockNo(), location);
-                } else {
-                    scarOperator.move(location.getLocationNo());
-                }
+                scarOperator.tryOnSrm(srm, sCar.getChargeChanel());
             }
-        } else {
-            scarOperator.tryOnSrm(srm, sCar.getChargeChanel());
+        }else if(block instanceof MCar){
+            MCar mCar = (MCar) block;
 
+            ScarChargeLocation scarChargeLocation = ScarChargeLocation.getReservedChargeLocationBySCarBlockNo(sCar.getBlockNo());
+            Location chargeLocation = scarChargeLocation.getChargeLocation();
+
+            if(chargeLocation!=null){
+                if(SCar.STATUS_CHARGE_OVER.equals(sCar.getStatus()) ){
+                    //若小车处于充电完成状态
+                    scarOperator.tryChargeFinish(sCar, chargeLocation);
+                }else if(SCar.STATUS_RUN.equals(sCar.getStatus())){
+                    //若小车处于运行状态（已到巷道口）
+                    if(StringUtils.isBlank(mCar.getsCarBlockNo()) && chargeLocation.getLevel()==mCar.getLevel()
+                            && chargeLocation.getBay()==mCar.getBay() ){
+                        scarOperator.tryOnMCar(mCar);
+                    }
+                }
+
+            }
         }
-
     }
 }

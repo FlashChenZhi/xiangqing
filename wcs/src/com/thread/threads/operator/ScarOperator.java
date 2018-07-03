@@ -1,5 +1,6 @@
 package com.thread.threads.operator;
 
+import com.asrs.business.consts.AsrsJobType;
 import com.asrs.domain.AsrsJob;
 import com.asrs.domain.Location;
 import com.asrs.message.Message03;
@@ -230,6 +231,18 @@ public class ScarOperator {
             MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, location, srm.getBlockNo(), "", "");
         }
 
+    }
+
+    /**
+     * 子车充电完成
+     *
+     * @param sCar
+     * @param location
+     * @throws Exception
+     */
+    public void tryChargeFinish(SCar sCar, Location location) throws Exception {
+
+        MsgSender.send03(Message03._CycleOrder.chargeFinish, mckey, sCar, location.getLocationNo(), "", AsrsJobType.RECHARGEDOVER);
     }
 
     /**
