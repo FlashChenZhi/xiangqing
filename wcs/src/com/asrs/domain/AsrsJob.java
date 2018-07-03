@@ -1,5 +1,7 @@
 package com.asrs.domain;
 
+import com.asrs.business.consts.AsrsJobStatus;
+import com.asrs.business.consts.AsrsJobType;
 import org.hibernate.*;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
@@ -329,6 +331,7 @@ public class AsrsJob {
                 "fromStation=:fromStation and type=:type and status=:status");
         query.setParameter("type", type);
         query.setParameter("fromStation", fromStation);
+        query.setParameter("status", AsrsJobStatus.RUNNING);
         return (AsrsJob) query.uniqueResult();
     }
 
@@ -338,6 +341,7 @@ public class AsrsJob {
                 "barcode=:barcode and type=:type and status=:status");
         query.setParameter("type", type);
         query.setParameter("barcode", barcode);
+        query.setParameter("status", AsrsJobStatus.RUNNING);
         return (AsrsJob) query.uniqueResult();
     }
 

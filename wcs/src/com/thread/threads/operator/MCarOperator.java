@@ -251,7 +251,7 @@ public class MCarOperator {
     public void tryLoadFromLift(Block conveyor) throws Exception {
 
         if (conveyor.getBlockNo().equals(mCar.getDock())) {
-            Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+            Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
             SCar sCar = (SCar) query.uniqueResult();
             if(conveyor instanceof Conveyor){
                 MsgSender.send03(Message03._CycleOrder.loadCar, mckey, mCar, "", sCar.getBlockNo(), "", "");

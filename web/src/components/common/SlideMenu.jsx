@@ -91,6 +91,16 @@ const SlideMenu = React.createClass({
                                     <Icon type="setting"/><span className="nav-text">出库模式切换</span>
                                 </Link>
                             </Menu.Item>
+                        <Menu.Item key='11'>
+                            <Link to='FindInventory'>
+                                <Icon type="solution" /><span className="nav-text">库存展示</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='12'>
+                            <Link to='FindOutOrInWarehouse'>
+                                <Icon type="setting"/><span className="nav-text">出入库查询</span>
+                            </Link>
+                        </Menu.Item>
                     </SubMenu>
                     <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
                         <Menu.Item key='12'>

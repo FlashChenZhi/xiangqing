@@ -223,7 +223,7 @@ public class LiftOperator {
     public void tryUnLoadCarToMCar(Block block) throws Exception {
         //Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
         //修改
-        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where reservedMcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
+        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where mcKey =:mckey").setParameter("mckey", mckey).setMaxResults(1);
         SCar sCar = (SCar) query.uniqueResult();
         if(block instanceof MCar && StringUtils.isEmpty(((MCar) block).getsCarBlockNo()) ){
             if (isMoveSuccess(block) && !lift.isWaitingResponse()) {

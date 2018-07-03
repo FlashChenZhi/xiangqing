@@ -51,6 +51,10 @@ public class Location {
 
     public static final String __LEVEL = "level";
 
+    public static final String __SEQ = "seq";
+    public static final String  __OUTPOSITION = "outPosition";
+
+    public static final String  __ACTUALAREA = "actualArea";
     private int _id;
 
     private String wmsLocationNo;
@@ -618,7 +622,7 @@ public class Location {
             return (Location) q.list().get(0);
         } else {
             //查找正在执行的入库任务
-              q = session.createQuery("from Location l where exists( select 1 from Job j where " +
+            q = session.createQuery("from Location l where exists( select 1 from Job j where " +
                     "  l.actualArea= j.toLocation.actualArea " +
                     " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and " +
                     " j.skuCode=:skuCode and j.lotNum=:batchNo and l.position=j.toLocation.position )  " +
