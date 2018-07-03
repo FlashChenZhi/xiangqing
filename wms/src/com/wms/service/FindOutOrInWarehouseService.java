@@ -65,7 +65,7 @@ public class FindOutOrInWarehouseService {
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            StringBuffer sb1 = new StringBuffer("select * from (select a.id as id,a.skuCode as skuCode,a.skuName as skuName, " +
+            StringBuffer sb1 = new StringBuffer("select * from (select a.id as id,a.skuCode as skuCode,a.skuName as skuName,a.lotNum as lotNum, " +
                     " a.qty as qty, a.STORE_DATE+' '+a.STORE_TIME as dateTime,'入库' as type from INVENTORY a where 1=1   ");
             StringBuffer sb2 = new StringBuffer("select count(*) from INVENTORY  a where  1=1  ");
             StringBuffer sb3 = new StringBuffer("select count(*) from RETRIEVAL_RESULT r where 1=1");
