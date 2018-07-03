@@ -50,7 +50,7 @@ public class MCarServiceImpl implements MCarService {
                     String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey():sCar.getMcKey();
                     AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
                     if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)&&!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
-                        mCar.setReservedMcKey(sCar.getReservedMcKey());
+                        mCar.setReservedMcKey(mckey);
                         hasJob=true;
                     }
 
@@ -104,12 +104,10 @@ public class MCarServiceImpl implements MCarService {
             }
         } else {
             //母车没有绑定小车
-            //查找是否有充电、充电完成任务、换层任务
+            //查找是否有换层任务(充电任务直接赋值的)
             Query query = HibernateUtil.getCurrentSession().createQuery(
-                    "from AsrsJob a,MCar m where (a.type=:tp or a.type=:tp2 or a.type =:tp3) and " +
+                    "from AsrsJob a,MCar m where  a.type =:tp3 and " +
                             "a.toStation = m.blockNo and m.position=:position and m.blockNo=:blockNo ) ");
-            query.setString("tp", AsrsJobType.RECHARGED);
-            query.setString("tp2", AsrsJobType.RECHARGEDOVER);
             query.setString("tp3", AsrsJobType.CHANGELEVEL);
             query.setString("blockNo", mCar.getBlockNo());
             query.setString("position", mCar.getPosition());

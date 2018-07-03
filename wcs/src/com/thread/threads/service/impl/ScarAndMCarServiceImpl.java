@@ -58,7 +58,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
             AsrsJob chargedJob = (AsrsJob) charQuery.uniqueResult();
 
             if (chargedJob != null) {
-                //若存在充电任务或充电完成任务
+                /*//若存在充电任务或充电完成任务
                 if (chargedJob.getType().equals(AsrsJobType.RECHARGED)) {
                     //如果仓库里存在充电作业，不查找其他作业，
                     MCar fromMCar = (MCar) MCar.getByBlockNo(chargedJob.getFromStation());
@@ -106,7 +106,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                             }
                         }
                     }
-                }
+                }*/
 
             } else {
                 //仓库里没有充电作业，执行正常操作
@@ -121,12 +121,12 @@ public class ScarAndMCarServiceImpl implements ScarService {
                         if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)  ){
                             if(AsrsJobType.RETRIEVAL.equals(asrsJob.getType())){
                                 if(AsrsJobStatus.RUNNING.equals(asrsJob.getStatus())){
-                                    sCar.setReservedMcKey(mCar.getReservedMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                                     asrsJob.setStatus(AsrsJobStatus.ACCEPT);
                                 }
                             }else{
-                                sCar.setReservedMcKey(mCar.getReservedMcKey());
+                                sCar.setReservedMcKey(mckey);
                                 asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                                 asrsJob.setStatus(AsrsJobStatus.ACCEPT);
                             }
@@ -145,7 +145,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                                 String mckey = StringUtils.isNotBlank(mCar.getReservedMcKey()) ? mCar.getReservedMcKey() : mCar.getMcKey();
                                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
                                 if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                    sCar.setReservedMcKey(mCar.getMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     hasJob=true;
                                 }
                             } else {
@@ -158,7 +158,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                                 String mckey = StringUtils.isNotBlank(mCar.getReservedMcKey()) ? mCar.getReservedMcKey() : mCar.getMcKey();
                                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
                                 if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.RETRIEVAL) && asrsJob.getStatus().equals(AsrsJobStatus.RUNNING)) {
-                                    sCar.setReservedMcKey(mCar.getMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     hasJob=true;
                                 }
                             } else {
@@ -265,12 +265,12 @@ public class ScarAndMCarServiceImpl implements ScarService {
                         if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
                             if(AsrsJobType.RETRIEVAL.equals(asrsJob.getType())){
                                 if(AsrsJobStatus.RUNNING.equals(asrsJob.getStatus())){
-                                    sCar.setReservedMcKey(mCar.getReservedMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                                     asrsJob.setStatus(AsrsJobStatus.ACCEPT);
                                 }
                             }else{
-                                sCar.setReservedMcKey(mCar.getReservedMcKey());
+                                sCar.setReservedMcKey(mckey);
                                 asrsJob.setStatusDetail(AsrsJobStatusDetail.ACCEPTED);
                                 asrsJob.setStatus(AsrsJobStatus.ACCEPT);
                             }
@@ -315,7 +315,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                                 String mckey = StringUtils.isNotBlank(mCar.getReservedMcKey()) ? mCar.getReservedMcKey() : mCar.getMcKey();
                                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
                                 if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
-                                    sCar.setReservedMcKey(mCar.getMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     hasJob=true;
                                 }
                             } else {
@@ -328,7 +328,7 @@ public class ScarAndMCarServiceImpl implements ScarService {
                                 String mckey = StringUtils.isNotBlank(mCar.getReservedMcKey()) ? mCar.getReservedMcKey() : mCar.getMcKey();
                                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
                                 if(!asrsJob.getStatus().equals(AsrsJobStatus.DONE) && asrsJob.getType().equals(AsrsJobType.RETRIEVAL) && asrsJob.getStatus().equals(AsrsJobStatus.RUNNING)) {
-                                    sCar.setReservedMcKey(mCar.getMcKey());
+                                    sCar.setReservedMcKey(mckey);
                                     hasJob=true;
                                 }
                             } else {

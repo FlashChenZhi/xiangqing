@@ -4,6 +4,7 @@ import com.asrs.Mckey;
 import com.asrs.business.consts.AsrsJobStatus;
 import com.asrs.business.consts.AsrsJobStatusDetail;
 import com.asrs.business.consts.AsrsJobType;
+import com.asrs.business.consts.CreateAsrsJob;
 import com.asrs.business.msgProc.Msg35Proc;
 import com.asrs.communication.MessageProxy;
 import com.asrs.domain.*;
@@ -885,36 +886,14 @@ public class WebService {
 
                 }
 
+                CreateAsrsJob createAsrsJob = new CreateAsrsJob(sCar);
+                boolean hasJob=false;
+                httpMessage=createAsrsJob.createChargeOverByWeb(hasJob);
 
-                //Location location = Location.getByLocationNo(sCar.getChargeLocation());
-                MCar mCarByGroupNo = MCar.getMCarByGroupNo(sCar.getGroupNo());
-                Srm toSrm = Srm.getSrmByGroupNo(sCar.getGroupNo());
-
-                //if (mCarByGroupNo.getBlockNo().equals(toSrm.getBlockNo())) {
-                    sCar.setStatus(SCar.STATUS_RUN);
-                    //欧普适用
-                    MsgSender.send03(Message03._CycleOrder.chargeFinish, "9999", sCar, sCar.getChargeLocation(), "", AsrsJobType.RECHARGEDOVER);
-
-//                } else {
-//
-//                    AsrsJob newJob = new AsrsJob();
-//
-//                    newJob.setWareHouse(sCar.getWareHouse());
-//                    newJob.setType(AsrsJobType.RECHARGEDOVER);
-//                    newJob.setMcKey(Mckey.getNext());
-//                    newJob.setGenerateTime(new Date());
-//                    newJob.setStatus(AsrsJobStatus.RUNNING);
-//                    newJob.setStatusDetail(AsrsJobStatusDetail.WAITING);
-//                    newJob.setFromLocation(sCar.getChargeLocation());
-//                    newJob.setFromStation(mCarByGroupNo.getBlockNo());
-//                    newJob.setToStation(mCarByGroupNo.getBlockNo());
-//
-//                    HibernateUtil.getCurrentSession().save(newJob);
-//                    sCar.setMcKey(newJob.getMcKey());
-//                    sCar.setStatus(SCar.STATUS_RUN);
-//
-//                }
-
+                if(!httpMessage.isSuccess()){
+                    Transaction.rollback();
+                    return httpMessage;
+                }
             } else {
                 Transaction.rollback();
                 httpMessage.setSuccess(false);
@@ -923,9 +902,6 @@ public class WebService {
             }
 
             Transaction.commit();
-
-            httpMessage.setSuccess(true);
-            httpMessage.setMsg("成功");
 
         } catch (Exception e) {
             Transaction.rollback();
@@ -978,7 +954,7 @@ public class WebService {
                     return httpMessage;
                 }
 
-                AsrsJob asrsJob = new AsrsJob();
+                /*AsrsJob asrsJob = new AsrsJob();
                 asrsJob.setMcKey(Mckey.getNext());
                 asrsJob.setToLocation(sCar.getChargeLocation());
                 asrsJob.setFromStation(fromSrm.getBlockNo());
@@ -991,20 +967,24 @@ public class WebService {
                 HibernateUtil.getCurrentSession().save(asrsJob);
 
                 fromSrm.setMcKey(asrsJob.getMcKey());
-                sCar.setMcKey(asrsJob.getMcKey());
+                sCar.setMcKey(asrsJob.getMcKey());*/
 
-
+                CreateAsrsJob createAsrsJob = new CreateAsrsJob(sCar);
+                boolean hasJob=false;
+                MCar mCar = MCar.getMCarByGroupNo(sCar.getGroupNo());
+                httpMessage=createAsrsJob.createChargeByWeb(hasJob, mCar);
+                if(!httpMessage.isSuccess()){
+                    Transaction.rollback();
+                    return httpMessage;
+                }
             } else {
+                Transaction.rollback();
                 httpMessage.setSuccess(false);
                 httpMessage.setMsg("设备非子车");
                 return httpMessage;
             }
 
             Transaction.commit();
-
-            httpMessage.setSuccess(true);
-            httpMessage.setMsg("成功");
-
         } catch (Exception e) {
             Transaction.rollback();
             httpMessage.setSuccess(false);

@@ -24,7 +24,10 @@ public class ScarCharageOverService extends ScarAndSrmServiceImpl {
 
     @Override
     public void withReserveMckey() throws Exception {
-
+        Location location = Location.getByLocationNo(sCar.getTempLocation());
+        ScarOperator scarOperator = new ScarOperator(sCar, sCar.getReservedMcKey());
+        MCar mCar = MCar.getMCarByGroupNo(sCar.getGroupNo());
+        scarOperator.tryOffSrm(mCar.getBlockNo(), location);
     }
 
     @Override

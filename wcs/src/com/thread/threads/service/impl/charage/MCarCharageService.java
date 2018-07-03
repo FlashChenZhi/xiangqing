@@ -64,6 +64,8 @@ public class MCarCharageService extends MCarServiceImpl{
 //                operator.tryLoadCar();
 //            }
             }
+        }else{
+            operator.tryLoadCar();
         }
 
     }
