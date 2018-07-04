@@ -77,16 +77,15 @@ public class Msg50Proc implements MsgProcess {
                 if (block1 instanceof StationBlock) {
                     Station station = Station.getStation(((StationBlock) block1).getStationNo());
                     if (AsrsJobType.PUTAWAY.equals(station.getMode()) && "1".equals(entry.getValue().Load)) {
-
-
-                        Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
-                        if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
-                            //有子车电量不足
+                        if (StringUtils.isNotEmpty(block1.getMcKey())) {
+                            Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
+                            if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
+                                //有子车电量不足
 //                            List<SCar> sCars = HibernateUtil.getCurrentSession().createQuery("from SCar where power<30 and wareHouse=:po").setParameter("po", block1.getWareHouse()).list();
 //                            List<AsrsJob> chargeJob = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:tp and wareHouse=:wh").setParameter("tp", AsrsJobType.RECHARGED)
 //                                    .setParameter("wh", block1.getWareHouse()).list();
 
-                            //if (sCars.isEmpty() && chargeJob.isEmpty()) {
+                                //if (sCars.isEmpty() && chargeJob.isEmpty()) {
                                 for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
                                     for (Map.Entry<String, String> entry2 : entry1.getValue().entrySet()) {
                                         if (entry2.getValue().indexOf("???") == -1) {
@@ -144,31 +143,33 @@ public class Msg50Proc implements MsgProcess {
 //                                SystemLog.error("子车存在充电任务");
 //                                InMessage.error(blockNo,"子车存在充电任务");
 //                            }
-                        } else {
+                            } else {
 
 
-                            Query q = HibernateUtil.getCurrentSession().createQuery("from AsrsJobTest where fromStation=:station order by id asc").setMaxResults(1);
-                            q.setParameter("station", station.getStationNo());
-                            AsrsJobTest test = (AsrsJobTest) q.uniqueResult();
+                                Query q = HibernateUtil.getCurrentSession().createQuery("from AsrsJobTest where fromStation=:station order by id asc").setMaxResults(1);
+                                q.setParameter("station", station.getStationNo());
+                                AsrsJobTest test = (AsrsJobTest) q.uniqueResult();
 
-                            if (test != null) {
-                                AsrsJob asrsJob = new AsrsJob();
-                                asrsJob.setType("01");
-                                asrsJob.setFromStation(block1.getBlockNo());
-                                asrsJob.setToStation(test.getToStation());
-                                asrsJob.setToLocation(test.getToLocation());
-                                asrsJob.setFromLocation(test.getFromLocation());
-                                asrsJob.setMcKey(StringUtils.leftPad(HibernateUtil.nextSeq("seq_mckey") + "", 4, "0"));
-                                asrsJob.setStatus("1");
-                                asrsJob.setStatusDetail("0");
-                                asrsJob.setWareHouse(block1.getWareHouse());
-                                block1.setMcKey(asrsJob.getMcKey());
-                                HibernateUtil.getCurrentSession().save(asrsJob);
-                                HibernateUtil.getCurrentSession().delete(test);
+                                if (test != null) {
+                                    AsrsJob asrsJob = new AsrsJob();
+                                    asrsJob.setType("01");
+                                    asrsJob.setFromStation(block1.getBlockNo());
+                                    asrsJob.setToStation(test.getToStation());
+                                    asrsJob.setToLocation(test.getToLocation());
+                                    asrsJob.setFromLocation(test.getFromLocation());
+                                    asrsJob.setMcKey(StringUtils.leftPad(HibernateUtil.nextSeq("seq_mckey") + "", 4, "0"));
+                                    asrsJob.setStatus("1");
+                                    asrsJob.setStatusDetail("0");
+                                    asrsJob.setWareHouse(block1.getWareHouse());
+                                    block1.setMcKey(asrsJob.getMcKey());
+                                    HibernateUtil.getCurrentSession().save(asrsJob);
+                                    HibernateUtil.getCurrentSession().delete(test);
 
+                                }
                             }
+                        }else{
+                            System.out.println("入库站台有mckey");
                         }
-
                     } else if (AsrsJobType.RETRIEVAL.equals(station.getMode()) && "0".equals(entry.getValue().Load)) {
 
                         for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
@@ -180,9 +181,11 @@ public class Msg50Proc implements MsgProcess {
                                     if (asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
 //                                        asrsJob.delete();
                                         block1.setMcKey(null);
+                                        block1.setOutLoad(false);
                                     } else {
                                         asrsJob.setStatus(AsrsJobStatus.DONE);
                                         block1.setMcKey(null);
+                                        block1.setOutLoad(false);
                                     }
                                 }
                             }

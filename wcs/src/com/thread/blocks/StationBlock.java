@@ -1,8 +1,10 @@
 package com.thread.blocks;
 
 import com.util.hibernate.HibernateUtil;
+import org.hibernate.Query;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Administrator on 2016/10/28.
@@ -116,5 +118,12 @@ public class StationBlock extends Block {
     public static StationBlock getByStationNo(String stationNo) {
         return (StationBlock) HibernateUtil.getCurrentSession().createQuery("from StationBlock sb where sb.stationNo = :stationNo")
                 .setString("stationNo", stationNo).uniqueResult();
+    }
+
+    public static List<StationBlock> getByGroupNo(int groupNo) {
+         Query query= HibernateUtil.getCurrentSession().createQuery("from StationBlock sb where sb.groupNo = :groupNo")
+                .setParameter("groupNo", groupNo);
+         List<StationBlock> stationBlockList= query.list();
+        return stationBlockList;
     }
 }

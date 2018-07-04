@@ -5,6 +5,8 @@ import com.thread.blocks.*;
 import com.thread.threads.operator.ConveyorOperator;
 import com.thread.threads.service.impl.ConveyorServiceImpl;
 
+import java.util.List;
+
 /**
  * Created by van on 2017/11/2.
  */
@@ -40,7 +42,40 @@ public class ConveyorRetrievalService extends ConveyorServiceImpl {
         } else if (nextBlock instanceof MCar) {
             operator.tryMoveUnloadGoodsToMCar((MCar) nextBlock);
         } else if (nextBlock instanceof StationBlock) {
-            operator.tryMoveUnloadGoodsToStation((StationBlock) nextBlock);
+            StationBlock toStationBlock = (StationBlock) nextBlock;
+            if(toStationBlock.isOutLoad()){
+                //到达站台有载荷
+                List<StationBlock> stationBlocks =StationBlock.getByGroupNo(toStationBlock.getGroupNo());
+                if(stationBlocks.size()!=0){
+                    for(StationBlock stationBlock : stationBlocks){
+                        if(!stationBlock.getBlockNo().equals(toStationBlock.getBlockNo())){
+                            //同一groupNo，的站台没有载荷，移载卸货，
+                            if(!stationBlock.isOutLoad()){
+                                operator.tryMoveUnloadGoodsToStation( stationBlock);
+                            }
+                        }
+                    }
+                }
+            }else{
+                boolean hasOutLoad=false;
+                //到达站台有载荷
+                List<StationBlock> stationBlocks =StationBlock.getByGroupNo(toStationBlock.getGroupNo());
+                if(stationBlocks.size()!=0){
+                    for(StationBlock stationBlock : stationBlocks){
+                        if(!stationBlock.getBlockNo().equals(toStationBlock.getBlockNo())){
+                            //同一groupNo，的站台有载荷
+                            if(stationBlock.isOutLoad()){
+                                hasOutLoad=true;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+                if(!hasOutLoad){
+                    operator.tryMoveUnloadGoodsToStation((StationBlock) nextBlock);
+                }
+            }
         }
 
     }

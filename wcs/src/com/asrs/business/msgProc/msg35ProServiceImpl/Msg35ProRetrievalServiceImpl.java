@@ -314,7 +314,9 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
                 fromLocation.setEmpty(true);
             }*/
             AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(message35.McKey);
-            if(asrsJob.getToStation().equals(stationBlock.getBlockNo())){
+
+            StationBlock toStationBlock = (StationBlock)StationBlock.getByBlockNo(asrsJob.getToStation());
+            if(toStationBlock.getGroupNo()==stationBlock.getGroupNo()){
                 /*LedMessage ledMessage = LedMessage.getByLedNo(stationBlock.getStationNo());
                 if(ledMessage != null&&!ledMessage.isProcessed()) {
                     Query query1 =session.createQuery("from Inventory i where i.container.barcode=:barcode")
@@ -348,6 +350,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
                         ledMessage.setMcKey(aj.getMcKey());
                     }
                 }*/
+
                 retrievalFinish(aj);
             }
 
