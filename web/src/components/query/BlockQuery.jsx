@@ -19,10 +19,13 @@ const boolCmp = (b) => {
 
 
 const statusCmp = (s) => {
+    console.log(s);
     if (s === '1') {
         return "运行";
     } else if (s === '3') {
         return "充电中";
+    }else if (s === '4') {
+        return "充电完成中";
     } else {
         return "切离";
     }

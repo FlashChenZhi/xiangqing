@@ -28,6 +28,8 @@ import AssignsTheStorehouse from '../components/InOrOut/AssignsTheStorehouse';
 
 import StationStatusSwitch from '../components/InOrOut/StationStatusSwitch';
 import PlatformSwitch from '../components/InOrOut/PlatformSwitch';
+import FindOutOrInWarehouse from '../components/InOrOut/FindOutOrInWarehouse';
+import FindInventory from '../components/InOrOut/FindInventory';
 
 
 
@@ -63,6 +65,8 @@ class Index extends React.Component {
                     <Route path="/StationStatusSwitch" components={StationStatusSwitch}/>
                     <Route path="/PlatformSwitch" components={PlatformSwitch}/>
                     {/*<Route path="/PutInStorage" components={PutInStorage}/>*/}
+    <Route path="/FindOutOrInWarehouse" components={FindOutOrInWarehouse}/>
+        <Route path="/FindInventory" components={FindInventory}/>
                 </Route>
                 <Route path="/" component={LoginMain}>
                     <IndexRedirect to="/login"/>

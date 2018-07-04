@@ -11,6 +11,8 @@ import com.util.hibernate.HibernateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 
 /**
  *
@@ -50,7 +52,12 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
                 sCar.setOnMCar(mCar.getBlockNo());
                 mCar.setGroupNo(sCar.getGroupNo());
             } else {*/
+                sCar.setBank(Integer.parseInt(message35.Bank));
                 sCar.setOnMCar(null);
+                if(StringUtils.isNotBlank(sCar.getReservedMcKey())){
+                    sCar.clearMckeyAndReservMckey();
+                }
+
             /*}*/
         }
     }
@@ -93,7 +100,9 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
             if(aj.getToStation().equals(mCar.getBlockNo()) && mCar.getGroupNo()!=null){
 
             }else{
-                mCar.setGroupNo(null);
+                if(mCar.getGroupNo()!=null && mCar.getGroupNo()== Integer.parseInt(aj.getBarcode())){
+                    mCar.setGroupNo(null);
+                }
             }
 
         } else if (message35.isLoadCar()) {

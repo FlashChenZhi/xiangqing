@@ -51,7 +51,7 @@ public class SCarThread extends BlockThread<SCar> {
 
                 if (sCar.isWaitingResponse()) {
 
-                } else if (!sCar.getStatus().equals(SCar.STATUS_RUN)) {
+                } else if (!(sCar.getStatus().equals(SCar.STATUS_RUN)|| sCar.getStatus().equals(SCar.STATUS_CHARGE_OVER))) {
                     if (sCar.getStatus().equals(SCar.STATUS_CHARGE)) {
                         if (sCar.getPower() > 95) {
                             boolean hasJob=false;
@@ -137,6 +137,8 @@ public class SCarThread extends BlockThread<SCar> {
                             service = new ScarCharageOverService(sCar);
                         } else if (asrsJob.getType().equals(AsrsJobType.LOCATIONTOLOCATION)) {
                             service = new ScarAndSrmStsService(sCar);
+                        } else if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
+                            service = new ScarChangeLev(sCar);
                         }
                         service.withReserveMckey();
 

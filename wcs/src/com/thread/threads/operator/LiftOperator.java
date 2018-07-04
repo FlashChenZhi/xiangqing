@@ -159,13 +159,18 @@ public class LiftOperator {
      * @throws Exception
      */
     public void tryUnloadGoodsToMCar(Block block) throws Exception {
-        if (isMoveSuccess(block) && !lift.isWaitingResponse()) {
+        if (isMoveSuccess(block) && !lift.isWaitingResponse() ) {
             /*if (StringUtils.isEmpty(block.getMcKey()) && StringUtils.isEmpty(block.getReservedMcKey())) {
                 moveUnLoadGoods(block.getBlockNo());
                 MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, block, "", lift.getBlockNo(), "", "");
             }*/
-            moveUnLoadGoods(block.getBlockNo());
-
+            if(block instanceof MCar){
+                if(((MCar)block).getDock().equals(lift.getBlockNo())){
+                    moveUnLoadGoods(block.getBlockNo());
+                }
+            }else{
+                moveUnLoadGoods(block.getBlockNo());
+            }
         } else {
             moveToDock(block);
         }

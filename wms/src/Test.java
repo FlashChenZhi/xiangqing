@@ -2,9 +2,11 @@ import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
 import com.wms.domain.blocks.Block;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Cache;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,41 +21,28 @@ public class Test {
     public static void main(String[] args) {
         Transaction.begin();
         Session session = HibernateUtil.getCurrentSession();
-        List list= new ArrayList<>();
-        list.add("1201");
-        list.add("1202");
-        List list1= new ArrayList<>();
-        list1.add("1203");
-        list1.add("1204");
-        List list2= new ArrayList<>();
-        list2.add("1205");
-        list2.add("1206");
-        Map<String,List> stations = new HashMap<>();
-        stations.put("1",list);
-        stations.put("2",list1);
-        stations.put("3",list2);
-        if(stations.get("1")!=null){
-            Query query2 ;
-            if(stations.get("1").contains("1201")){
-                query2=session.createQuery("select blockNo from Block where stationNo IN (:s)").setParameterList("s",stations.get("1"));
-            }else {
-                query2=session.createQuery("select blockNo from Block where stationNo IN (:s,:ss)").setParameterList("s",stations.get("2")).setParameterList("ss",stations.get("3"));
-            }
-            List<String> list3 = query2.list();
-            Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation not IN (:s) ").setParameterList("s",list3);
-            List<String> list4 = query3.list();
-            if(list4.size()>0){
-                Location byLocationNo = Location.getByLocationNo("001001001");
-                for(int j=0 ; j<list4.size();j++){
-                    Location byLocationNo1 = Location.getByLocationNo(list4.get(j));
-                    if(byLocationNo.getPosition()!=byLocationNo1.getPosition()){
-                        System.out.println("出库路径不通");
-                    }else {
-                        System.out.println("出库路径通");
-                    }
-                }
-            }
-        }
+//        int startIndex=1,  defaultPageSize=1;
+//        String productId="";
+//        StringBuffer sb1 = new StringBuffer("select * from (select a.id as id,a.skuCode as skuCode,a.skuName as skuName, " +
+//                " a.qty as qty, a.STORE_DATE+' '+a.STORE_TIME as dateTime,'入库' as type from INVENTORY a where 1=1   ");
+//        StringBuffer sb2 = new StringBuffer("select count(*) from INVENTORY  a where  1=1  ");
+//        StringBuffer sb3 = new StringBuffer("select count(*) from RETRIEVAL_RESULT r where 1=1");
+//        sb1 = getSqlAfter(sb1, productId, beginDate, endDate);
+//        sb2 = getSqlAfter(sb2, productId, beginDate, endDate);
+//
+//        sb1.append(" union all");
+//        sb1.append(" select  r.ID as id,r.SKU_CODE as skuCode,r.SKU_NAME as skuName,r.QTY as qty , " +
+//                " r.RETRIEVAL_DATE+' '+r.RETRIEVAL_TIME as dateTime, '出库' as type from RETRIEVAL_RESULT r  where 1=1  ");
+//        sb1 = getSql2After(sb1, productId, beginDate, endDate);
+//        sb3 = getSql2After(sb3, productId, beginDate, endDate);
+//        sb1.append(" ) c order by c.dateTime desc ");
+//        Query query1 = session.createSQLQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+//        Query query2 = session.createSQLQuery(sb2.toString());
+//        Query query3 = session.createSQLQuery(sb3.toString());
+//        query1.setFirstResult(startIndex);
+//        query1.setMaxResults(defaultPageSize);
+//
+//        List<Map<String,Object>> jobList = query1.list();
         Transaction.commit();
     }
 

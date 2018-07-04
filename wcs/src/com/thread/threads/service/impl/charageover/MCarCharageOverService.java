@@ -32,9 +32,9 @@ public class MCarCharageOverService extends MCarServiceImpl {
         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mCar.getReservedMcKey());
         MCarOperator operator = new MCarOperator(mCar, mCar.getReservedMcKey());
         SCar chargeOverSCar = SCar.getScarByGroup(Integer.parseInt(asrsJob.getBarcode()));
-        if(mCar.getGroupNo()!=null){
+        if(mCar.getGroupNo()!=null ){
             SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
-            if(chargeOverSCar!=null){
+            if(chargeOverSCar!=null ){
                 ScarChargeLocation scarChargeLocation = ScarChargeLocation.getReservedChargeLocationBySCarBlockNo(chargeOverSCar.getBlockNo());
                 if(scarChargeLocation!=null){
                     if(mCar.getsCarBlockNo()!=null && sCar.getOnMCar()!=null &&mCar.getsCarBlockNo().equals(sCar.getBlockNo())){

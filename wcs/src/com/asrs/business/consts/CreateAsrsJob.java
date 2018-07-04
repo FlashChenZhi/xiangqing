@@ -139,7 +139,7 @@ public class CreateAsrsJob {
                 hasJob = true;
                 return hasJob;
             }
-            if(levMCar.getGroupNo() != null){
+            if(levMCar.getGroupNo() != null && levMCar.getGroupNo()!=sCar.getGroupNo()){
                 levSCar = SCar.getScarByGroup(levMCar.getGroupNo());
                 if(StringUtils.isNotBlank(levSCar.getMcKey()) || StringUtils.isNotBlank(levSCar.getReservedMcKey()) || levSCar.isWaitingResponse()){
                     hasJob = true;
@@ -204,12 +204,14 @@ public class CreateAsrsJob {
             hasJob = true;
             return hasJob;
         }
-
-        if (StringUtils.isEmpty(sCar.getOnMCar())) {
-            //子车不在母车上
-            hasJob = true;
-            return hasJob;
+        if(type!=3){
+            if (StringUtils.isEmpty(sCar.getOnMCar())) {
+                //子车不在母车上
+                hasJob = true;
+                return hasJob;
+            }
         }
+
         if (StringUtils.isNotEmpty(sCar.getMcKey()) || StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
             //子车有任务，不能执行换层操作
             hasJob = true;
@@ -234,7 +236,7 @@ public class CreateAsrsJob {
                 return hasJob;
             }
         }else{
-            if (levlScar != null) {
+            if (levlScar != null ) {
                 //充电换层，type==2，不用判断此层是否有小车,判断小车母车是否有任务
                 if (StringUtils.isNotBlank(levlScar.getMcKey()) || StringUtils.isNotBlank(levlScar.getReservedMcKey()) || levlScar.isWaitingResponse() ||
                         StringUtils.isNotBlank(toMcar.getMcKey()) || StringUtils.isNotBlank(toMcar.getReservedMcKey()) || toMcar.isWaitingResponse()) {
@@ -254,7 +256,13 @@ public class CreateAsrsJob {
         asrsJob.setType(AsrsJobType.CHANGELEVEL);
         asrsJob.setStatus(AsrsJobStatus.RUNNING);
         asrsJob.setStatusDetail(AsrsJobStatusDetail.WAITING);
-        asrsJob.setFromStation(sCar.getOnMCar());
+        if(type==3){
+            //获取一层母车
+            MCar levMCar = MCar.getMCarByPosition(sCar.getPosition(), sCar.getLevel());
+            asrsJob.setFromStation(levMCar.getBlockNo());
+        }else{
+            asrsJob.setFromStation(sCar.getOnMCar());
+        }
         asrsJob.setToStation(toMcar.getBlockNo());
         asrsJob.setBarcode(sCar.getGroupNo()+"");
         asrsJob.setGenerateTime(new Date());
@@ -461,12 +469,21 @@ public class CreateAsrsJob {
                 httpMessage.setMsg("充电层母车有任务");
                 return httpMessage;
             }
-            if(levMCar.getGroupNo() != null){
+            if(levMCar.getGroupNo() != null && levMCar.getGroupNo()!=sCar.getGroupNo()){
+
                 levSCar = SCar.getScarByGroup(levMCar.getGroupNo());
                 if(StringUtils.isNotBlank(levSCar.getMcKey()) || StringUtils.isNotBlank(levSCar.getReservedMcKey()) || levSCar.isWaitingResponse()){
                     httpMessage.setSuccess(false);
                     httpMessage.setMsg("充电层子车有任务");
                     return httpMessage;
+                }else{
+                    hasJob=findOtherLev(hasJob);
+                    if(hasJob){
+                        //为充电完成小车寻找换层任务失败
+                        httpMessage.setSuccess(false);
+                        httpMessage.setMsg("为充电完成小车寻找换层任务失败");
+                        return httpMessage;
+                    }
                 }
             }
             AsrsJob asrsJob = new AsrsJob();
@@ -484,7 +501,7 @@ public class CreateAsrsJob {
             sCar.setStatus(SCar.STATUS_CHARGE_OVER);
             levMCar.setReservedMcKey(asrsJob.getMcKey());
 
-            if(levSCar!=null){
+            if(levSCar!=null ){
                 levSCar.setReservedMcKey(asrsJob.getMcKey());
             }
             session.save(asrsJob);

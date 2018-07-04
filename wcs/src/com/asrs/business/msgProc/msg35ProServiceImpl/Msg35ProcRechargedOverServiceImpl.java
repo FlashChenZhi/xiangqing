@@ -46,6 +46,9 @@ public class Msg35ProcRechargedOverServiceImpl implements Msg35ProcService {
         } else if (message35.isOffCar()) {
             sCar.setOnMCar(null);
             sCar.setBank(Integer.parseInt(message35.Bank));
+            if(sCar.getGroupNo()!=Integer.parseInt(aj.getBarcode())){
+                sCar.clearMckeyAndReservMckey();
+            }
 
         } else if (message35.isOnCar()) {
             sCar.setOnMCar(message35.Station);

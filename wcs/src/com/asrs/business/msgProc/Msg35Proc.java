@@ -176,6 +176,11 @@ public class Msg35Proc implements MsgProcess {
                     }else{
                         mCar.setCheckLocation(true);
                     }
+                }else if(block instanceof Lift){
+                    Lift lift=(Lift)block;
+                    if(!message35.isMove()){
+                        lift.setDock(null);
+                    }
                 }
 
             }
