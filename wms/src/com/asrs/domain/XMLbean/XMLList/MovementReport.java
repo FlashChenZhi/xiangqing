@@ -179,7 +179,7 @@ public class MovementReport extends XMLProcess {
 
                     fromLocation.setReserved(false);
                     fromLocation.setEmpty(true);
-
+                    fromLocation.setRetrievalRestricted(false);
 
                 } else if (dataArea.getReasonCode().equals(ReasonCode.LOCATIONTOLOCATION)) {
 

@@ -103,18 +103,30 @@ public class MCarServiceImpl implements MCarService {
 
             }
         } else {
-            //母车没有绑定小车
-            //查找是否有换层任务(充电任务直接赋值的)
-            Query query = HibernateUtil.getCurrentSession().createQuery(
-                    "from AsrsJob a,MCar m where  a.type =:tp3 and " +
-                            "a.toStation = m.blockNo and m.position=:position and m.blockNo=:blockNo ) ");
-            query.setString("tp3", AsrsJobType.CHANGELEVEL);
-            query.setString("blockNo", mCar.getBlockNo());
-            query.setString("position", mCar.getPosition());
-            query.setMaxResults(1);
-            AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
-            if (asrsJob != null && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
-                mCar.setReservedMcKey(asrsJob.getMcKey());
+            //查找是否有充电或者充电完成任务
+            Query charQuery = HibernateUtil.getCurrentSession().createQuery("from AsrsJob  where (type=:tp or type=:ttp) and (fromStation=:fs or toStation=:ts) and status!=:status");
+            charQuery.setParameter("tp", AsrsJobType.RECHARGED);
+            charQuery.setParameter("ttp", AsrsJobType.RECHARGEDOVER);
+            charQuery.setParameter("status", AsrsJobStatus.DONE);
+            charQuery.setParameter("fs", mCar.getBlockNo());
+            charQuery.setParameter("ts",  mCar.getBlockNo());
+            charQuery.setMaxResults(1);
+            AsrsJob chargedJob = (AsrsJob) charQuery.uniqueResult();
+
+            if (chargedJob == null) {
+                //母车没有绑定小车
+                //查找是否有换层任务(充电任务直接赋值的)
+                Query query = HibernateUtil.getCurrentSession().createQuery(
+                        "from AsrsJob a,MCar m where  a.type =:tp3 and " +
+                                "a.toStation = m.blockNo and m.position=:position and m.blockNo=:blockNo ) ");
+                query.setString("tp3", AsrsJobType.CHANGELEVEL);
+                query.setString("blockNo", mCar.getBlockNo());
+                query.setString("position", mCar.getPosition());
+                query.setMaxResults(1);
+                AsrsJob asrsJob = (AsrsJob) query.uniqueResult();
+                if (asrsJob != null && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
+                    mCar.setReservedMcKey(asrsJob.getMcKey());
+                }
             }
         }
     }

@@ -298,10 +298,11 @@ public class AssignsTheStorehouseService {
                     Location byLocationNo = Location.getByLocationNo(location);
                     for(int j=0 ; j<list4.size();j++){
                         Location byLocationNo1 = Location.getByLocationNo(list4.get(j));
-                        if(byLocationNo.getPosition()!=byLocationNo1.getPosition()){
+                        if(!byLocationNo.getPosition().equals(byLocationNo1.getPosition())){
                             Transaction.rollback();
                             s.setSuccess(false);
                             s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                            return s;
                         }
                     }
                 }
@@ -314,7 +315,6 @@ public class AssignsTheStorehouseService {
                     s.setMsg("设定出库成功,出库口剩余："+(count-list.size()));
                     s.setSuccess(true);
                     Transaction.commit();
-                    return s;
                 }
             }else{
                 flag=false;

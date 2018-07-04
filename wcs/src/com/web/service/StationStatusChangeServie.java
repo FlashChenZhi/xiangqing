@@ -1,11 +1,17 @@
 package com.web.service;
+import com.asrs.communication.MessageProxy;
 import com.asrs.domain.Station;
 
+import com.asrs.message.Message03;
+import com.asrs.message.Message40;
+import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.web.vo.ReturnObj;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
+
+import java.rmi.Naming;
 
 
 @Service
@@ -58,6 +64,35 @@ public class StationStatusChangeServie {
                     .uniqueResult();
             Station station = (Station) session.createQuery("from Station where stationNo = :stationNo")
                     .setString("stationNo", stationNo).uniqueResult();
+            if("0".equals(pattern)){
+                station.setStatus(false);
+                stationReturnObj.setSuccess(true);
+                stationReturnObj.setRes(station.isStatus()?"1":"0");
+                stationReturnObj.setMsg("切换成功！");
+            }else{
+                if(station.getStationNo().equals("1101")){
+                    long count1=(long)session.createQuery("select count(*) from AsrsJob aj where aj.fromStation =:fromStation and " +
+                            "aj.toStation in (:toStation)  and aj.type =:type ").
+                            setString("type","01").
+                            setString("fromStation","1101").
+                            setParameterList("toStation",leftFromStationNames).uniqueResult();
+                    if(count1>0){
+                        stationReturnObj.setSuccess(false);
+                        stationReturnObj.setMsg("存在1101到1巷道的任务，不能启用！");
+                    }else{
+                        station.setStatus(true);
+                        Station station1301= Station.getStation("1301");
+                        Message40 m40 = new Message40();
+                        m40.setPlcName(station1301.getStationNo());
+                        m40.setID("01");
+                        MessageProxy _wcsproxy = (MessageProxy) Naming.lookup(Const.WCSPROXY);
+                        _wcsproxy.addSndMsg(m40);
+
+                    }
+                }
+            }
+
+
          if (asrsJobCount == 0) {
               if(station !=null ){
                  if("0".equals(pattern)){
