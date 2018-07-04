@@ -350,7 +350,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
                         ledMessage.setMcKey(aj.getMcKey());
                     }
                 }*/
-
+                stationBlock.setOutLoad(true);
                 retrievalFinish(aj);
             }
 
