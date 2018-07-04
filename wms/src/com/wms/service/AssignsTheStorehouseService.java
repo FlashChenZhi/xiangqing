@@ -270,10 +270,10 @@ public class AssignsTheStorehouseService {
         String location="";
         Session session = HibernateUtil.getCurrentSession();
         for(int i =0;i<list.size();i++){
-            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=:toStation) " +
-                    "union all( select count(*) from AsrsJob where toStation=:toStation1)").setString("toStation",list1.get(0)+"").setString("toStation1",list1.get(1)+"");
+            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=(select blockNo from Block where stationNo=:stationNo))").setString("stationNo",list1.get(1)+"");
             List<Integer> list2 = query1.list();
-            if((list.size()>(10-(list2.get(0)+list2.get(1))))||list.size()>10){
+            int count=10;
+            if((list.size()>(count-(list2.get(0))))||list.size()>count){
                 s.setSuccess(false);
                 s.setMsg("该出库口没有足够存位");
                 return s;
@@ -284,12 +284,7 @@ public class AssignsTheStorehouseService {
             query.setString("locationNo", location);
             Container container =(Container) query.uniqueResult();
             if(container!=null){
-                String stationNo="";
-                if(list2.get(1)<=list2.get(0)){
-                    stationNo=list1.get(1);
-                }else {
-                    stationNo=list1.get(0);
-                }
+                String stationNo=list1.get(1);
                 Query query2 ;
                 if(stations.get("1").contains(stationNo)){
                     query2=session.createQuery("select blockNo from Block where stationNo IN (:s)").setParameterList("s",stations.get("1"));
@@ -306,7 +301,7 @@ public class AssignsTheStorehouseService {
                         if(byLocationNo.getPosition()!=byLocationNo1.getPosition()){
                             Transaction.rollback();
                             s.setSuccess(false);
-                            s.setMsg("出库路径不通");
+                            s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
                         }
                     }
                 }
@@ -316,7 +311,7 @@ public class AssignsTheStorehouseService {
                     s.setSuccess(false);
                     s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
                 }else {
-                    s.setMsg("设定出库成功,出库口剩余："+(10-list.size()));
+                    s.setMsg("设定出库成功,出库口剩余："+(count-list.size()));
                     s.setSuccess(true);
                     Transaction.commit();
                     return s;
