@@ -21,6 +21,8 @@ import com.domain.XMLbean.XMLList.DataArea.*;
 import com.domain.XMLbean.XMLList.LoadUnitAtID;
 import com.domain.consts.xmlbean.XMLConstant;
 import com.thread.blocks.*;
+import com.util.common.LogWriter;
+import com.util.common.LoggerType;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang.StringUtils;
@@ -195,6 +197,7 @@ public class Msg50Proc implements MsgProcess {
             }
             Transaction.commit();
         } catch (Exception e) {
+            LogWriter.error(LoggerType.ERROR,"Msg50错误："+e.getMessage());
             e.printStackTrace();
             Transaction.rollback();
         }

@@ -1,5 +1,6 @@
 package com.thread.threads.service.impl;
 
+import com.asrs.business.consts.AsrsJobStatus;
 import com.asrs.business.consts.AsrsJobType;
 import com.asrs.domain.AsrsJob;
 import com.thread.blocks.Block;
@@ -42,7 +43,7 @@ public class LiftServiceImpl implements LiftService {
 
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                 //判断所拿任务是否是充电任务
-                if (asrsJob.getType().equals(AsrsJobType.RECHARGED)) {
+                if (asrsJob.getType().equals(AsrsJobType.RECHARGED)  && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                     lift.setReservedMcKey(block.getMcKey());
                     hasJob=true;
                 }
@@ -56,7 +57,7 @@ public class LiftServiceImpl implements LiftService {
 
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                 //判断所拿任务是否是充电完成任务
-                if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER)) {
+                if (asrsJob.getType().equals(AsrsJobType.RECHARGEDOVER) && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                     lift.setReservedMcKey(block.getMcKey());
                     hasJob=true;
                 }
@@ -67,7 +68,7 @@ public class LiftServiceImpl implements LiftService {
             block = lift.getPreBlockHasMckey(AsrsJobType.CHANGELEVEL);
             if (block != null) {
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
-                if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)) {
+                if (asrsJob.getType().equals(AsrsJobType.CHANGELEVEL)  && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                     lift.setReservedMcKey(block.getMcKey());
                     hasJob=true;
                 }
@@ -80,7 +81,7 @@ public class LiftServiceImpl implements LiftService {
             if (block != null) {
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                 //判断所拿任务是否是入库任务
-                if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)) {
+                if (asrsJob.getType().equals(AsrsJobType.PUTAWAY)  && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                     lift.setReservedMcKey(block.getMcKey());
                     hasJob=true;
                 }
@@ -93,7 +94,7 @@ public class LiftServiceImpl implements LiftService {
             if (block != null) {
                 AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
                 //判断所拿任务是否是出库任务
-                if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)) {
+                if (asrsJob.getType().equals(AsrsJobType.RETRIEVAL)  && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
                     lift.setReservedMcKey(block.getMcKey());
                     hasJob=true;
                 }

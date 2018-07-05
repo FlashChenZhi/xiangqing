@@ -272,7 +272,7 @@ public class AssignsTheStorehouseService {
         for(int i =0;i<list.size();i++){
             Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=(select blockNo from Block where stationNo=:stationNo))").setString("stationNo",list1.get(1)+"");
             List<Integer> list2 = query1.list();
-            int count=10;
+            int count=20;
             if((list.size()>(count-(list2.get(0))))||list.size()>count){
                 s.setSuccess(false);
                 s.setMsg("该出库口没有足够存位");
@@ -312,18 +312,17 @@ public class AssignsTheStorehouseService {
                     s.setSuccess(false);
                     s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
                 }else {
-                    s.setMsg("设定出库成功,出库口剩余："+(count-list.size()));
+                    s.setMsg("设定出库成功,出库口剩余："+(count-(list2.get(0)+list.size())));
                     s.setSuccess(true);
-                    Transaction.commit();
                 }
             }else{
                 flag=false;
                 break;
             }
         }
+
         if(flag){
-            s.setSuccess(false);
-            s.setMsg("test");
+            Transaction.commit();
         }else{
             Transaction.rollback();
             s.setSuccess(false);
