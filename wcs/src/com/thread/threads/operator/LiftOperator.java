@@ -165,7 +165,7 @@ public class LiftOperator {
                 MsgSender.send03(Message03._CycleOrder.moveCarryGoods, mckey, block, "", lift.getBlockNo(), "", "");
             }*/
             if(block instanceof MCar){
-                if(((MCar)block).getDock().equals(lift.getBlockNo())){
+                if(StringUtils.isNotEmpty(((MCar)block).getDock()) && ((MCar)block).getDock().equals(lift.getBlockNo())){
                     moveUnLoadGoods(block.getBlockNo());
                 }
             }else{

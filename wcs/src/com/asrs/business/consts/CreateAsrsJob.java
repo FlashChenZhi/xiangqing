@@ -57,9 +57,8 @@ public class CreateAsrsJob {
 
         List<ScarChargeLocation> scarChargeLocationList = ScarChargeLocation.getAbleChargeLocationBySCarBlockNo(sCar.getBlockNo());
         if(scarChargeLocationList.size()>0){
-            //存在可用充电位
             ScarChargeLocation scarChargeLocation =scarChargeLocationList.get(0);
-
+            //存在可用充电位
             if(sCar.getLevel()!=scarChargeLocation.getChargeLocation().getLevel()){
                 //如果小车不在充电层，生成的换层任务
                 hasJob=changeLevel(scarChargeLocation.getChargeLocation().getLevel(),hasJob,2);

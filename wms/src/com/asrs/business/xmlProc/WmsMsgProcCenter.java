@@ -87,7 +87,7 @@ public class WmsMsgProcCenter implements Runnable {
         TransportOrder transportOrder = envelope.getTransportOrder();
         WorkStartEnd workStartEnd = envelope.getWorkStartEnd();
         TransportModeChange transportModeChange = envelope.getTransportModeChange();
-
+        AcceptTransportOrder acceptTransportOrder = envelope.getAcceptTransportOrder();
         if (null != acceptLoadUnitAtID) {
             xmlProcess = acceptLoadUnitAtID;
         } else if (null != cancelTransportOrder) {
@@ -104,6 +104,8 @@ public class WmsMsgProcCenter implements Runnable {
             xmlProcess = workStartEnd;
         } else if (null != transportModeChange) {
             xmlProcess = transportModeChange;
+        }else if (null != acceptTransportOrder) {
+            xmlProcess = acceptTransportOrder;
         } else {
             //未找到任何XMLOder
         }

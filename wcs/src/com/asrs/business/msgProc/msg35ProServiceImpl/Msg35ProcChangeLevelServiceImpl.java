@@ -95,13 +95,17 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
             }
         } else if (message35.isUnLoadCar()) {
             //换成卸子车，清除任务，子车,清除绑定子车
-            mCar.clearMckeyAndReservMckey();
+
             mCar.setsCarBlockNo(null);
             if(aj.getToStation().equals(mCar.getBlockNo()) && mCar.getGroupNo()!=null){
 
             }else{
                 if(mCar.getGroupNo()!=null && mCar.getGroupNo()== Integer.parseInt(aj.getBarcode())){
                     mCar.setGroupNo(null);
+                    mCar.clearMckeyAndReservMckey();
+                }
+                if(mCar.getGroupNo()!=null && mCar.getGroupNo()!= Integer.parseInt(aj.getBarcode())){
+                    mCar.clearMckeyAndReservMckey();
                 }
             }
 

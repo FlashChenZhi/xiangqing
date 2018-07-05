@@ -1,5 +1,6 @@
 package com.asrs.domain;
 
+import com.thread.blocks.Lift;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -85,7 +86,15 @@ public class ScarChargeLocation {
         Query query = session.createQuery("from ScarChargeLocation s where s.scarBlockNo=:scarBlockNo " +
                 "and s.status=true and s.receved=false ");
         query.setParameter("scarBlockNo", scarBlockNo);
-        return query.list();
+        List<ScarChargeLocation> scarChargeLocations =query.list();
+        for(int i=0;i<scarChargeLocations.size();i++){
+            ScarChargeLocation scarChargeLocation=scarChargeLocations.get(i);
+            boolean flag = isScarChargeLocationReceved(scarChargeLocation.getChargeLocation());
+            if(!flag){
+                scarChargeLocations.remove(i);
+            }
+        }
+        return scarChargeLocations;
     }
 
     @Transient
@@ -96,5 +105,17 @@ public class ScarChargeLocation {
                 "and s.status=true and s.receved=true ");
         query.setParameter("scarBlockNo", scarBlockNo);
         return (ScarChargeLocation)query.uniqueResult();
+    }
+
+    @Transient
+    public static boolean isScarChargeLocationReceved (Location location) {
+        Session session = HibernateUtil.getCurrentSession();
+
+        Query query = session.createQuery("select count(*) as count from ScarChargeLocation s where s.chargeLocation.id=:id " +
+                "and s.status=true and s.receved=true ");
+        query.setParameter("id", location.getId());
+        long count = (long)query.uniqueResult();
+        boolean flag = count==0?true:false;
+        return flag;
     }
 }

@@ -212,8 +212,11 @@ public class TransportOrder extends XMLProcess {
 
             e.printStackTrace();
             try{
+                Transaction.begin();
                 sendReport(e.getMessage());
+                Transaction.commit();
             }catch (Exception e1){
+                Transaction.rollback();
                 e1.printStackTrace();
             }
         }

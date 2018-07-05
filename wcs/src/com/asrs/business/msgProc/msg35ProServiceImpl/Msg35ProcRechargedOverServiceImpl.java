@@ -160,7 +160,11 @@ public class Msg35ProcRechargedOverServiceImpl implements Msg35ProcService {
             }
         } else if (message35.isUnLoadCar()) {
             mCar.setsCarBlockNo(null);
-            mCar.clearMckeyAndReservMckey();
+            SCar sCar = (SCar) SCar.getByBlockNo(message35.Station);
+            if(aj.getBarcode().equals(sCar.getGroupNo()+"")){
+                mCar.clearMckeyAndReservMckey();
+            }
+
         }
     }
 
