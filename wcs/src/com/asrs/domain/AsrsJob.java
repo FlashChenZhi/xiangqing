@@ -349,15 +349,9 @@ public class AsrsJob {
     public void delete(){
         Session session = HibernateUtil.getCurrentSession();
 
-        long nowSecond = (new Date()).getTime();
-        int overSeconds = 3600*1*1000;
-        long overTimeSecond = nowSecond - overSeconds;
-        Date overTime = new Date(overTimeSecond);
-
         session.delete(this);
-        Query query = session.createQuery("from WcsMessage wm where wm.mcKey = :mcKey and lastSendDate <:overtime")
+        Query query = session.createQuery("from WcsMessage wm where wm.mcKey = :mcKey and datediff(MINUTE,wm.lastSendDate , GETDATE())>= 30  ")
                 .setString("mcKey",this._mcKey);
-        query.setTimestamp("overtime", overTime);
 
         List<WcsMessage> wms = query.list();
         for(WcsMessage wm : wms){

@@ -79,7 +79,7 @@ public class Msg50Proc implements MsgProcess {
                 if (block1 instanceof StationBlock) {
                     Station station = Station.getStation(((StationBlock) block1).getStationNo());
                     if (AsrsJobType.PUTAWAY.equals(station.getMode()) && "1".equals(entry.getValue().Load)) {
-                        if (StringUtils.isNotEmpty(block1.getMcKey())) {
+                        if (StringUtils.isEmpty(block1.getMcKey())) {
                             Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
                             if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
                                 //有子车电量不足

@@ -90,10 +90,6 @@ public class AsrsJobClearThread {
             try {
                 Transaction.begin();
 
-                long nowSecond = (new Date()).getTime();
-                int overSeconds = 3600*1*1000;
-                long overTimeSecond = nowSecond - overSeconds;
-                Date overTime = new Date(overTimeSecond);
 
                 Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where status=:status").setParameter("status", AsrsJobStatus.DONE);
                 List<AsrsJob> jobs = jobQuery.list();
@@ -108,8 +104,8 @@ public class AsrsJobClearThread {
                 }
 
                 //
-                Query msgQuery = HibernateUtil.getCurrentSession().createQuery("from WcsMessage wm where not exists(select aj.id from AsrsJob aj where aj.mcKey = wm.mcKey) and wm.received=true and lastSendDate <:overtime ");
-                msgQuery.setTimestamp("overtime", overTime);
+                Query msgQuery = HibernateUtil.getCurrentSession().createQuery("from WcsMessage wm where not exists(select aj.id from AsrsJob aj where aj.mcKey = wm.mcKey) " +
+                        "and wm.received=true and datediff(MINUTE,wm.lastSendDate , GETDATE())>= 30 ");
                 List<WcsMessage> wms = msgQuery.list();
                 for(WcsMessage wm : wms){
                     HibernateUtil.getCurrentSession().delete(wm);
