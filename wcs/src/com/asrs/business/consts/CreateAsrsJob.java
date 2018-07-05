@@ -397,7 +397,7 @@ public class CreateAsrsJob {
                 asrsJob.setMcKey(Mckey.getNext());
                 asrsJob.setToLocation(scarChargeLocation.getChargeLocation().getLocationNo());
                 asrsJob.setFromStation(toMcar.getBlockNo());
-                Location location = Location.getByLocationNo(sCar.getChargeLocation());
+                Location location = scarChargeLocation.getChargeLocation();
                 MCar chargeSrm = mCar.getMCarByPosition(location.getPosition(), location.getLevel());
                 asrsJob.setToStation(chargeSrm.getBlockNo());
                 asrsJob.setBarcode(sCar.getBlockNo());
