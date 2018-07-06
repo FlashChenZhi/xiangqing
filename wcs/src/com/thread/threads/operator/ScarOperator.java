@@ -265,6 +265,13 @@ public class ScarOperator {
             Location location = Location.getByBankBayLevel(sCar.getBank(),sCar.getBay(),sCar.getLevel(),sCar.getPosition());
             MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, location.getLocationNo(), mCar.getBlockNo(), "", "");
         }
-
     }
+
+    public void tryOnMCar2(MCar mCar,Location chargeLocation) throws Exception {
+        if (chargeLocation.getLevel() == mCar.getLevel()
+                && chargeLocation.getBay() == mCar.getBay()) {
+            MsgSender.send03(Message03._CycleOrder.onCar, mckey, sCar, chargeLocation.getLocationNo(), mCar.getBlockNo(), "", "");
+        }
+    }
+
 }

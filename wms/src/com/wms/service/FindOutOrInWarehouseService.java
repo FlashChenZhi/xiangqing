@@ -60,53 +60,64 @@ public class FindOutOrInWarehouseService {
     /*
      * @description：查找出入库详情
      */
-    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int startIndex, int defaultPageSize, String productId, String beginDate, String endDate){
+    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int startIndex, int defaultPageSize, String productId, String beginDate, String endDate,String type){
         PagerReturnObj<List<Map<String,Object>>> returnObj = new PagerReturnObj<List<Map<String,Object>>>();
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            StringBuffer sb1 = new StringBuffer("select * from (select a.id as id,a.skuCode as skuCode,a.skuName as skuName, " +
-                    " a.qty as qty, a.STORE_DATE+' '+a.STORE_TIME as dateTime,'入库' as type from INVENTORY a where 1=1   ");
-            StringBuffer sb2 = new StringBuffer("select count(*) from INVENTORY  a where  1=1  ");
-            StringBuffer sb3 = new StringBuffer("select count(*) from RETRIEVAL_RESULT r where 1=1");
-            sb1 = getSqlAfter(sb1, productId, beginDate, endDate);
-            sb2 = getSqlAfter(sb2, productId, beginDate, endDate);
 
-            sb1.append(" union all");
-            sb1.append(" select  r.ID as id,r.SKU_CODE as skuCode,r.SKU_NAME as skuName,r.QTY as qty , " +
-                       " r.RETRIEVAL_DATE+' '+r.RETRIEVAL_TIME as dateTime, '出库' as type from RETRIEVAL_RESULT r  where 1=1  ");
-            sb1 = getSql2After(sb1, productId, beginDate, endDate);
-            sb3 = getSql2After(sb3, productId, beginDate, endDate);
-            sb1.append(" ) c order by c.dateTime desc ");
-            Query query1 = session.createSQLQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-            Query query2 = session.createSQLQuery(sb2.toString());
-            Query query3 = session.createSQLQuery(sb3.toString());
-            query1.setFirstResult(startIndex);
-            query1.setMaxResults(defaultPageSize);
+            StringBuffer sb = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.qty as qty, " +
+                    "a.skuName as skuName,a.num as num,a.dateTime as dateTime,a.type as type,a.LOTNUM as lotNum " +
+                    "from (select max(b.id) as id,b.skuCode as skuCode, " +
+                    "b.skuName as skuName,count(*) as num,sum(qty) as qty,b.LOTNUM as LOTNUM,max(b.createDate) as dateTime," +
+                    "case type when '01' then '入库' else '出库' end  as type from JOBLOG b where 1=1 ");
+            StringBuffer sb1 = new StringBuffer("select count(*) from (select b.skuCode from JOBLOG b where  1=1 ");
             if(StringUtils.isNotBlank(productId)){
-                query1.setString("skuCode",productId);
-                query1.setString("skuCode2",productId);
-                query2.setString("skuCode",productId);
-                query3.setString("skuCode2",productId);
+                sb.append("and b.skuCode =:productId ");
+                sb1.append("and b.skuCode =:productId ");
             }
             if (StringUtils.isNotBlank(beginDate)) {
-                query1.setString("beginDate",beginDate);
-                query1.setString("beginDate2",beginDate);
-                query2.setString("beginDate",beginDate);
-                query3.setString("beginDate2",beginDate);
+                sb.append("and b.createDate >= :beginDate ");
+                sb1.append("and b.createDate >= :beginDate ");
             }
             if (StringUtils.isNotBlank(endDate)) {
-                query1.setString("endDate",endDate);
-                query1.setString("endDate2",endDate);
-                query2.setString("endDate",endDate);
-                query3.setString("endDate2",endDate);
+                sb.append("and b.createDate <= :endDate ");
+                sb1.append("and b.createDate <= :endDate ");
             }
-            List<Map<String,Object>> jobList = query1.list();
-            int count = (int)query2.uniqueResult();
-            int count2 = (int)query3.uniqueResult();
+            if (StringUtils.isNotBlank(type) && !"00".equals(type)) {
+                sb.append("and b.type = :type ");
+                sb1.append("and b.type = :type ");
+            }
+            sb.append(" group by skuCode,skuName,type,LOTNUM ) a  order by a.dateTime desc ");
+            sb1.append("group by skuCode,skuName,type,LOTNUM)a ");
+            Query query = session.createSQLQuery(sb.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+            Query query1 = session.createSQLQuery(sb1.toString());
+
+            query.setFirstResult(startIndex);
+            query.setMaxResults(defaultPageSize);
+
+            if(StringUtils.isNotBlank(productId)){
+                query.setString("productId",productId);
+                query1.setString("productId",productId);
+            }
+            if (StringUtils.isNotBlank(beginDate)) {
+                query.setString("beginDate",beginDate);
+                query1.setString("beginDate",beginDate);
+            }
+            if (StringUtils.isNotBlank(endDate)) {
+                query.setString("endDate",endDate);
+                query1.setString("endDate",endDate);
+            }
+            if (StringUtils.isNotBlank(type) && !"00".equals(type)) {
+                query.setString("type",type);
+                query1.setString("type",type);
+            }
+            List<Map<String,Object>> jobList = query.list();
+            int count = (int)query1.uniqueResult();
+
             returnObj.setSuccess(true);
             returnObj.setRes(jobList);
-            returnObj.setCount(count+count2);
+            returnObj.setCount(count);
             Transaction.commit();
         } catch (JDBCConnectionException ex) {
             returnObj.setSuccess(false);

@@ -274,12 +274,22 @@ public class AssignsTheStorehouseService {
             List<Integer> list2 = query1.list();
             int count=20;
             if((list.size()>(count-(list2.get(0))))||list.size()>count){
+                Transaction.rollback();
                 s.setSuccess(false);
                 s.setMsg("该出库口没有足够存位");
                 return s;
             }
             location = list.get(i);
             //按照Container中的reserved判断
+
+            Query query4 = session.createQuery("from AsrsJob where toLocation in (select l.locationNo from Location l,Location ll where l.level=ll.level and l.bay=ll.bay and l.position=ll.position and l.actualArea=ll.actualArea and  ll.locationNo=:locationNo)");
+            List<AsrsJob> asrsJobs = query4.setString("locationNo", location).list();
+            if(asrsJobs.size()>0){
+                Transaction.rollback();
+                s.setSuccess(false);
+                s.setMsg("货位："+location+"前已有入库任务");
+                return s;
+            }
             Query query = session.createQuery(" from Container c where reserved = false and c.location.locationNo=:locationNo");
             query.setString("locationNo", location);
             Container container =(Container) query.uniqueResult();

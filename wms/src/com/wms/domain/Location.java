@@ -645,7 +645,7 @@ public class Location {
                 q = session.createQuery("from Location l where not exists (select 1 from Location ol where ol.bay = l.bay and (ol.reserved=true or ol.empty=false ) " +
                         "and l.level =ol.level and l.actualArea=ol.actualArea and l.position=ol.position ) " +
                         "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.position in (:po)  " +
-                        "and l.putawayRestricted = false order by l.bay asc,l.level asc,l.actualArea asc,l.seq asc ");
+                        "and l.putawayRestricted = false order by l.level asc,l.bay asc,l.actualArea asc,l.seq asc ");
                 list = new ArrayList<>();
                 if("0".equals(po)){
                     list.add("1");

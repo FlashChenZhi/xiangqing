@@ -49,7 +49,7 @@ public class MCarServiceImpl implements MCarService {
                      */
                     String mckey = StringUtils.isNotBlank(sCar.getReservedMcKey()) ? sCar.getReservedMcKey():sCar.getMcKey();
                     AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(mckey);
-                    if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)&&!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
+                    if(asrsJob!=null && !asrsJob.getType().equals(AsrsJobType.PUTAWAY)  && !asrsJob.getType().equals(AsrsJobType.RECHARGED) &&!asrsJob.getStatus().equals(AsrsJobStatus.DONE)){
                         mCar.setReservedMcKey(mckey);
                         hasJob=true;
                     }

@@ -2,6 +2,7 @@ package com.thread.threads.operator;
 
 import com.asrs.domain.AsrsJob;
 import com.asrs.domain.Location;
+import com.asrs.domain.ScarChargeLocation;
 import com.asrs.message.Message03;
 import com.thread.blocks.*;
 import com.thread.utils.MsgSender;
@@ -96,8 +97,11 @@ public class MCarOperator {
                     if (StringUtils.isNotBlank(sCar.getMcKey())) {
                         AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(sCar.getMcKey());
                         Location location = Location.getByLocationNo(asrsJob.getFromLocation());
-                        if (!mCar.arrive(location))
+                        if (mCar.arrive(location)){
+                            this.loadCar(sCar.getBlockNo(), mckey, location);
+                        }else{
                             this.move(location);
+                        }
                     }
                 }
             }

@@ -5,6 +5,7 @@ import com.asrs.business.consts.AsrsJobType;
 import com.asrs.business.consts.CreateAsrsJob;
 import com.asrs.business.msgProc.msg35ProcService.Msg35ProcService;
 import com.asrs.domain.AsrsJob;
+import com.asrs.domain.Location;
 import com.asrs.domain.ScarChargeLocation;
 import com.asrs.message.Message35;
 import com.thread.blocks.Block;
@@ -124,13 +125,17 @@ public class Msg35ProcRechargedOverServiceImpl implements Msg35ProcService {
             mCar.setCheckLocation(true);
             mCar.setBay(Integer.parseInt(message35.Bay));
             //mCar.setLevel(Integer.parseInt(message35.Level));
-
-            if (StringUtils.isNotBlank(mCar.getsCarBlockNo())) {
-                SCar sCar = (SCar) SCar.getByBlockNo(mCar.getsCarBlockNo());
-                sCar.setLevel(mCar.getLevel());
-                sCar.setBay(mCar.getBay());
+            if (message35.Station.equals("0000")) {
+                mCar.setDock(null);
+                Location toLoc = Location.getByBankBayLevel(Integer.parseInt(message35.Bank), mCar.getBay(), mCar.getLevel(), mCar.getPosition());
+                mCar.setActualArea(toLoc.getActualArea());
+                if (StringUtils.isNotBlank(mCar.getsCarBlockNo())) {
+                    SCar sCar = (SCar) SCar.getByBlockNo(mCar.getsCarBlockNo());
+                    sCar.setLevel(mCar.getLevel());
+                    sCar.setBay(mCar.getBay());
+                    sCar.setActualArea(mCar.getActualArea());
+                }
             }
-
         } else if (message35.isLoadCar()) {
             mCar.setsCarBlockNo(message35.Station);
             if (mCar.getBlockNo().equals(aj.getToStation())) {

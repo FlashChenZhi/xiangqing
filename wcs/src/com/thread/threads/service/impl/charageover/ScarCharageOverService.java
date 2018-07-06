@@ -66,9 +66,8 @@ public class ScarCharageOverService extends ScarAndSrmServiceImpl {
                     scarOperator.tryChargeFinish(sCar, chargeLocation);
                 }else if(SCar.STATUS_RUN.equals(sCar.getStatus())){
                     //若小车处于运行状态（已到巷道口）
-                    if(StringUtils.isBlank(mCar.getsCarBlockNo()) && chargeLocation.getLevel()==mCar.getLevel()
-                            && chargeLocation.getBay()==mCar.getBay() ){
-                        scarOperator.tryOnMCar(mCar);
+                    if(StringUtils.isBlank(mCar.getsCarBlockNo()) ){
+                        scarOperator.tryOnMCar2(mCar,chargeLocation);
                     }
                 }
 
