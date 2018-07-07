@@ -3,6 +3,7 @@ package com.asrs.domain.XMLbean.XMLList;
 import com.asrs.Mckey;
 import com.asrs.business.consts.AsrsJobStatus;
 import com.asrs.business.consts.AsrsJobType;
+import com.asrs.business.consts.StationMode;
 import com.asrs.business.consts.TransportType;
 import com.asrs.domain.XMLbean.Envelope;
 import com.asrs.domain.XMLbean.XMLList.ControlArea.ControlArea;
@@ -163,27 +164,28 @@ public class LoadUnitAtID extends XMLProcess {
     public Location getToLocation(String stationNo,Job job,String barcode) throws Exception{
             //站台判断
             Location newLocation;
+            Station station1301 = Station.getStation("1301");
+            Station station1302 = Station.getStation("1302");
+            if(station1301.getDirection().equals(StationMode.RETRIEVAL) && station1302.getDirection().equals(StationMode.PUTAWAY)){
+                throw new Exception("存在交叉路径" );
+            }
             if("1101".equals(stationNo)){
                 //入库站台为1101时
-                //判断1102是否被禁用
-                Station station1 = Station.getNormalStation("1102");
-                if(station1!=null){
-                    //1102没有被禁用，1101分配1号巷道货位
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"1");
+                //判断1301状态
+                String po = station1301.getDirection().equals(StationMode.RETRIEVAL)? "2" : station1301.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
+                if(!po.equals("99")){
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
                 }else{
-                    //1102被禁用，1101分配1、2号巷道货位
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
+                    throw new Exception("站台状态不对" );
                 }
             }else {
                 //入库站台为1102时
-                //判断1101是否被禁用
-                Station station1 = Station.getNormalStation("1101");
-                if(station1!=null){
-                    //1101没有被禁用，1102分配2号巷道货位
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"2");
+                //判断1302的状态
+                String po = station1302.getDirection().equals(StationMode.RETRIEVAL)? "2" : station1302.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
+                if(!po.equals("99")){
+                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
                 }else{
-                    //1101被禁用，1102分配1、2号巷道货位
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),"0");
+                    throw new Exception("站台状态不对" );
                 }
             }
             if(newLocation != null) {

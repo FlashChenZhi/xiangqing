@@ -1,5 +1,7 @@
 package com.thread.blocks;
 
+import com.util.hibernate.HibernateUtil;
+
 import javax.persistence.*;
 
 /**
@@ -15,6 +17,7 @@ public class Conveyor extends Block {
     private Integer lev;
     private boolean manty;
     private boolean mantWaiting;
+    private String stationNo;
 
     @Basic
     @Column(name = "DOCK")
@@ -64,5 +67,20 @@ public class Conveyor extends Block {
 
     public void setLev(Integer lev) {
         this.lev = lev;
+    }
+
+    @Basic
+    @Column(name = "stationNo")
+    public String getStationNo() {
+        return stationNo;
+    }
+
+    public void setStationNo(String stationNo) {
+        this.stationNo = stationNo;
+    }
+
+    public static Conveyor getByStationNo(String stationNo) {
+        return (Conveyor) HibernateUtil.getCurrentSession().createQuery("from Conveyor sb where sb.stationNo = :stationNo")
+                .setString("stationNo", stationNo).uniqueResult();
     }
 }

@@ -46,7 +46,7 @@ public class Msg42Proc implements MsgProcess {
     public void Do(Message42 message42) {
 
         //应答
-        Sender sender = new Sender();
+        /*Sender sender = new Sender();
         sender.setDivision(XMLConstant.COM_DIVISION);
         ControlArea controlArea = new ControlArea();
         controlArea.setSender(sender);
@@ -59,7 +59,7 @@ public class Msg42Proc implements MsgProcess {
         transportModeChange.setControlArea(controlArea);
         transportModeChange.setDataArea(transportModeChangeDA);
         Envelope envelope = new Envelope();
-        envelope.setTransportModeChangeReport(transportModeChange);
+        envelope.setTransportModeChangeReport(transportModeChange);*/
         try {
             Transaction.begin();
 
@@ -72,10 +72,11 @@ public class Msg42Proc implements MsgProcess {
                 Station station = Station.getStation(message42.Station);
                 station.setType(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
                 station.setMode(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
+                station.setDirection(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
             }
 
             Transaction.commit();
-            XMLUtil.sendEnvelope(envelope);
+            /*XMLUtil.sendEnvelope(envelope);*/
         } catch (Exception e) {
             Transaction.rollback();
             e.printStackTrace();

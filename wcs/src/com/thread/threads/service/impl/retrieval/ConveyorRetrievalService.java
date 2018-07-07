@@ -1,9 +1,12 @@
 package com.thread.threads.service.impl.retrieval;
 
+import com.asrs.business.consts.StationMode;
 import com.asrs.domain.AsrsJob;
+import com.asrs.domain.Station;
 import com.thread.blocks.*;
 import com.thread.threads.operator.ConveyorOperator;
 import com.thread.threads.service.impl.ConveyorServiceImpl;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -29,6 +32,31 @@ public class ConveyorRetrievalService extends ConveyorServiceImpl {
 
         AsrsJob aj = AsrsJob.getAsrsJobByMcKey(conveyor.getMcKey());
         Block nextBlock = conveyor.getNextBlock(aj.getType(), aj.getToStation());
+
+        if (conveyor.getBlockNo().equals("0012")) {
+            //如果当前输送机是0007
+            //检查1005上是否有托盘
+            Station station1303 =Station.getStation("1303");
+            Conveyor conveyor0017 = (Conveyor) Conveyor.getByBlockNo("0017");
+            if (StringUtils.isNotBlank(conveyor0017.getMcKey()) || StringUtils.isNotBlank(conveyor0017.getReservedMcKey())) {
+                if(StationMode.RETRIEVAL.equals(station1303.getDirection())){
+                    return;
+                }
+            }
+        }
+
+        if (conveyor.getBlockNo().equals("0019")) {
+            //如果当前输送机是0007
+            //检查1005上是否有托盘
+            Station station1303 =Station.getStation("1303");
+            Conveyor conveyor0017 = (Conveyor) Conveyor.getByBlockNo("0017");
+            if (StringUtils.isNotBlank(conveyor0017.getMcKey()) || StringUtils.isNotBlank(conveyor0017.getReservedMcKey())) {
+                if(StationMode.PUTAWAY.equals(station1303.getDirection())){
+                    return;
+                }
+            }
+        }
+
 
         ConveyorOperator operator = new ConveyorOperator(conveyor, aj.getMcKey());
 

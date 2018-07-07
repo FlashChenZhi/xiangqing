@@ -1,8 +1,9 @@
-import {Button, Form, Input, Pagination, InputNumber, Select, message, } from 'antd';
+import {Button,Modal, Form, Input,Table, Pagination, InputNumber, Select, message, } from 'antd';
 import React from 'react';
 const FormItem = Form.Item;
 import reqwest from 'reqwest';
 import {reqwestError, dateFormat} from '../common/Golbal';
+import PlatformSwitch from './PlatformSwitch';
 
 const Option = Select.Option;
 
@@ -11,13 +12,20 @@ let StationStatusSwitch = React.createClass({
     getInitialState(){
         return {
             loading: false,
+            total: 0,//表格数据总行数
             selectedRowKeys: [],
             stationNo:this.stationNo,
             pattern:this.pattern,
+            defaultPageSize:8,
+            current:1,
+            data:'',
+            platformSwitch: false,
+            updateStationNo:'',
         };
     },
     componentDidMount(){
         this.findPlatformSwitch("1101");
+        this.getData(1);
     },
     findPlatformSwitch(stationNo){
         reqwest({
@@ -91,8 +99,71 @@ let StationStatusSwitch = React.createClass({
             pattern: value,
         });
     },
+    pageChange(noop){
+        this.setState({
+            current:noop,
+        })
+        this.getData(noop);
+    },
+    update(){
+        this.getData(this.state.current);
+    },
+    getData(current){
+        this.setState({loading: true});
+        let defaultPageSize = this.state.defaultPageSize;
+        const values = this.props.form.getFieldsValue();
+        console.log(values);
+        values.currentPage = current;
+        reqwest({
+            url: '/wcs/stationStatusChange/findStationStatus.do',
+            dataType: 'json',
+            method: 'post',
+            data: {current:current,defaultPageSize:defaultPageSize},
+            success: function (json) {
+                if(json.success){
+                    console.log("数据："+json.res[0]);
+                    this.setState({data: json.res, total: json.count, loading: false});
 
+                }else{
+                    message.error("加载数据失败！");
+                }
+            }.bind(this),
+            error: function (err) {
+                reqwestError(err);
+                message.error("加载数据失败！");
+            }.bind(this)
+        });
+    },
+    updateStationMode(stationNo){
+        this.setState({updateStationNo: stationNo, platformSwitch: true});
+    },
+
+    hidePlatformSwitch() {
+        this.setState({updateStationNo: null, platformSwitch: false});
+    },
     render() {
+        const columns = [{
+            title: '站台号',
+            dataIndex: 'stationNo',
+        },{
+            title: '名称',
+            dataIndex: 'name',
+        },{
+            title: '站台模式',
+            dataIndex: 'mode',
+        }, {
+            title: '可入区域',
+            dataIndex: 'putAwayArea',
+        }, {
+            title: '可出区域',
+            dataIndex: 'retrievalArea',
+        }, {
+            title: '站台状态',
+            dataIndex: 'status',
+        }, {
+            title: '操作',
+            render: (text, record,index) => <span><a onClick={this.updateStationMode.bind(this,record.stationNo)}>修改</a></span>,
+        }];
         const {getFieldProps } = this.props.form;
         const formItemLayout = {
             labelCol: {span: 5},
@@ -126,8 +197,31 @@ let StationStatusSwitch = React.createClass({
                         <Button type="primary" onClick={this.submit}
                             //disabled={this.state.tuopanhao.length > 0 ? false : true}
                         >设定</Button>
-                    </FormItem>
+                        <Button style={{marginLeft:"13%"}} type="primary" onClick={this.update}
+                            //disabled={this.state.tuopanhao.length > 0 ? false : true}
+                        >刷新</Button>
+                    </FormItem><br/>
                 </Form>
+                <Table
+                    loading={this.state.loading}
+                    columns={columns}
+                    rowKey={record => record.id}
+                    dataSource={this.state.data}
+
+                    pagination={{
+                        onChange: this.pageChange,
+                        showQuickJumper: true,
+                        defaultCurrent: 1,
+                        defaultPageSize:this.state.defaultPageSize,
+                        total: this.state.total,
+                        showTotal: total => `共 ${total} 条数据`
+                    }}
+                />
+                <PlatformSwitch
+                    code={this.state.updateStationNo}
+                    visible={this.state.platformSwitch}
+                    hideModel={this.hidePlatformSwitch.bind(this)}
+                />
             </div>
         );
     },

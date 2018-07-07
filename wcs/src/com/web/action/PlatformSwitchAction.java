@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -25,8 +27,8 @@ public class PlatformSwitchAction {
      */
     @RequestMapping(value = "findPlatformSwitch.do",method = RequestMethod.POST)
     @ResponseBody
-    public ReturnObj<Station> findPlatformSwitch(String direction, String stationNo){
-        return platformSwitchService.findPlatformSwitch(direction,stationNo);
+    public ReturnObj<Map<String,Object>> findPlatformSwitch(String stationNo){
+        return platformSwitchService.findPlatformSwitch(stationNo);
     }
 
     /**

@@ -164,16 +164,29 @@ public class Station
            this._status = status;
     }
 
-    private boolean  _direction;
+    private String  _direction;
+
     @Basic
     @Column(name = "DIRECTION")
-    public boolean is_direction() {
+    public String getDirection() {
         return _direction;
     }
 
-    public void set_direction(boolean _direction) {
-        this._direction = _direction;
+    public void setDirection(String direction) {
+        _direction = direction;
     }
+
+    private Integer groupNo;//组号，用于出入库站台和转向站台绑定
+    @Basic
+    @Column(name = "GROUPNO")
+    public Integer getGroupNo() {
+        return groupNo;
+    }
+
+    public void setGroupNo(Integer group) {
+        this.groupNo = group;
+    }
+
 
     @Override
     public boolean equals(Object o)
@@ -336,4 +349,14 @@ public class Station
         Station station = (Station) session.get(Station.class, stationNo);
         return station;
     }
+
+    public static Station getSwerveStationByGroupNo(int groupNo)
+    {
+        Query query =HibernateUtil.getCurrentSession().createQuery("from Station where type=99 and groupNo=:groupNo");
+        query.setParameter("groupNo", groupNo);
+        query.setMaxResults(1);
+        Station station =  (Station) query.uniqueResult();
+        return station;
+    }
+
 }

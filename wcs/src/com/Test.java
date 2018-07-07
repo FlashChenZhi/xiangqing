@@ -5,6 +5,7 @@ import com.asrs.business.msgProc.MsgProcess;
 import com.asrs.communication.MessageCenter;
 import com.asrs.communication.XmlProxy;
 import com.asrs.domain.LedMessage;
+import com.asrs.domain.Station;
 import com.asrs.domain.WcsMessage;
 
 import com.asrs.domain.ScarChargeLocation;
@@ -19,19 +20,14 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import java.rmi.Naming;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
         try{
             Transaction.begin();
-            List<ScarChargeLocation> scarChargeLocationList = ScarChargeLocation.getAbleChargeLocationBySCarBlockNo("SC05");
-            if(scarChargeLocationList.size()>0){
-                System.out.println("11");
-            }
+            Station station1 = Station.getSwerveStationByGroupNo(1);
+            System.out.println(station1.getStationNo());
             Transaction.commit();
         }catch (Exception e){
             Transaction.rollback();
