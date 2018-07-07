@@ -187,7 +187,7 @@ public class LoadUnitAtID extends XMLProcess {
                 }
             }
             if(newLocation != null) {
-                newLocation.setReserved(true);
+
             }else{
                 throw new Exception("空货位不足" );
             }

@@ -131,9 +131,7 @@ public class Msg35ProcRechargedServiceImpl implements Msg35ProcService {
             //充电任务中，如果堆垛机的列是充电的这一列，那么堆垛机正常完成任务，
             if (location.getBay() == Integer.parseInt(message35.Bay)) {
                 mCar.clearMckeyAndReservMckey();
-                /*if (mCar.getPosition().equals(location.getPosition())) {
-                    aj.setStatus(AsrsJobStatus.DONE);
-                }*/
+                mCar.setGroupNo(null);
             }
             if (mCar.getBlockNo().equals(aj.getFromStation())) {
                 mCar.clearMckeyAndReservMckey();

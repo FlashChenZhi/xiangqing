@@ -30,9 +30,19 @@ public class AssignsTheStorehouseService {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
             //查询总货位
-            Query query1 = session.createQuery("select convert(varchar,bank)+'_'+convert(varchar,bay) as coordinate from Location where " +
-                    "putawayRestricted = false and retrievalRestricted = false and level=:level  order by bank , bay ");
+//            Query query1 = session.createQuery("select convert(varchar,bank)+'_'+convert(varchar,bay) as coordinate from Location where " +
+//                    "putawayRestricted = false and retrievalRestricted = false and level=:level  order by bank , bay ");
+//            query1.setString("level", tier);
+            Query query1 = session.createQuery("select convert(varchar,l.bank)+'_'+convert(varchar,l.bay) as coordinate " +
+                    "from Location l where not exists (select 1 from Location lo where l.id=lo.id and " +
+                    "lo.putawayRestricted = true and lo.retrievalRestricted = true) and l.level=:level   " +
+//                    " and l.bank!=26 and not exists (select 1 from Location ll where l.id=ll.id and ( (ll.bay in (:bays) and ll.bank=:bank) or " +
+//                    "(ll.locationNo = :locationNo)))" +
+                    "order by l.bank , l.bay ");
             query1.setString("level", tier);
+//            query1.setParameterList("bays", bayslist);
+//            query1.setParameter("bank", 12);
+//            query1.setParameter("locationNo", "001013001");
             List<String> list = query1.list();
             int bankCount = Const.bankCount;
             int bayCount = Const.bayCount;
@@ -120,7 +130,7 @@ public class AssignsTheStorehouseService {
             Query query = session.createQuery("select i.skuCode as skuCode,i.skuName as skuName, " +
                     "i.lotNum as lotNum,i.qty as qty,i.container.barcode as barcode, " +
                     "i.container.location.bank as bank,i.container.location.bay as bay, " +
-                    "i.container.location.level as level from Inventory i where i.container.location.bank " +
+                    "i.container.location.level as level,i.container.location.position as position from Inventory i where i.container.location.bank " +
                     "= :bank and i.container.location.bay = :bay and i.container.location.level = :level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             query.setInteger("bank", Integer.parseInt(bank));
             query.setInteger("bay", Integer.parseInt(bay));
@@ -128,6 +138,10 @@ public class AssignsTheStorehouseService {
             List<Map<String,Object>> mapList = query.list();
             Map<String,Object> map = new HashMap<>();
             if(mapList.size()==0){
+                map.put("bank", bank);
+                map.put("bay", bay);
+                map.put("level", level);
+                map.put("position", "2");
                 map.put("status", false);
                 map.put("msg", "空货位");
             }else{

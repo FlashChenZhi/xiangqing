@@ -6,6 +6,7 @@ import com.asrs.domain.XMLbean.XMLList.DataArea.DAList.AcceptTransportOrderDA;
 import com.asrs.domain.XMLbean.XMLProcess;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.util.hibernate.HibernateUtil;
+import com.util.hibernate.Transaction;
 import com.wms.domain.InventoryView;
 import com.wms.domain.Job;
 import com.wms.domain.Location;
@@ -44,18 +45,25 @@ public class AcceptTransportOrder extends XMLProcess {
             //正确
 
         } else {
-            String refId = controlArea.getRefId().getReferenceId();
-            Job job = Job.getByMcKey(refId);
+            try {
+                Transaction.begin();
+                String refId = controlArea.getRefId().getReferenceId();
+                Job job = Job.getByMcKey(refId);
 
-            if (job.getType().equals(AsrsJobType.PUTAWAY)) {
-                Location location = job.getToLocation();
-                location.setReserved(false);
-                InventoryView inventoryView = InventoryView.getByPalletNo(job.getContainer());
-                HibernateUtil.getCurrentSession().delete(inventoryView);
-            } else {
+                if (job.getType().equals(AsrsJobType.PUTAWAY)) {
+                    Location location = job.getToLocation();
+                    location.setReserved(false);
+                    InventoryView inventoryView = InventoryView.getByPalletNo(job.getContainer());
+                    HibernateUtil.getCurrentSession().delete(inventoryView);
+                } else {
 
+                }
+                HibernateUtil.getCurrentSession().delete(job);
+                Transaction.commit();
+            }catch(Exception e){
+                Transaction.rollback();
+                e.printStackTrace();
             }
-            HibernateUtil.getCurrentSession().delete(job);
         }
 
     }

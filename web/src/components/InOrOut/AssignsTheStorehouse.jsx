@@ -316,7 +316,7 @@ let AssignsTheStorehouse = React.createClass({
                     });
                     if(json.res.bank!=null){
                         this.setState({
-                            locationInfo:json.res.bank+'排'+json.res.bay+'列'+json.res.level+'层',
+                            locationInfo:json.res.bank+'排'+json.res.bay+'列'+json.res.level+'层'+json.res.position+'巷道',
                         })
                     }else{
                         this.setState({
