@@ -406,11 +406,11 @@ public class FindOutOrInWarehouseService {
 
         //查询sheet3，入库明细表，按照用户输入时间，若无，默认当天零点到当先时间
         StringBuffer sb3 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ,a.qty as qty ," +
-                "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,i.LOT_NUM as lotNum, " +
+                "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,j.LOTNUM as lotNum, " +
                 "  s.SKU_NAME as skuName,count(*) as num,sum(j.QTY) as qty, max(j.CREATEDATE) as dateTime " +
-                "  from JOBLOG j,SKU s,INVENTORY i where j.SKUCODE=s.SKU_CODE and s.SKU_CODE=i.SKUCODE and i.SKUCODE=j.SKUCODE " +
+                "  from JOBLOG j,SKU s where j.SKUCODE=s.SKU_CODE  " +
                 "  and j.CREATEDATE >=  :beginDate  and j.CREATEDATE <= :endDate and type=:type " +
-                "  group by j.SKUCODE,s.SKU_NAME,i.LOT_NUM) a  order by a.dateTime desc ");
+                "  group by j.SKUCODE,s.SKU_NAME,j.LOTNUM) a  order by a.dateTime desc ");
 
         Query query3 = session.createSQLQuery(sb3.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         query3.setString("beginDate",beginDate);
@@ -420,11 +420,11 @@ public class FindOutOrInWarehouseService {
 
         //查询sheet4，出库明细表，按照用户输入时间，若无，默认当天零点到当先时间
         StringBuffer sb4 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ,a.qty as qty," +
-                "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,i.LOT_NUM as lotNum, " +
+                "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,j.LOTNUM as lotNum, " +
                 "  s.SKU_NAME as skuName,count(*) as num,sum(j.QTY) as qty, max(j.CREATEDATE) as dateTime " +
-                "  from JOBLOG j,SKU s,INVENTORY i where j.SKUCODE=s.SKU_CODE and s.SKU_CODE=i.SKUCODE and i.SKUCODE=j.SKUCODE " +
+                "  from JOBLOG j,SKU s where j.SKUCODE=s.SKU_CODE  " +
                 "  and j.CREATEDATE >=  :beginDate  and j.CREATEDATE <= :endDate and type=:type " +
-                "  group by j.SKUCODE,s.SKU_NAME,i.LOT_NUM) a  order by a.dateTime desc");
+                "  group by j.SKUCODE,s.SKU_NAME,j.LOTNUM) a  order by a.dateTime desc");
         Query query4 = session.createSQLQuery(sb4.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         query4.setString("beginDate",beginDate);
         query4.setString("endDate",endDate);
