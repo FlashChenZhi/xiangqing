@@ -85,7 +85,19 @@ div.seatCharts-seat.reservedIn {
 	background-color: #de318d;
 	cursor: not-allowed;
 }
+div.seatCharts-seat.reservedCheck {
+	background-color: #2e11ff;
+	cursor: not-allowed;
+}
+div.seatCharts-seat.fromLocation {
+	background-color: #feff7e;
+	cursor: not-allowed;
+}
 
+div.seatCharts-seat.toLocation {
+	background-color: #fff01a;
+	cursor: not-allowed;
+}
 
 
 
