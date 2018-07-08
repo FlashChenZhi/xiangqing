@@ -32,9 +32,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.JDBCConnectionException;
+import org.hibernate.transform.ResultTransformer;
+import org.hibernate.transform.Transformers;
 import sun.plugin2.message.JavaObjectOpMessage;
 
 import javax.persistence.*;
+import javax.xml.transform.Transformer;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -166,13 +169,13 @@ public class LoadUnitAtID extends XMLProcess {
             Location newLocation;
             Station station1301 = Station.getStation("1301");
             Station station1302 = Station.getStation("1302");
-            if(station1301.getDirection().equals(StationMode.RETRIEVAL) && station1302.getDirection().equals(StationMode.PUTAWAY)){
+            if(station1301.getDirection().equals(StationMode.RETRIEVAL2) && station1302.getDirection().equals(StationMode.PUTAWAY)){
                 throw new Exception("存在交叉路径" );
             }
             if("1101".equals(stationNo)){
                 //入库站台为1101时
                 //判断1301状态
-                String po = station1301.getDirection().equals(StationMode.RETRIEVAL)? "2" : station1301.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
+                String po = station1301.getDirection().equals(StationMode.RETRIEVAL2)? "2" : station1301.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
                 if(!po.equals("99")){
                     newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
                 }else{
@@ -181,7 +184,7 @@ public class LoadUnitAtID extends XMLProcess {
             }else {
                 //入库站台为1102时
                 //判断1302的状态
-                String po = station1302.getDirection().equals(StationMode.RETRIEVAL)? "2" : station1302.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
+                String po = station1302.getDirection().equals(StationMode.RETRIEVAL2)? "2" : station1302.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
                 if(!po.equals("99")){
                     newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
                 }else{
@@ -286,10 +289,25 @@ public class LoadUnitAtID extends XMLProcess {
         }else{
             throw new Exception("托盘号已存在");
         }
-
-
-
         return job;
+    }
+
+    public List<Integer> findLevelOrder(String po) throws Exception{
+        Session session = HibernateUtil.getCurrentSession();
+        List<Integer> list = new ArrayList<>();
+        List<String> typeList = new ArrayList<>();
+        typeList.add(AsrsJobType.CHANGELEVEL);
+        typeList.add(AsrsJobType.RECHARGED);
+        typeList.add(AsrsJobType.RECHARGEDOVER);
+        Query query = HibernateUtil.getCurrentSession().createSQLQuery(
+                "select count(*) as count,m.level from MCar m,AsrsJob a where not exists( " +
+                "select 1 from AsrsJob b where (b.toStation=m.blockNo or b.fromStation=m.blockNo) and type in(:types) ) " +
+                "and a.toStation=m.blockNo and a.type=:putType and m.position=:po group by m.level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setParameter("putType",AsrsJobType.PUTAWAY);
+        query.setParameterList("types",typeList);
+        query.setParameter("po",po);
+
+        return list;
     }
 
 }

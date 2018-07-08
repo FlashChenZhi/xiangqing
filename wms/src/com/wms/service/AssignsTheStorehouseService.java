@@ -71,16 +71,15 @@ public class AssignsTheStorehouseService {
                             ",( " +
                             "select a.id as id ,a.BANK,a.BAY from Location a , " +
                             "(select max(seq) as seq,bay,POSITION,AREA " +
-                            "from LOCATION where empty=0 and lev=:level   and PUTAWAYRESTRICTED=0 and " +
+                            "from LOCATION where empty=0 and lev=:level   and " +
                             "RETRIEVALRESTRICTED=0 and ABNORMAL =0 group by bay,POSITION,AREA " +
                             ") b " +
                             "where a.seq=b.seq and a.bay = b.bay and " +
-                            "a.position = b.position and a.area = b.area and a.lev=:level and PUTAWAYRESTRICTED=0 and " +
+                            "a.position = b.position and a.area = b.area and a.lev=:level and  " +
                             "RETRIEVALRESTRICTED=0 and ABNORMAL =0 and  not exists( " +
                             "select 1 from Location l where l.bay=a.bay and " +
                             "l.area=a.area and l.lev =a.lev " +
-                            "and  l.position=a.position and l.seq < a.seq and " +
-                            " l.seq > a.seq and l.reserved = 1 " +
+                            "and  l.position=a.position and l.seq < a.seq  and l.reserved = 1 " +
                             "  ) " +
                             ") e  where i.CONTAINERID=d.ID and e.ID = d.LOCATIONID and d.RESERVED=0 ");
             if(StringUtils.isNotBlank(productId)){

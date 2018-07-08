@@ -13,6 +13,7 @@ public class StationMode {
 
     public static final String PUTAWAY = "01";//入库
     public static final String RETRIEVAL = "03";//出库
+    public static final String RETRIEVAL2 = "02";//出库
     public static final String UNKNOWN = "09";//NG
     public static final Map MAP = new HashMap();
     public static final Map<String, String> stationMap = new HashMap<String, String>();

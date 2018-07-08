@@ -72,7 +72,7 @@ public class Msg42Proc implements MsgProcess {
                 Station station = Station.getStation(message42.Station);
                 station.setType(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
                 station.setMode(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
-                station.setDirection(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
+                station.setDirection(message42.Mode.equals(StationMode.PUTAWAY) ? StationMode.PUTAWAY : StationMode.RETRIEVAL2);
             }
 
             Transaction.commit();

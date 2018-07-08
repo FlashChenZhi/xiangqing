@@ -455,7 +455,7 @@ let AssignsTheStorehouse = React.createClass({
                         </Col>
 
                         <Col lg={15}>
-                            <br/><br/><br/>
+                            <br/><br/><br/><br/>
                             <div id="legend1" className={'legend'}></div>
                             <div id="legend2" className={'legend'}></div>
                             <div id="legend3" className={'legend'}></div>
@@ -463,7 +463,7 @@ let AssignsTheStorehouse = React.createClass({
 
                         </Col>
                         <Col lg={3}>
-                            <div id="Info1" style={{paddingLeft:"50px",fontWeight: "bold"}}>
+                            <div id="Info1" style={{paddingLeft:"10px",fontWeight: "bold"}}>
                                 <span >货位状态：{this.state.msg}</span><br/>
                                 <span >位置信息：{this.state.locationInfo}</span><br/>
                                 <span >商品数量：{this.state.qty}</span>

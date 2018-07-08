@@ -66,7 +66,8 @@ public class PlcConnection
                   {
                         _socket.setReceiveBufferSize(RECEIVED_BUFFER_SIZE);
                         _socket.setSendBufferSize(SEND_BUFFER_SIZE);
-                        _socket.connect(address);
+                        //_socket.connect(address);
+                        _socket.connect(address,2000);
                         _reader = new DataInputStream(new BufferedInputStream(_socket.getInputStream()));
                         _writer = new DataOutputStream(_socket.getOutputStream());
                   }

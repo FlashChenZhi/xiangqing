@@ -97,7 +97,7 @@ public class StationStatusChangeServie {
                             stationReturnObj.setMsg("存在1102到1巷道的任务，不能启用"+stationNo+"！");
                         }else{
                             station.setStatus(true);
-                            send40("1302",StationMode.RETRIEVAL);
+                            send40("1302",StationMode.RETRIEVAL2);
                             stationReturnObj.setSuccess(true);
                             stationReturnObj.setMsg("启用成功，已发送1302切换模式命令！");
                         }
@@ -168,7 +168,7 @@ public class StationStatusChangeServie {
             Transaction.begin();
             Map<String,String> swerveMap = new HashMap<>();
             swerveMap.put("01", "1巷道");
-            swerveMap.put("03", "2巷道");
+            swerveMap.put("02", "2巷道");
 
             Session session = HibernateUtil.getCurrentSession();
             Query query1 = session.createQuery("select s.stationNo as stationNo,case s.mode when '01' then " +
@@ -200,7 +200,7 @@ public class StationStatusChangeServie {
                             map.put("putAwayArea", swerveMap.get(station1.getDirection()));
                         }else{
                             Station station1302 = Station.getStation("1302");
-                            if(StationMode.RETRIEVAL.equals(station1302.getDirection())){
+                            if(StationMode.RETRIEVAL2.equals(station1302.getDirection())){
                                 map.put("putAwayArea", "2巷道");
                             }else{
                                 map.put("putAwayArea", "入库路径冲突");

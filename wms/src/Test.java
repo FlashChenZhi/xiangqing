@@ -1,3 +1,4 @@
+import com.asrs.business.consts.AsrsJobType;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
@@ -19,31 +20,35 @@ import java.util.Map;
  */
 public class Test {
     public static void main(String[] args) {
-        Transaction.begin();
-        Session session = HibernateUtil.getCurrentSession();
-//        int startIndex=1,  defaultPageSize=1;
-//        String productId="";
-//        StringBuffer sb1 = new StringBuffer("select * from (select a.id as id,a.skuCode as skuCode,a.skuName as skuName, " +
-//                " a.qty as qty, a.STORE_DATE+' '+a.STORE_TIME as dateTime,'入库' as type from INVENTORY a where 1=1   ");
-//        StringBuffer sb2 = new StringBuffer("select count(*) from INVENTORY  a where  1=1  ");
-//        StringBuffer sb3 = new StringBuffer("select count(*) from RETRIEVAL_RESULT r where 1=1");
-//        sb1 = getSqlAfter(sb1, productId, beginDate, endDate);
-//        sb2 = getSqlAfter(sb2, productId, beginDate, endDate);
-//
-//        sb1.append(" union all");
-//        sb1.append(" select  r.ID as id,r.SKU_CODE as skuCode,r.SKU_NAME as skuName,r.QTY as qty , " +
-//                " r.RETRIEVAL_DATE+' '+r.RETRIEVAL_TIME as dateTime, '出库' as type from RETRIEVAL_RESULT r  where 1=1  ");
-//        sb1 = getSql2After(sb1, productId, beginDate, endDate);
-//        sb3 = getSql2After(sb3, productId, beginDate, endDate);
-//        sb1.append(" ) c order by c.dateTime desc ");
-//        Query query1 = session.createSQLQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-//        Query query2 = session.createSQLQuery(sb2.toString());
-//        Query query3 = session.createSQLQuery(sb3.toString());
-//        query1.setFirstResult(startIndex);
-//        query1.setMaxResults(defaultPageSize);
-//
-//        List<Map<String,Object>> jobList = query1.list();
-        Transaction.commit();
+        try{
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+
+            List<String> typeList = new ArrayList<>();
+            typeList.add(AsrsJobType.CHANGELEVEL);
+            typeList.add(AsrsJobType.RECHARGED);
+            typeList.add(AsrsJobType.RECHARGEDOVER);
+
+            Query query = HibernateUtil.getCurrentSession().createQuery(
+                    "select count(*) as count, m.level as level from MCar m,AsrsJob a where not exists( " +
+                            "select 1 from AsrsJob b where (b.toStation=m.blockNo or b.fromStation=m.blockNo) and type in(:types) ) " +
+                            "and a.toStation=m.blockNo and a.type=:putType and m.position=:po group by m.level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+            query.setParameter("putType", AsrsJobType.PUTAWAY);
+            query.setParameterList("types",typeList);
+            query.setParameter("po","1");
+
+            List<Map<String,Object>> list =query.list();
+            if(list.size()>0){
+                System.out.println("11");
+            }else{
+                System.out.println("22");
+            }
+            Transaction.commit();
+        }catch (Exception e){
+            Transaction.rollback();
+            e.printStackTrace();
+        }
+
     }
 
     //1到8排

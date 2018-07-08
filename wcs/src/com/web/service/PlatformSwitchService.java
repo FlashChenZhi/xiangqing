@@ -47,19 +47,19 @@ public class PlatformSwitchService {
             if(station.getMode().equals(StationMode.PUTAWAY)){
                 mapPut01.put("direction", "01");
                 mapPut01.put("name", "1巷道");
-                mapPut03.put("direction", "03");
+                mapPut03.put("direction", "02");
                 mapPut03.put("name", "2巷道");
             }else{
                 //若为出库站台
                 if("1201".equals(station.getStationNo()) || "1202".equals(station.getStationNo())){
                     mapPut01.put("direction", "01");
                     mapPut01.put("name", "2巷道");
-                    mapPut03.put("direction", "03");
+                    mapPut03.put("direction", "02");
                     mapPut03.put("name", "1,2巷道");
                 }else{
                     mapPut01.put("direction", "01");
                     mapPut01.put("name", "1,2巷道");
-                    mapPut03.put("direction", "03");
+                    mapPut03.put("direction", "02");
                     mapPut03.put("name", "1巷道");
                 }
             }
@@ -104,10 +104,10 @@ public class PlatformSwitchService {
                         //站台是1301
                         Station station1302=Station.getStation("1302");
                         Station station1101=Station.getStation("1101");
-                        if(station1302.getDirection().equals(StationMode.PUTAWAY) && StationMode.RETRIEVAL.equals(direction)){
+                        if(station1302.getDirection().equals(StationMode.PUTAWAY) && StationMode.RETRIEVAL2.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg("路径交叉不能切换");
-                        }else if(station1101.isStatus() && StationMode.RETRIEVAL.equals(direction)){
+                        }else if(station1101.isStatus() && StationMode.RETRIEVAL2.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg(station1101.getStationNo()+"启用状态，不能将"+station.getStationNo()+"其转向2巷道");
 
@@ -125,8 +125,10 @@ public class PlatformSwitchService {
                                     returnObj.setMsg("存在1101向2巷道的入库任务，不能切换为转向1巷道");
                                 }else{
                                     send40(stationNo,direction);
+                                    returnObj.setSuccess(true);
+                                    returnObj.setMsg("已发送切换命令");
                                 }
-                            }else if(StationMode.RETRIEVAL.equals(direction)){
+                            }else if(StationMode.RETRIEVAL2.equals(direction)){
                                 //想将1301转向2巷道
                                 long count1=(long)session.createQuery("select count(*) from AsrsJob aj where (aj.fromStation =:fromStation " +
                                         "or aj.fromStation =:fromStation2) and aj.toStation in (:toStation)  and aj.type =:type ").
@@ -140,6 +142,8 @@ public class PlatformSwitchService {
                                     returnObj.setMsg("存在1101或1102向1巷道的入库任务，不能切换为转向2巷道");
                                 }else{
                                     send40(stationNo,direction);
+                                    returnObj.setSuccess(true);
+                                    returnObj.setMsg("已发送切换命令");
                                 }
                             }
                         }
@@ -147,7 +151,7 @@ public class PlatformSwitchService {
                         //站台是1302
                         Station station1301=Station.getStation("1301");
                         Station station1102=Station.getStation("1102");
-                        if(station1301.getDirection().equals(StationMode.RETRIEVAL) && StationMode.PUTAWAY.equals(direction)){
+                        if(station1301.getDirection().equals(StationMode.RETRIEVAL2) && StationMode.PUTAWAY.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg("路径交叉不能切换");
                         }else if(station1102.isStatus() && StationMode.PUTAWAY.equals(direction)){
@@ -155,7 +159,7 @@ public class PlatformSwitchService {
                             returnObj.setMsg(station1102.getStationNo()+"启用状态，不能将"+station.getStationNo()+"其转向1巷道");
 
                         }else{
-                            if(StationMode.RETRIEVAL.equals(direction)){
+                            if(StationMode.RETRIEVAL2.equals(direction)){
                                 //想将1302转向2巷道
                                 long count1=(long)session.createQuery("select count(*) from AsrsJob aj where aj.fromStation =:fromStation and " +
                                         "aj.toStation in (:toStation)  and aj.type =:type ").
@@ -168,6 +172,8 @@ public class PlatformSwitchService {
                                     returnObj.setMsg("存在1102向1巷道的入库任务，不能切换为转向2巷道");
                                 }else{
                                     send40(stationNo,direction);
+                                    returnObj.setSuccess(true);
+                                    returnObj.setMsg("已发送切换命令");
                                 }
                             }else if(StationMode.PUTAWAY.equals(direction)){
                                 //想将1301转向1巷道
@@ -183,12 +189,14 @@ public class PlatformSwitchService {
                                     returnObj.setMsg("存在1101或1102向2巷道的入库任务，不能切换为转向1巷道");
                                 }else{
                                     send40(stationNo,direction);
+                                    returnObj.setSuccess(true);
+                                    returnObj.setMsg("已发送切换命令");
                                 }
                             }
                         }
                     }else if(conveyor.getStationNo().equals("1303")) {
                         //站台是1303
-                        if (StationMode.RETRIEVAL.equals(direction)) {
+                        if (StationMode.RETRIEVAL2.equals(direction)) {
                             //想将1302转向2巷道
                             long count1 = (long) session.createQuery("select count(*) from AsrsJob aj where aj.fromStation in (:fromStation) and " +
                                     "(aj.toStation =:toStation or aj.toStation =:toStation2)  and aj.type =:type ").
@@ -202,6 +210,8 @@ public class PlatformSwitchService {
                                 returnObj.setMsg("存在2巷道向1204或1206的出库任务，不能切换为转向2巷道");
                             } else {
                                 send40(stationNo, direction);
+                                returnObj.setSuccess(true);
+                                returnObj.setMsg("已发送切换命令");
                             }
                         } else if (StationMode.PUTAWAY.equals(direction)) {
                             //想将1301转向1巷道
@@ -216,6 +226,8 @@ public class PlatformSwitchService {
                                 returnObj.setMsg("存在1巷道向1202的出库任务，不能切换为转向1巷道");
                             } else {
                                 send40(stationNo, direction);
+                                returnObj.setSuccess(true);
+                                returnObj.setMsg("已发送切换命令");
                             }
                         }
 
