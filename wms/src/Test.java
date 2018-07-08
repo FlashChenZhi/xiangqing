@@ -29,10 +29,10 @@ public class Test {
             typeList.add(AsrsJobType.RECHARGED);
             typeList.add(AsrsJobType.RECHARGEDOVER);
 
-            Query query = HibernateUtil.getCurrentSession().createQuery(
-                    "select count(*) as count, m.level as level from MCar m,AsrsJob a where not exists( " +
+            Query query = HibernateUtil.getCurrentSession().createSQLQuery(
+                    "select count(*) as count, m.level as level from MCar m left join AsrsJob a on a.toStation=m.blockNo where not exists( " +
                             "select 1 from AsrsJob b where (b.toStation=m.blockNo or b.fromStation=m.blockNo) and type in(:types) ) " +
-                            "and a.toStation=m.blockNo and a.type=:putType and m.position=:po group by m.level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+                            "and  a.type=:putType and m.position=:po group by m.level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             query.setParameter("putType", AsrsJobType.PUTAWAY);
             query.setParameterList("types",typeList);
             query.setParameter("po","1");

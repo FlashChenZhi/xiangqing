@@ -268,15 +268,15 @@ public class FindOutOrInWarehouseService {
                 //设置单元格宽度
                 for(int j = 0;j<6;j++){
                     if(j==4){
-                        sheet.setColumnView(j, 20);
+                        sheet.setColumnView(j, 25);
                     }else{
-                        sheet.setColumnView(j, 36);
+                        sheet.setColumnView(j, 15);
                     }
                 }
                 sheet.setRowView(0, 600);
                 sheet.setRowView(1, 600);
                 // 合并单元格    (开始列, 开始行, 结束列, 结束行)
-                sheet.mergeCells(0, 1, 2, 1);
+                sheet.mergeCells(0, 1, 3, 1);
                 if(i==0){
                     // 合并单元格  (开始列, 开始行, 结束列, 结束行)
                     sheet.mergeCells(0, 0, 5, 0);
@@ -285,13 +285,13 @@ public class FindOutOrInWarehouseService {
                 }else if(i==1){
                     // 合并单元格    (开始列, 开始行, 结束列, 结束行)
                     sheet.mergeCells(0, 0, 6, 0);
-                    sheet.addCell(new Label(6, 2, "批号"));
+                    sheet.addCell(new Label(5, 2, "批号"));
                     //添加第二行标题
                     sheet.addCell(new Label(0, 1, "时间："+currentDate,format2));
                 }else{
                     // 合并单元格    (开始列, 开始行, 结束列, 结束行)
                     sheet.mergeCells(0, 0, 6, 0);
-                    sheet.addCell(new Label(6, 2, "批号"));
+                    sheet.addCell(new Label(5, 2, "批号"));
                     //添加第二行标题
                     sheet.addCell(new Label(0, 1, "期间："+beginDate+"——"+endDate,format2));
                 }
@@ -310,12 +310,12 @@ public class FindOutOrInWarehouseService {
                         sheet.addCell(new Label(0, j+3, k+"",format));
                         sheet.addCell(new Label(1, j+3, (String)dataMap.get("skuCode"),format));
                         sheet.addCell(new Label(2, j+3, (String)dataMap.get("skuName"),format));
-                        sheet.addCell(new Label(3, j+3, (String)dataMap.get("qty"),format));
+                        sheet.addCell(new Label(3, j+3, dataMap.get("qty").toString(),format));
                         if(i==0){
-                            sheet.addCell(new Label(5, j+3, (String)dataMap.get("dateTime"),format));
+                            sheet.addCell(new Label(4, j+3, (String)dataMap.get("dateTime"),format));
                         }else{
-                            sheet.addCell(new Label(5, j+3, sdf.format((Date)dataMap.get("dateTime")),format));
-                            sheet.addCell(new Label(6, j+3, (String)dataMap.get("lotNum"),format));
+                            sheet.addCell(new Label(4, j+3, sdf.format((Date)dataMap.get("dateTime")),format));
+                            sheet.addCell(new Label(5, j+3, (String)dataMap.get("lotNum"),format));
                         }
                     }
                 }else{
@@ -328,7 +328,7 @@ public class FindOutOrInWarehouseService {
                         sheet.addCell(new Label(0, k+j+3, z+"",format));
                         sheet.addCell(new Label(1, k+j+3, (String)dataMap0.get("skuCode"),format));
                         sheet.addCell(new Label(2, k+j+3, (String)dataMap0.get("skuName"),format));
-                        sheet.addCell(new Label(3, k+j+3, (String)dataMap0.get("qty"),format));
+                        sheet.addCell(new Label(3, k+j+3, dataMap0.get("qty").toString(),format));
                         sheet.addCell(new Label(4, k+j+3, ""+dataMap0.get("dateTime"),format));
                         for(int h =0;h<datalist.size();h++){
                             Map<String,Object> dataMap = datalist.get(h);
@@ -337,10 +337,9 @@ public class FindOutOrInWarehouseService {
                                 sheet.addCell(new Label(0, k+j+3, z+"",format));
                                 sheet.addCell(new Label(1, k+j+3, "",format));
                                 sheet.addCell(new Label(2, k+j+3, "",format));
-                                sheet.addCell(new Label(3, k+j+3, "",format));
-                                sheet.addCell(new Label(4, k+j+3, ""+dataMap.get("qty"),format));
-                                sheet.addCell(new Label(5, k+j+3, (String)dataMap.get("dateTime"),format));
-                                sheet.addCell(new Label(6, k+j+3, (String)dataMap.get("lotNum"),format));
+                                sheet.addCell(new Label(3, k+j+3, dataMap.get("qty").toString(),format));
+                                sheet.addCell(new Label(4, k+j+3, (String)dataMap.get("dateTime"),format));
+                                sheet.addCell(new Label(5, k+j+3, (String)dataMap.get("lotNum"),format));
                             }
                         }
                     }
@@ -393,7 +392,7 @@ public class FindOutOrInWarehouseService {
         Session session = HibernateUtil.getCurrentSession();
         List<List<Map<String,Object>>> list = new ArrayList<>();
         //查询sheet1，库存汇总表,当前时间
-        StringBuffer sb1 = new StringBuffer("select a.SKUCODE as skuCode,a.SKUCODE as skuName,SUM(a.QTY) as qty,max(a.STORE_DATE+' '+a.STORE_TIME) as dateTime " +
+        StringBuffer sb1 = new StringBuffer("select a.SKUCODE as skuCode,a.SKUNAME as skuName,SUM(a.QTY) as qty,max(a.STORE_DATE+' '+a.STORE_TIME) as dateTime " +
                 " from Inventory a,Sku s where a.SKUCODE=s.SKU_CODE  group by a.SKUCODE,a.SKUNAME");
         Query query1 = session.createSQLQuery( sb1.toString()).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         List<Map<String,Object>> list1 = query1.list();
@@ -406,7 +405,7 @@ public class FindOutOrInWarehouseService {
         List<Map<String,Object>> list2 = query2.list();
 
         //查询sheet3，入库明细表，按照用户输入时间，若无，默认当天零点到当先时间
-        StringBuffer sb3 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ," +
+        StringBuffer sb3 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ,a.qty as qty ," +
                 "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,i.LOT_NUM as lotNum, " +
                 "  s.SKU_NAME as skuName,count(*) as num,sum(j.QTY) as qty, max(j.CREATEDATE) as dateTime " +
                 "  from JOBLOG j,SKU s,INVENTORY i where j.SKUCODE=s.SKU_CODE and s.SKU_CODE=i.SKUCODE and i.SKUCODE=j.SKUCODE " +
@@ -420,7 +419,7 @@ public class FindOutOrInWarehouseService {
         List<Map<String,Object>> list3 = query3.list();
 
         //查询sheet4，出库明细表，按照用户输入时间，若无，默认当天零点到当先时间
-        StringBuffer sb4 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ," +
+        StringBuffer sb4 = new StringBuffer("select a.id as id,a.skuCode as skuCode,a.skuName as skuName, a.num as num ,a.qty as qty," +
                 "  a.dateTime as dateTime,a.lotNum as lotNum from (select max(J.ID) as id,j.SKUCODE as skuCode,i.LOT_NUM as lotNum, " +
                 "  s.SKU_NAME as skuName,count(*) as num,sum(j.QTY) as qty, max(j.CREATEDATE) as dateTime " +
                 "  from JOBLOG j,SKU s,INVENTORY i where j.SKUCODE=s.SKU_CODE and s.SKU_CODE=i.SKUCODE and i.SKUCODE=j.SKUCODE " +
