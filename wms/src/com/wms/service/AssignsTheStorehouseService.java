@@ -1,7 +1,9 @@
 package com.wms.service;
 
 import com.asrs.Mckey;
+import com.asrs.business.consts.AsrsJobStatus;
 import com.asrs.business.consts.AsrsJobType;
+import com.asrs.business.consts.StationMode;
 import com.util.common.Const;
 import com.util.common.LogMessage;
 import com.util.common.ReturnObj;
@@ -283,7 +285,7 @@ public class AssignsTheStorehouseService {
         String location="";
         Session session = HibernateUtil.getCurrentSession();
         for(int i =0;i<list.size();i++){
-            Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=(select blockNo from Block where stationNo=:stationNo))").setString("stationNo",list1.get(1)+"");
+           /* Query query1 = session.createSQLQuery("(select count(*) from AsrsJob where toStation=(select blockNo from Block where stationNo=:stationNo))").setString("stationNo",list1.get(1)+"");
             List<Integer> list2 = query1.list();
             int count=20;
             if((list.size()>(count-(list2.get(0))))||list.size()>count){
@@ -291,7 +293,7 @@ public class AssignsTheStorehouseService {
                 s.setSuccess(false);
                 s.setMsg("该出库口没有足够存位");
                 return s;
-            }
+            }*/
             location = list.get(i);
             //按照Container中的reserved判断
 
@@ -308,34 +310,73 @@ public class AssignsTheStorehouseService {
             Container container =(Container) query.uniqueResult();
             if(container!=null){
                 String stationNo=list1.get(1);
-                Query query2 ;
-                if(stations.get("1").contains(stationNo)){
-                    query2=session.createQuery("select blockNo from Block where stationNo IN (:s)").setParameterList("s",stations.get("1"));
-                }else {
-                    query2=session.createQuery("select blockNo from Block where stationNo IN (:s,:ss)").setParameterList("s",stations.get("2")).setParameterList("ss",stations.get("3"));
-                }
-                List<String> list3 = query2.list();
-                Query query3 = session.createQuery("select fromLocation from AsrsJob a where  a.type=03 and toStation  IN (:s) ").setParameterList("s",list3);
-                List<String> list4 = query3.list();
-                if(list4.size()>0){
-                    Location byLocationNo = Location.getByLocationNo(location);
-                    for(int j=0 ; j<list4.size();j++){
-                        Location byLocationNo1 = Location.getByLocationNo(list4.get(j));
-                        if(!byLocationNo.getPosition().equals(byLocationNo1.getPosition())){
+                Location location1 = Location.getByLocationNo(location);
+                Station station1303 = Station.getStation("1303");
+                if("1".equals(location1.getPosition())){
+                    if("1201".equals(stationNo) || "1202".equals(stationNo) ){
+                        List listToStaions= new ArrayList<>();
+                        listToStaions.add("1203");
+                        listToStaions.add("1204");
+                        listToStaions.add("1205");
+                        listToStaions.add("1206");
+                        Query query2 = session.createQuery("select count(*) as count from AsrsJob a ,Location l where " +
+                                "a.toStation in (:toStations) and a.fromLocation=l.locationNo and l.position=:position and a.status !=:status");
+                        query2.setParameterList("toStations",listToStaions);
+                        query2.setParameter("position","2");
+                        query2.setParameter("status", AsrsJobStatus.DONE);
+                        long toStationCount = (long)query2.uniqueResult();
+                        if(toStationCount==0){
+                            if (!StationMode.RETRIEVAL2.equals(station1303.getDirection())){
+                                Transaction.rollback();
+                                s.setSuccess(false);
+                                s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo+",请切换"+stationNo+"负责巷道");
+                                return s;
+                            }
+                        }else{
                             Transaction.rollback();
                             s.setSuccess(false);
-                            s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                            s.setMsg("存在路径冲入不能出到"+stationNo);
+                            return s;
+                        }
+
+                    }
+                }else if("2".equals(location1.getPosition())){
+                    if("1201".equals(stationNo) || "1202".equals(stationNo) ){
+
+                    }else{
+                        List listToStaions= new ArrayList<>();
+                        listToStaions.add("1201");
+                        listToStaions.add("1202");
+                        Query query2 = session.createQuery("select count(*) as count from AsrsJob a ,Location l where " +
+                                "a.toStation in (:toStations) and a.fromLocation=l.locationNo and l.position=:position and a.status !=:status");
+                        query2.setParameterList("toStations",listToStaions);
+                        query2.setParameter("position","1");
+                        query2.setParameter("status", AsrsJobStatus.DONE);
+                        long toStationCount = (long)query2.uniqueResult();
+                        if(toStationCount==0) {
+                            if (!StationMode.PUTAWAY.equals(station1303.getDirection())) {
+                                Transaction.rollback();
+                                s.setSuccess(false);
+                                s.setMsg("货位：" + location + "无法抵达" + "出库站台：" + stationNo + ",请切换" + stationNo + "负责巷道");
+                                return s;
+                            }
+                        }else{
+                            Transaction.rollback();
+                            s.setSuccess(false);
+                            s.setMsg("存在路径冲入不能出到"+stationNo);
                             return s;
                         }
                     }
                 }
+
                 boolean b = outKu(session, location, stationNo);
                 if(!b){
                     Transaction.rollback();
                     s.setSuccess(false);
                     s.setMsg("货位："+location+"无法抵达"+"出库站台："+stationNo);
+                    return s;
                 }else {
-                    s.setMsg("设定出库成功,出库口剩余："+(count-(list2.get(0)+list.size())));
+                    s.setMsg("设定出库成功");
                     s.setSuccess(true);
                 }
             }else{

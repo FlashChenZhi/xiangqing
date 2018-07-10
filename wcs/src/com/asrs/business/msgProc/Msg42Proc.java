@@ -65,13 +65,13 @@ public class Msg42Proc implements MsgProcess {
 
             if (message42.Mode.equals("00")) {
                 Station station = Station.getStation(message42.Station);
-                station.setType(station.getOldMode());
+                //station.setType(station.getOldMode());
                 station.setMode(station.getOldMode());
             } else {
 
                 Station station = Station.getStation(message42.Station);
-                station.setType(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
-                station.setMode(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
+                //station.setType(message42.Mode.equals(StationMode.PUTAWAY) ? AsrsJobType.PUTAWAY : AsrsJobType.RETRIEVAL);
+                station.setMode(message42.Mode.equals(StationMode.PUTAWAY) ? StationMode.PUTAWAY : StationMode.RETRIEVAL2);
                 station.setDirection(message42.Mode.equals(StationMode.PUTAWAY) ? StationMode.PUTAWAY : StationMode.RETRIEVAL2);
             }
 
