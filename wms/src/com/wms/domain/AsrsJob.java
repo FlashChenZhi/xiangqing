@@ -1,5 +1,6 @@
 package com.wms.domain;
 
+import com.asrs.business.consts.AsrsJobType;
 import com.wms.domain.blocks.WcsMessage;
 import org.hibernate.*;
 import com.util.hibernate.HibernateUtil;
@@ -333,6 +334,13 @@ public class AsrsJob {
         for(WcsMessage wm : wms){
             session.delete(wm);
         }
+    }
+
+    public static AsrsJob getAsrsJobByRetrievalTypeAndFromStation(String fromStation) {
+        Session session = HibernateUtil.getCurrentSession();
+        Query q = session.createQuery("from AsrsJob aj where aj.fromStation=:fromStation and aj.type=:type")
+                .setString("fromStation", fromStation).setString("type", AsrsJobType.RETRIEVAL).setMaxResults(1);
+        return (AsrsJob) q.uniqueResult();
     }
 }
 

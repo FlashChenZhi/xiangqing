@@ -66,11 +66,11 @@ const SlideMenu = React.createClass({
                                 <Icon type="setting"/><span className="nav-text">消息发送</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='6'>
+                        {/*<Menu.Item key='6'>
                             <Link to='SystemLogQuery'>
                                 <Icon type="setting"/><span className="nav-text">日志查询</span>
                             </Link>
-                        </Menu.Item>
+                        </Menu.Item>*/}
                         {/*<Menu.Item key='7'>
                             <Link to='TransferPanel'>
                                 <Icon type="setting"/><span className="nav-text">移库</span>
@@ -81,29 +81,37 @@ const SlideMenu = React.createClass({
                                 {/*<Icon type="setting"/><span className="nav-text">入库</span>*/}
                             {/*</Link>*/}
                         {/*</Menu.Item>*/}
-                        <Menu.Item key='9'>
-                            <Link to='StationStatusSwitch'>
-                                <Icon type="setting"/><span className="nav-text">出入库状态切换</span>
-                            </Link>
-                        </Menu.Item>
+
                             {/*<Menu.Item key='10'>
                                 <Link to='PlatformSwitch'>
                                     <Icon type="setting"/><span className="nav-text">出库模式切换</span>
                                 </Link>
                             </Menu.Item>*/}
-                        <Menu.Item key='11'>
+
+                    </SubMenu>
+                    <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
+                        <Menu.Item key='1'>
+                            <Link to='SkuLotNum'>
+                                <Icon type="setting"/><span className="nav-text">入库批次管理</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='2'>
+                            <Link to='StationStatusSwitch'>
+                                <Icon type="setting"/><span className="nav-text">出入库状态切换</span>
+                            </Link>
+                        </Menu.Item>
+
+                        <Menu.Item key='3'>
                             <Link to='FindInventory'>
                                 <Icon type="solution" /><span className="nav-text">库存展示</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='12'>
+                        <Menu.Item key='4'>
                             <Link to='FindOutOrInWarehouse'>
                                 <Icon type="setting"/><span className="nav-text">出入库查询</span>
                             </Link>
                         </Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
-                        <Menu.Item key='12'>
+                        <Menu.Item key='5'>
                             <Link to='AssignsTheStorehouse'>
                                 <Icon type="solution" /><span className="nav-text">定点出库</span>
                             </Link>

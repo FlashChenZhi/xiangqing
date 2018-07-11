@@ -369,9 +369,7 @@ let AssignsTheStorehouse = React.createClass({
      },
     handleReset(e) {
         this.props.form.resetFields();
-        for(let i =1;i<5;i++){
-            this.getStorageLocationData(i);
-        }
+        window.location.reload();
     },
     tabCallback(key){
         console.log(key);

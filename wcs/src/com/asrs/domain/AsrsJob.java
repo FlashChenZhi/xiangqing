@@ -358,5 +358,12 @@ public class AsrsJob {
             session.delete(wm);
         }
     }
+
+    public static AsrsJob getAsrsJobByRetrievalTypeAndFromStation(String fromStation) {
+        Session session = HibernateUtil.getCurrentSession();
+        Query q = session.createQuery("from AsrsJob aj where aj.fromStation=:fromStation and aj.type=:type")
+                .setString("fromStation", fromStation).setString("type", AsrsJobType.RETRIEVAL).setMaxResults(1);
+        return (AsrsJob) q.uniqueResult();
+    }
 }
 

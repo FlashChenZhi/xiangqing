@@ -118,7 +118,12 @@ public class Msg35ProcChangeLevelServiceImpl implements Msg35ProcService {
                     mCar.setMcKey(asrsJob.getMcKey());
                 }
             }else{
-                mCar.setGroupNo(Integer.valueOf(aj.getBarcode()));
+                AsrsJob asrsJob = AsrsJob.getAsrsJobByTypeAndFromStation(AsrsJobType.RECHARGED,mCar.getBlockNo());
+                if(asrsJob!=null){
+                    mCar.setMcKey(asrsJob.getMcKey());
+                }else{
+                    mCar.setGroupNo(Integer.valueOf(aj.getBarcode()));
+                }
             }
             aj.setStatus(AsrsJobStatus.DONE);
 

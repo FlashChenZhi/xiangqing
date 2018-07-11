@@ -142,7 +142,9 @@ public class AssignsTheStorehouseService {
                 map.put("bank", bank);
                 map.put("bay", bay);
                 map.put("level", level);
-                map.put("position", "2");
+                String locationNo = StringUtils.leftPad(bank, 3, "0")+ StringUtils.leftPad(bay, 3, "0")+ StringUtils.leftPad(level, 3, "0");
+                Location location = Location.getByLocationNo(locationNo);
+                map.put("position", location.getPosition());
                 map.put("status", false);
                 map.put("msg", "空货位");
             }else{
@@ -297,6 +299,7 @@ public class AssignsTheStorehouseService {
             location = list.get(i);
             //按照Container中的reserved判断
 
+
             Query query4 = session.createQuery("from AsrsJob where toLocation in (select l.locationNo from Location l,Location ll where l.level=ll.level and l.bay=ll.bay and l.position=ll.position and l.actualArea=ll.actualArea and  ll.locationNo=:locationNo)");
             List<AsrsJob> asrsJobs = query4.setString("locationNo", location).list();
             if(asrsJobs.size()>0){
@@ -312,6 +315,20 @@ public class AssignsTheStorehouseService {
                 String stationNo=list1.get(1);
                 Location location1 = Location.getByLocationNo(location);
                 Station station1303 = Station.getStation("1303");
+
+                Query query9= session.createQuery("select count(*) as count from AsrsJob a,Location l where a.fromLocation=l.locationNo and " +
+                        "a.type=:type and l.level !=:level and l.position=:position");
+                query9.setParameter("level", location1.getLevel());
+                query9.setParameter("position", location1.getPosition());
+                query9.setParameter("type", AsrsJobType.RETRIEVAL);
+                long count = (Long) query9.uniqueResult();
+                if(count!=0){
+                    Transaction.rollback();
+                    s.setSuccess(false);
+                    s.setMsg("此区域存在其他层出库任务");
+                    return s;
+                }
+
                 if("1".equals(location1.getPosition())){
                     if("1201".equals(stationNo) || "1202".equals(stationNo) ){
                         List listToStaions= new ArrayList<>();

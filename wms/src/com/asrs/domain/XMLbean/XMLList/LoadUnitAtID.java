@@ -40,10 +40,7 @@ import javax.persistence.*;
 import javax.xml.transform.Transformer;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -102,57 +99,57 @@ public class LoadUnitAtID extends XMLProcess {
     @Override
     public void execute() {
 
-            try {
-                Transaction.begin();
-                //Session session = HibernateUtil.getCurrentSession();
+        try {
+            Transaction.begin();
+            //Session session = HibernateUtil.getCurrentSession();
 
-                String barcode = dataArea.getScanData().replaceAll("_","");
-                String stationNo = dataArea.getXMLLocation().getMHA();
-                Station station = Station.getNormalStation(stationNo);
-                //ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
+            String barcode = dataArea.getScanData().replaceAll("_","");
+            String stationNo = dataArea.getXMLLocation().getMHA();
+            Station station = Station.getNormalStation(stationNo);
+            //ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
 
-                Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
-                        .setString("station",stationNo)
-                        .setString("waiting", AsrsJobStatus.WAITING)
-                        .setMaxResults(1);
-                Job job = (Job) jobQuery.uniqueResult();
-                if(station!=null && AsrsJobType.PUTAWAY.equals(station.getMode())) {
-                    if (job == null) {
-                        job=createJob(stationNo);
-                    }
-                    barcode=job.getContainer();
-                    //分配货位，并向队列中压入TransportOrder
-                    Location newLocation = getToLocation(stationNo,job,barcode);
-                    job.setToLocation(newLocation);
-                    job.setStatus(AsrsJobStatus.RUNNING);
-                }else {
-                    System.out.println("入库站台不是正常状态！");
+            Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
+                    .setString("station",stationNo)
+                    .setString("waiting", AsrsJobStatus.WAITING)
+                    .setMaxResults(1);
+            Job job = (Job) jobQuery.uniqueResult();
+            if(station!=null && AsrsJobType.PUTAWAY.equals(station.getMode())) {
+                if (job == null) {
+                    job=createJob(stationNo);
                 }
-
-
-
-                 /* job = new Job();
-                    job.setToLocation(newLocation);
-                    job.setMcKey(ri.getReferenceId());
-                    job.setStatus("1");
-                    job.setFromStation(fromLocation.getMHA());
-                    job.setContainer(barcode);
-                    job.setType("01");
-                    if(view == null || "1101".equals(stationNo)) {
-                        job.setSkuCode(Const.EMPTY_PALLET);
-                        job.setLotNum(Const.EMPTY_PALLET);
-                    }else{
-                        job.setSkuCode(view.getSkuID());
-                        job.setLotNum(view.getLotAttr05());
-                    }
-                    job.setToStation(mCar.getBlockNo());
-                    HibernateUtil.getCurrentSession().save(job);*/
-                Transaction.commit();
-            } catch (Exception e) {
-                Transaction.rollback();
-                LogWriter.error(LoggerType.XMLMessageInfo, e.getMessage());
-                e.printStackTrace();
+                barcode=job.getContainer();
+                //分配货位，并向队列中压入TransportOrder
+                Location newLocation = getToLocation(stationNo,job,barcode);
+                job.setToLocation(newLocation);
+                job.setStatus(AsrsJobStatus.RUNNING);
+            }else {
+                System.out.println("入库站台不是正常状态！");
             }
+
+
+
+             /* job = new Job();
+                job.setToLocation(newLocation);
+                job.setMcKey(ri.getReferenceId());
+                job.setStatus("1");
+                job.setFromStation(fromLocation.getMHA());
+                job.setContainer(barcode);
+                job.setType("01");
+                if(view == null || "1101".equals(stationNo)) {
+                    job.setSkuCode(Const.EMPTY_PALLET);
+                    job.setLotNum(Const.EMPTY_PALLET);
+                }else{
+                    job.setSkuCode(view.getSkuID());
+                    job.setLotNum(view.getLotAttr05());
+                }
+                job.setToStation(mCar.getBlockNo());
+                HibernateUtil.getCurrentSession().save(job);*/
+            Transaction.commit();
+        } catch (Exception e) {
+            Transaction.rollback();
+            LogWriter.error(LoggerType.XMLMessageInfo, e.getMessage());
+            e.printStackTrace();
+        }
 
     }
     /*
@@ -166,7 +163,7 @@ public class LoadUnitAtID extends XMLProcess {
      */
     public Location getToLocation(String stationNo,Job job,String barcode) throws Exception{
             //站台判断
-            Location newLocation;
+            Location newLocation=null;
             Station station1301 = Station.getStation("1301");
             Station station1302 = Station.getStation("1302");
             if(station1301.getDirection().equals(StationMode.RETRIEVAL2) && station1302.getDirection().equals(StationMode.PUTAWAY)){
@@ -176,8 +173,16 @@ public class LoadUnitAtID extends XMLProcess {
                 //入库站台为1101时
                 //判断1301状态
                 String po = station1301.getDirection().equals(StationMode.RETRIEVAL2)? "2" : station1301.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
+
                 if(!po.equals("99")){
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
+                    List<Integer> levList =findLevelOrder(po);
+                    for(int level :levList){
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po,level);
+                        if(newLocation!=null){
+                            break;
+                        }
+                    }
+
                 }else{
                     throw new Exception("站台状态不对" );
                 }
@@ -186,7 +191,13 @@ public class LoadUnitAtID extends XMLProcess {
                 //判断1302的状态
                 String po = station1302.getDirection().equals(StationMode.RETRIEVAL2)? "2" : station1302.getDirection().equals(StationMode.PUTAWAY) ? "1":"99";
                 if(!po.equals("99")){
-                    newLocation = Location.getEmptyLocation(job.getSkuCode(),job.getLotNum(),po);
+                    List<Integer> levList =findLevelOrder(po);
+                    for(int level :levList) {
+                        newLocation = Location.getEmptyLocation(job.getSkuCode(), job.getLotNum(), po,level);
+                        if(newLocation!=null){
+                            break;
+                        }
+                    }
                 }else{
                     throw new Exception("站台状态不对" );
                 }
@@ -244,6 +255,13 @@ public class LoadUnitAtID extends XMLProcess {
             return newLocation;
     }
 
+    /*
+     * @author：ed_chen
+     * @date：2018/7/10 22:39
+     * @description：创建job
+     * @param stationNo
+     * @return：com.wms.domain.Job
+     */
     public Job createJob(String stationNo) throws Exception{
         Session session = HibernateUtil.getCurrentSession();
         String barcode = null;
@@ -269,8 +287,14 @@ public class LoadUnitAtID extends XMLProcess {
             job.setStatus(AsrsJobStatus.WAITING);
             job.setSkuCode(sku.getSkuCode());
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            //以天数为批次
-            String lotNum = sdf.format(new Date());
+            String lotNum="";
+            if(sku.isManual()){
+                //手动装态
+                lotNum=sku.getLotNum();
+            }else{
+                //以天数为批次
+                lotNum = sdf.format(new Date());
+            }
             job.setLotNum(lotNum);
             JobDetail jobDetail = new JobDetail();
             session.save(jobDetail);
@@ -292,22 +316,55 @@ public class LoadUnitAtID extends XMLProcess {
         return job;
     }
 
+    /*
+     * @author：ed_chen
+     * @date：2018/7/10 22:39
+     * @description：查找入库层数排序
+     * @param po
+     * @return：java.util.List<java.lang.Integer>
+     */
     public List<Integer> findLevelOrder(String po) throws Exception{
-        Session session = HibernateUtil.getCurrentSession();
-        List<Integer> list = new ArrayList<>();
+        //查找没有任务并且有小车的母车
+        List<Integer> levList=MCar.getMCarByHasNotAsrsJob(po);
+        //查找不存在前往或到达此层的换层，充电，充电完成任务，存在入库任务，按照入库任务数量升序排列
         List<String> typeList = new ArrayList<>();
         typeList.add(AsrsJobType.CHANGELEVEL);
         typeList.add(AsrsJobType.RECHARGED);
         typeList.add(AsrsJobType.RECHARGEDOVER);
+
         Query query = HibernateUtil.getCurrentSession().createSQLQuery(
-                "select count(*) as count,m.level from MCar m,AsrsJob a where not exists( " +
-                "select 1 from AsrsJob b where (b.toStation=m.blockNo or b.fromStation=m.blockNo) and type in(:types) ) " +
-                "and a.toStation=m.blockNo and a.type=:putType and m.position=:po group by m.level").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        query.setParameter("putType",AsrsJobType.PUTAWAY);
+                "select count(*) as count, m.lev as lev,m.blockNo from Block m  join AsrsJob a on a.toStation=m.blockNo and a.type=:putType where " +
+                        "m.position=:po and m.type=4 and not exists( select 1 from AsrsJob b where (b.toStation=m.blockNo or " +
+                        "b.fromStation=m.blockNo) and type in(:types) )  group by m.lev,m.blockNo order by count asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setParameter("putType", AsrsJobType.PUTAWAY);
         query.setParameterList("types",typeList);
         query.setParameter("po",po);
 
-        return list;
+        List<Map<String,Object>> list =query.list();
+        List<Integer> stagingList = new ArrayList<>();
+        for(int i=0;i<list.size();i++){
+            Map<String,Object> map = list.get(i);
+            String fromStation = map.get("blockNo").toString();
+            AsrsJob asrsJob=AsrsJob.getAsrsJobByRetrievalTypeAndFromStation(fromStation);
+            if(asrsJob!=null){
+                stagingList.add((int)map.get("lev"));
+            }else{
+                levList.add((int)map.get("lev"));
+            }
+        }
+
+        for(Integer i :stagingList){
+            levList.add(i);
+        }
+
+        List<Integer> AllLevList =MCar.getMCarsByPosition(po);
+        for(Integer i:AllLevList){
+            if(!levList.contains(i)){
+                levList.add(i);
+            }
+        }
+
+        return levList;
     }
 
 }

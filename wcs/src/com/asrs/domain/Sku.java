@@ -26,6 +26,7 @@ public class Sku {
     private BigDecimal palletLoadQTy;//托盘装载数量
     private String skuType;//商品属性
     private int version;
+    private String lotNum;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -139,6 +140,28 @@ public class Sku {
     public void setSkuType(String skuType) {
         this.skuType = skuType;
     }
+
+    @Basic
+    @Column(name = "LOTNUM")
+    public String getLotNum() {
+        return lotNum;
+    }
+
+    public void setLotNum(String lotNum) {
+        this.lotNum = lotNum;
+    }
+
+    private boolean isManual;
+    @Basic
+    @Column(name = "ISMANUAL")
+    public boolean isManual() {
+        return isManual;
+    }
+
+    public void setManual(boolean manual) {
+        isManual = manual;
+    }
+
 
     @Override
     public boolean equals(Object o) {

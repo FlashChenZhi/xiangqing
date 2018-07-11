@@ -1,9 +1,14 @@
 package com.wms.domain.blocks;
 
+import com.asrs.business.consts.AsrsJobStatus;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2016/11/1.
@@ -152,6 +157,37 @@ public class MCar extends Block {
         query.setParameter("lv",level);
         query.setMaxResults(1);
         return (MCar) query.uniqueResult();
+
+    }
+
+    @Transient
+    public static List<Integer> getMCarsByPosition(String position) {
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select m.level as lev from MCar m " +
+                "where m.position =:po order by m.level asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setParameter("po", position);
+        List<Map<String,Integer>> list =query.list();
+        List<Integer> list1 = new ArrayList<>();
+        for(Map<String,Integer> map:list){
+            list1.add(map.get("lev"));
+        }
+        return  list1;
+
+    }
+
+    @Transient
+    public static List<Integer> getMCarByHasNotAsrsJob(String position) {
+        //查找此区域有小车且没有任务的母车层
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select m.level as lev from MCar m where not exists(" +
+                "select 1 from AsrsJob a where (a.fromStation=m.blockNo or a.toStation=m.blockNo) and " +
+                "a.status!=:status ) and m.position=:position and m.groupNo is not null order by m.level asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setParameter("status", AsrsJobStatus.DONE);
+        query.setParameter("position", position);
+        List<Map<String,Integer>> list =query.list();
+        List<Integer> list1 = new ArrayList<>();
+        for(Map<String,Integer> map:list){
+            list1.add(map.get("lev"));
+        }
+        return list1;
 
     }
 }

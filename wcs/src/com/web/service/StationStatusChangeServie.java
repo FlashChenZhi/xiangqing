@@ -81,7 +81,7 @@ public class StationStatusChangeServie {
                     station.setStatus(false);
                     stationReturnObj.setSuccess(true);
                     stationReturnObj.setRes(station.isStatus()?"1":"0");
-                    stationReturnObj.setMsg("禁用"+stationNo+"成功！如需更改货物到达区域，请至站台模式切换页面切换"+StationMode.stationMap.get(stationNo)+"模式");
+                    stationReturnObj.setMsg("禁用"+stationNo+"成功！");
                 }else{
                     //启用站台时
                     if(station.getStationNo().equals("1101")){

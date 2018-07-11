@@ -107,11 +107,11 @@ public class PlatformSwitchService {
                         if(station1302.getDirection().equals(StationMode.PUTAWAY) && StationMode.RETRIEVAL2.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg("路径交叉不能切换");
-                        }else if(station1101.isStatus() && StationMode.RETRIEVAL2.equals(direction)){
+                        }/*else if(station1101.isStatus() && StationMode.RETRIEVAL2.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg(station1101.getStationNo()+"启用状态，不能将"+station.getStationNo()+"其转向2巷道");
 
-                        }else{
+                        }*/else{
                             if(StationMode.PUTAWAY.equals(direction)){
                                 //想将1301转向1巷道
                                 long count1=(long)session.createQuery("select count(*) from AsrsJob aj where aj.fromStation =:fromStation and " +
@@ -154,11 +154,11 @@ public class PlatformSwitchService {
                         if(station1301.getDirection().equals(StationMode.RETRIEVAL2) && StationMode.PUTAWAY.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg("路径交叉不能切换");
-                        }else if(station1102.isStatus() && StationMode.PUTAWAY.equals(direction)){
+                        }/*else if(station1102.isStatus() && StationMode.PUTAWAY.equals(direction)){
                             returnObj.setSuccess(false);
                             returnObj.setMsg(station1102.getStationNo()+"启用状态，不能将"+station.getStationNo()+"其转向1巷道");
 
-                        }else{
+                        }*/else{
                             if(StationMode.RETRIEVAL2.equals(direction)){
                                 //想将1302转向2巷道
                                 long count1=(long)session.createQuery("select count(*) from AsrsJob aj where aj.fromStation =:fromStation and " +

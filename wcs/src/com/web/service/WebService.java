@@ -616,7 +616,7 @@ public class WebService {
 
                     MCar fromMcar = (MCar) Block.getByBlockNo(sCar.getOnMCar());
                     fromMcar.setMcKey(asrsJob.getMcKey());
-                    sCar.setReservedMcKey(asrsJob.getMcKey());
+                    sCar.setMcKey(asrsJob.getMcKey());
 
                     Transaction.commit();
 

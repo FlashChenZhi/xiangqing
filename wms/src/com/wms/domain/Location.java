@@ -597,7 +597,7 @@ public class Location {
      * @param batchNo
      * @return
      */
-    public static Location getEmptyLocation(String skuCode, String batchNo, String po) {
+    public static Location getEmptyLocation(String skuCode, String batchNo, String po,int level) {
 
         Session session = HibernateUtil.getCurrentSession();
         //存在同批次的库存同一边的可用，并且托盘是整托
@@ -605,8 +605,8 @@ public class Location {
                 " and l.level =i.container.location.level  and i.skuCode=:skuCode and i.lotNum=:lotNum " +
                 " and  l.position=i.container.location.position and  i.container.location.seq<l.seq  ) and not exists( select 1 from Inventory i " +
                 " where l.bay=i.container.location.bay and l.level =i.container.location.level  and l.actualArea=i.container.location.actualArea and l.position=i.container.location.position and i.container.reserved =true )  " +
-                " and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.position in (:po) order by l.position desc, l.seq asc")
-                .setString("skuCode", skuCode).setParameter("lotNum", batchNo);
+                " and l.empty=true and l.reserved=false and l.asrsFlag = true and l.putawayRestricted = false and l.level=:level and l.position in (:po) order by l.position desc, l.seq asc")
+                .setString("skuCode", skuCode).setParameter("lotNum", batchNo).setParameter("level", level);
 
         //若传入的positon值为0，则默认查询整个仓库的库位
         List<String> list = new ArrayList<>();
@@ -627,8 +627,8 @@ public class Location {
                     " and l.level = j.toLocation.level and l.bay = j.toLocation.bay and " +
                     " j.skuCode=:skuCode and j.lotNum=:batchNo and l.position=j.toLocation.position )  " +
                     " and l.empty=true and l.reserved=false and l.asrsFlag = true and " +
-                    " l.putawayRestricted = false and l.position in (:po)  order by l.position desc, l.seq asc ")
-                    .setParameter("batchNo", batchNo).setParameter("skuCode", skuCode);
+                    " l.putawayRestricted = false and l.level=:level and l.position in (:po)  order by l.position desc, l.seq asc ")
+                    .setParameter("batchNo", batchNo).setParameter("skuCode", skuCode).setParameter("level", level);
             list = new ArrayList<>();
             if("0".equals(po)){
                 list.add("1");
@@ -645,7 +645,8 @@ public class Location {
                 q = session.createQuery("from Location l where not exists (select 1 from Location ol where ol.bay = l.bay and (ol.reserved=true or ol.empty=false ) " +
                         "and l.level =ol.level and l.actualArea=ol.actualArea and l.position=ol.position ) " +
                         "and l.empty=true and l.reserved=false and l.asrsFlag = true and l.position in (:po)  " +
-                        "and l.putawayRestricted = false order by l.level asc,l.bay asc,l.actualArea asc,l.seq asc ");
+                        "and l.putawayRestricted = false and l.level=:level order by l.level asc,l.bay asc," +
+                        "l.actualArea asc,l.seq asc ").setParameter("level", level);
                 list = new ArrayList<>();
                 if("0".equals(po)){
                     list.add("1");
@@ -668,10 +669,10 @@ public class Location {
      *
      * @return
      */
-    public static Location getEmpteyPalletLocation(String po) {
+    /*public static Location getEmpteyPalletLocation(String po) {
 
         return getEmptyLocation(Const.EMPTY_PALLET,Const.EMPTY_PALLET,po);
-    }
+    }*/
 
     public static Location getOutLocation(String wmsLocationNo) {
         List<String> emptyLocstions = new ArrayList<>();
