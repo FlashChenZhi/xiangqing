@@ -2,8 +2,10 @@ package com;
 
 import com.asrs.communication.MessageProxy;
 import com.asrs.domain.AsrsJob;
+import com.asrs.domain.Plc;
 import com.asrs.domain.WcsMessage;
 import com.asrs.message.Message03;
+import com.thread.blocks.Block;
 import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
@@ -29,12 +31,42 @@ public class Msg03Resender {
 
                 WcsMessage msg03 = (WcsMessage) q.uniqueResult();
                 if(msg03 != null) {
+                    Block block = Block.getByBlockNo(msg03.getMachineNo());
+                    Plc plc = Plc.getPlcByPlcName(block.getPlcName());
+                    if("1".equals(plc.getStatus())) {
+                        if (!msg03.getMcKey().equals("9999")) {
 
-                    if (!msg03.getMcKey().equals("9999")) {
+                            AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(msg03.getMcKey());
+                            if (asrsJob == null) {
+                                msg03.setReceived(true);
+                            } else {
 
-                        AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(msg03.getMcKey());
-                        if (asrsJob == null) {
-                            msg03.setReceived(true);
+                                System.out.println("resend" + msg03.getId());
+
+                                Message03 m3 = new Message03();
+                                m3.setPlcName(msg03.getPlcName());
+                                m3.IdClassification = "1";
+                                m3.JobType = msg03.getJobType();
+                                m3.McKey = msg03.getMcKey();
+                                m3.MachineNo = msg03.getMachineNo();
+                                m3.CycleOrder = msg03.getCycleOrder();
+                                m3.Height = msg03.getHeight();
+                                m3.Width = msg03.getWidth();
+                                m3.Station = msg03.getStation();
+                                m3.Bank = msg03.getBank();
+                                m3.Bay = msg03.getBay();
+                                m3.Level = msg03.getLevel();
+                                m3.Dock = msg03.getDock();
+
+                                MessageProxy _wcsproxy = (MessageProxy) Naming.lookup(Const.WCSPROXY);
+                                _wcsproxy.addSndMsg(m3);
+                                System.out.println("resendId: " + msg03.getId());
+
+                                //msg03.setLastSendDate(new Date());
+                                /*session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
+                                        .setParameter("date", new Date())
+                                        .setParameter("id", msg03.getId()).executeUpdate();*/
+                            }
                         } else {
 
                             System.out.println("resend" + msg03.getId());
@@ -59,39 +91,11 @@ public class Msg03Resender {
                             System.out.println("resendId: " + msg03.getId());
 
                             //msg03.setLastSendDate(new Date());
-                            session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
-                                    .setParameter("date",new Date())
-                                    .setParameter("id",msg03.getId()).executeUpdate();
+                           /* session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
+                                    .setParameter("date", new Date())
+                                    .setParameter("id", msg03.getId()).executeUpdate();*/
                         }
-                    } else {
-
-                        System.out.println("resend" + msg03.getId());
-
-                        Message03 m3 = new Message03();
-                        m3.setPlcName(msg03.getPlcName());
-                        m3.IdClassification = "1";
-                        m3.JobType = msg03.getJobType();
-                        m3.McKey = msg03.getMcKey();
-                        m3.MachineNo = msg03.getMachineNo();
-                        m3.CycleOrder = msg03.getCycleOrder();
-                        m3.Height = msg03.getHeight();
-                        m3.Width = msg03.getWidth();
-                        m3.Station = msg03.getStation();
-                        m3.Bank = msg03.getBank();
-                        m3.Bay = msg03.getBay();
-                        m3.Level = msg03.getLevel();
-                        m3.Dock = msg03.getDock();
-
-                        MessageProxy _wcsproxy = (MessageProxy) Naming.lookup(Const.WCSPROXY);
-                        _wcsproxy.addSndMsg(m3);
-                        System.out.println("resendId: " + msg03.getId());
-
-                        //msg03.setLastSendDate(new Date());
-                        session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
-                                .setParameter("date",new Date())
-                                .setParameter("id",msg03.getId()).executeUpdate();
                     }
-
                     msg03.setLastSendDate(new Date());
 
                     Thread.sleep(50);

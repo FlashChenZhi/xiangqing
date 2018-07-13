@@ -28,6 +28,7 @@ import com.util.common.DateFormat;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
+import com.wms.domain.blocks.SCar;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -345,6 +346,7 @@ public class LoadUnitAtID extends XMLProcess {
         for(int i=0;i<list.size();i++){
             Map<String,Object> map = list.get(i);
             String fromStation = map.get("blockNo").toString();
+            //查找有无出库任务，有出库任务排到无出库任务的后面
             AsrsJob asrsJob=AsrsJob.getAsrsJobByRetrievalTypeAndFromStation(fromStation);
             if(asrsJob!=null){
                 stagingList.add((int)map.get("lev"));
@@ -361,6 +363,24 @@ public class LoadUnitAtID extends XMLProcess {
         for(Integer i:AllLevList){
             if(!levList.contains(i)){
                 levList.add(i);
+            }
+        }
+        List<Integer> stagingList2 = new ArrayList<>();
+        for(int i=0;i<levList.size();i++){
+            int level = levList.get(i);
+            MCar mCar = MCar.getMCarByPosition(po, level);
+            if(mCar.getGroupNo()!=null){
+                //查找有无小车电量低，有小车电量低的层，先存储
+                SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
+                if(sCar.getPower() <= Const.LOWER_POWER){
+                    stagingList2.add(level);
+                }
+            }
+        }
+        for(Integer i :stagingList2){
+            if(levList.contains(i)){
+                //查找有无小车电量低，有小车电量低的层，不向此层入库
+                levList.remove(levList.indexOf(i));
             }
         }
 

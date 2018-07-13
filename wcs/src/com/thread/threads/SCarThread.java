@@ -21,6 +21,7 @@ import com.thread.threads.service.impl.retrieval.ScarAndSrmRetrievalService;
 import com.thread.threads.service.impl.sts.ScarAndSrmStsService;
 import com.thread.utils.MsgSender;
 
+import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public class SCarThread extends BlockThread<SCar> {
 
                 } else if (!(sCar.getStatus().equals(SCar.STATUS_RUN)|| sCar.getStatus().equals(SCar.STATUS_CHARGE_OVER))) {
                     if (sCar.getStatus().equals(SCar.STATUS_CHARGE)) {
-                        if (sCar.getPower() > 95) {
+                        if (sCar.getPower() > Const.HIGH_POWER) {
                             boolean hasJob=false;
                             CreateAsrsJob createAsrsJob = new CreateAsrsJob(sCar);
                             hasJob = createAsrsJob.createChargeOver(hasJob);

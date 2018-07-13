@@ -1,9 +1,11 @@
 import com.asrs.business.consts.AsrsJobType;
+import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
 import com.wms.domain.blocks.Block;
 import com.wms.domain.blocks.MCar;
+import com.wms.domain.blocks.SCar;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Cache;
 import org.hibernate.Query;
@@ -26,7 +28,7 @@ public class Test {
             Session session = HibernateUtil.getCurrentSession();
 
             //查找没有任务并且有小车的母车
-            List<Integer> levList=MCar.getMCarByHasNotAsrsJob("2");
+            List<Integer> levList=MCar.getMCarByHasNotAsrsJob("1");
             //查找不存在前往或到达此层的换层，充电，充电完成任务，存在入库任务，按照入库任务数量升序排列
             List<String> typeList = new ArrayList<>();
             typeList.add(AsrsJobType.CHANGELEVEL);
@@ -39,13 +41,14 @@ public class Test {
                             "b.fromStation=m.blockNo) and type in(:types) )  group by m.lev,m.blockNo order by count asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             query.setParameter("putType", AsrsJobType.PUTAWAY);
             query.setParameterList("types",typeList);
-            query.setParameter("po","2");
+            query.setParameter("po","1");
 
             List<Map<String,Object>> list =query.list();
             List<Integer> stagingList = new ArrayList<>();
             for(int i=0;i<list.size();i++){
                 Map<String,Object> map = list.get(i);
                 String fromStation = map.get("blockNo").toString();
+                //查找有无出库任务，有出库任务排到无出库任务的后面
                 AsrsJob asrsJob=AsrsJob.getAsrsJobByRetrievalTypeAndFromStation(fromStation);
                 if(asrsJob!=null){
                     stagingList.add((int)map.get("lev"));
@@ -58,10 +61,28 @@ public class Test {
                 levList.add(i);
             }
 
-            List<Integer> AllLevList =MCar.getMCarsByPosition("2");
+            List<Integer> AllLevList =MCar.getMCarsByPosition("1");
             for(Integer i:AllLevList){
                 if(!levList.contains(i)){
                     levList.add(i);
+                }
+            }
+            List<Integer> stagingList2 = new ArrayList<>();
+            for(int i=0;i<levList.size();i++){
+                int level = levList.get(i);
+                MCar mCar = MCar.getMCarByPosition("1", level);
+                if(mCar.getGroupNo()!=null){
+                    //查找有无小车电量低，有小车电量低的层，先存储
+                    SCar sCar = SCar.getScarByGroup(mCar.getGroupNo());
+                    if(sCar.getPower() <= Const.LOWER_POWER){
+                        stagingList2.add(level);
+                    }
+                }
+            }
+            for(Integer i :stagingList2){
+                if(levList.contains(i)){
+                    //查找有无小车电量低，有小车电量低的层，不向此层入库
+                    levList.remove(levList.indexOf(i));
                 }
             }
 

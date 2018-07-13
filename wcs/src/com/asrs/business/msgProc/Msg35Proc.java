@@ -173,6 +173,7 @@ public class Msg35Proc implements MsgProcess {
                     MCar mCar = (MCar) block;
                     if(!message35.isMove()){
                         mCar.setCheckLocation(false);
+                        mCar.setDock(null);
                     }else{
                         mCar.setCheckLocation(true);
                     }

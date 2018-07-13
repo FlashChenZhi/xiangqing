@@ -21,7 +21,8 @@ public class Const {
     public static final String warehouseCode = "ck";//仓库代码
 
     public final static String OP_LOG_NAME = "opLog";
-
+    public static final Integer LOWER_POWER = 40;
+    public static final Integer HIGH_POWER = 95;
     //收货暂存区
     public static final String RECV_TEMP_LOCATION = "TEMP001";
 

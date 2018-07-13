@@ -40,6 +40,19 @@ public class CreateAsrsJob {
     public boolean createCharge(boolean hasJob, MCar mCar) {
         SCar sCar=(SCar)block;
         Session session = HibernateUtil.getCurrentSession();
+
+        Query query = session.createQuery("from AsrsJob a where a.toStation=:toStation " +
+                "and a.type=:type and a.status!=:status");
+        query.setParameter("toStation", mCar.getBlockNo());
+        query.setParameter("type", AsrsJobType.PUTAWAY);
+        query.setParameter("status", AsrsJobStatus.DONE);
+        query.setMaxResults(1);
+        AsrsJob asrsJob1 =(AsrsJob) query.uniqueResult();
+        if(asrsJob1!=null){
+            hasJob = false;
+            return hasJob;
+        }
+
         Query charQuery = session.createQuery("from AsrsJob a where (a.type=:tp or a.type=:ttp or " +
                 "a.type=:tttp) and exists(select 1 from MCar m where m.blockNo=a.fromStation and " +
                 "m.position = :position )");
@@ -357,6 +370,9 @@ public class CreateAsrsJob {
         HttpMessage httpMessage = new HttpMessage();
         SCar sCar=(SCar)block;
         Session session = HibernateUtil.getCurrentSession();
+
+
+
         Query charQuery = session.createQuery("from AsrsJob a where (a.type=:tp or a.type=:ttp or " +
                 "a.type=:tttp) and exists(select 1 from MCar m where m.blockNo=a.fromStation and " +
                 "m.position = :position )");

@@ -325,7 +325,7 @@ public class AsrsJob {
         return (AsrsJob) q.uniqueResult();
     }
 
-    public static AsrsJob getAsrsJobByTypeAndFromStation(String type,String fromStation) {
+    public static AsrsJob getAsrsJobByTypeAndFromStation(String type, String fromStation) {
         Session session = HibernateUtil.getCurrentSession();
         Query query = session.createQuery("from AsrsJob where " +
                 "fromStation=:fromStation and type=:type and status=:status");
@@ -335,7 +335,7 @@ public class AsrsJob {
         return (AsrsJob) query.uniqueResult();
     }
 
-    public static AsrsJob getAsrsJobByTypeAndBarcode(String type,String barcode) {
+    public static AsrsJob getAsrsJobByTypeAndBarcode(String type, String barcode) {
         Session session = HibernateUtil.getCurrentSession();
         Query query = session.createQuery("from AsrsJob where " +
                 "barcode=:barcode and type=:type and status=:status");
@@ -346,24 +346,27 @@ public class AsrsJob {
     }
 
 
-    public void delete(){
+    public void delete() {
         Session session = HibernateUtil.getCurrentSession();
 
         session.delete(this);
         Query query = session.createQuery("from WcsMessage wm where wm.mcKey = :mcKey and datediff(MINUTE,wm.lastSendDate , GETDATE())>= 30  ")
-                .setString("mcKey",this._mcKey);
+                .setString("mcKey", this._mcKey);
 
         List<WcsMessage> wms = query.list();
-        for(WcsMessage wm : wms){
+        for (WcsMessage wm : wms) {
             session.delete(wm);
         }
     }
 
     public static AsrsJob getAsrsJobByRetrievalTypeAndFromStation(String fromStation) {
         Session session = HibernateUtil.getCurrentSession();
-        Query q = session.createQuery("from AsrsJob aj where aj.fromStation=:fromStation and aj.type=:type")
-                .setString("fromStation", fromStation).setString("type", AsrsJobType.RETRIEVAL).setMaxResults(1);
-        return (AsrsJob) q.uniqueResult();
+        Query q = session.createQuery("from AsrsJob aj where aj.fromStation=:fromStation and aj.type=:type and aj.status!=:status " +
+                "and exists(select 1 from MCar b,SCar s where (b.mcKey=aj.mcKey or b.reservedMcKey=aj.mcKey " +
+                "or s.mcKey=aj.mcKey or s.reservedMcKey=aj.mcKey) and b.blockNo=:fromStation and s.groupNo=b.groupNo )")
+                .setString("fromStation", fromStation).setString("type", AsrsJobType.RETRIEVAL)
+                .setParameter("status", AsrsJobStatus.DONE).setMaxResults(1);
+        AsrsJob asrsJob = (AsrsJob) q.uniqueResult();
+        return asrsJob;
     }
 }
-

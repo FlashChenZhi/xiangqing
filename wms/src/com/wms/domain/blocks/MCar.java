@@ -1,6 +1,7 @@
 package com.wms.domain.blocks;
 
 import com.asrs.business.consts.AsrsJobStatus;
+import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
@@ -177,11 +178,13 @@ public class MCar extends Block {
     @Transient
     public static List<Integer> getMCarByHasNotAsrsJob(String position) {
         //查找此区域有小车且没有任务的母车层
-        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select m.level as lev from MCar m where not exists(" +
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select m.level as lev from MCar m,SCar s where not exists(" +
                 "select 1 from AsrsJob a where (a.fromStation=m.blockNo or a.toStation=m.blockNo) and " +
-                "a.status!=:status ) and m.position=:position and m.groupNo is not null order by m.level asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+                "a.status!=:status ) and m.position=:position and m.groupNo is not null and m.groupNo=s.groupNo " +
+                "and s.power>:power order by m.level asc").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         query.setParameter("status", AsrsJobStatus.DONE);
         query.setParameter("position", position);
+        query.setParameter("power", Const.LOWER_POWER);
         List<Map<String,Integer>> list =query.list();
         List<Integer> list1 = new ArrayList<>();
         for(Map<String,Integer> map:list){
