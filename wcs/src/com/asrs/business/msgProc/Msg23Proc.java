@@ -42,7 +42,7 @@ public class Msg23Proc implements MsgProcess
           System.out.println(message23.getID() + message23.getPlcName());
           try {
               String mcKey = message23.McKey;
-
+              Thread.sleep(100);
               for ( int i=0; i<10 ; i++){
                   Transaction.begin();
                   Query q = HibernateUtil.getCurrentSession().createQuery("from WcsMessage where machineNo=:mNo and mckey = :mckey and received=false ")
@@ -57,7 +57,7 @@ public class Msg23Proc implements MsgProcess
                       break;
                   }else {
                       Transaction.commit();
-                      Thread.sleep(100);
+                      //Thread.sleep(100);
                   }
               }
 

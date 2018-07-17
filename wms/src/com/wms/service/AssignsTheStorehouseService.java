@@ -280,7 +280,7 @@ public class AssignsTheStorehouseService {
             s.setSuccess(false);
             s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
         }
-            return s;
+        return s;
     }
     public static ReturnObj<Map<String, Object>> ku(List<String> list ,ReturnObj<Map<String, Object>> s,List<String> list1,Map<String,List> stations){
         boolean flag = true;
@@ -316,8 +316,11 @@ public class AssignsTheStorehouseService {
                 Location location1 = Location.getByLocationNo(location);
                 Station station1303 = Station.getStation("1303");
 
-                Query query9= session.createQuery("select count(*) as count from AsrsJob a,Location l where a.fromLocation=l.locationNo and " +
-                        "a.type=:type and l.level !=:level and l.position=:position");
+                Query query9= session.createQuery("select count(*) as count from AsrsJob a,Location l " +
+                        "where a.fromLocation=l.locationNo and a.type=:type and l.level !=:level and " +
+                        "l.position=:position and exists(select 1 from MCar b,SCar s where " +
+                        "(b.mcKey=a.mcKey or b.reservedMcKey=a.mcKey or s.mcKey=a.mcKey or s.reservedMcKey=a.mcKey) " +
+                        "and b.blockNo=a.fromStation and s.groupNo=b.groupNo ) ");
                 query9.setParameter("level", location1.getLevel());
                 query9.setParameter("position", location1.getPosition());
                 query9.setParameter("type", AsrsJobType.RETRIEVAL);
@@ -455,7 +458,7 @@ public class AssignsTheStorehouseService {
             //存入job
             job.setContainer(inventory.getContainer().getBarcode());
             job.setMcKey(mckey);
-            job.setOrderNo("4200026559");
+            job.setOrderNo("dingdian");
             job.setSendReport(false);
             job.setStatus("1");
             job.setToStation(stationNo);

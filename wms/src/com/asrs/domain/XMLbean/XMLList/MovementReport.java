@@ -1,5 +1,6 @@
 package com.asrs.domain.XMLbean.XMLList;
 
+import com.asrs.business.consts.RetrievalOrderStatus;
 import com.util.common.Const;
 
 import com.wms.domain.*;
@@ -172,6 +173,27 @@ public class MovementReport extends XMLProcess {
                     for(Container container : fromLocation.getContainers()) {
                         List<Inventory> inventorySet = new ArrayList<>(container.getInventories());
                         for (Inventory inventory : inventorySet) {
+                            if(j.getOrderNo()!=null && !"dingdian".equals(j.getOrderNo())){
+                                //获取订单
+                                RetrievalOrder retrievalOrder =RetrievalOrder.getByOrderNo(j.getOrderNo());
+                                boolean flag=true;
+                                for(RetrievalOrderDetail retrievalOrderDetail: retrievalOrder.getRetrievalOrderDetailSet()){
+                                    //获取订单详情
+                                    if(retrievalOrderDetail.getItemCode().equals(inventory.getSkuCode()) && retrievalOrderDetail.getBatch().equals(inventory.getLotNum())){
+                                        //若订单详情的商品代码和批次与库存相同
+                                        int completeNum=retrievalOrderDetail.getCompleteNum();
+                                        retrievalOrderDetail.setCompleteNum(completeNum+inventory.getQty().intValue());
+                                    }
+                                    if(retrievalOrderDetail.getCompleteNum()<retrievalOrderDetail.getQty().intValue()){
+                                        flag=false;
+                                    }
+                                    HibernateUtil.getCurrentSession().saveOrUpdate(retrievalOrderDetail);
+                                }
+                                if(flag){
+                                    retrievalOrder.setStatus(RetrievalOrderStatus.OVER);
+                                }
+                                HibernateUtil.getCurrentSession().saveOrUpdate(retrievalOrder);
+                            }
                             HibernateUtil.getCurrentSession().delete(inventory);
                         }
                         HibernateUtil.getCurrentSession().delete(container);

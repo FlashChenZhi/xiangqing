@@ -36,7 +36,9 @@ public class RetrievalOrder {
     private String desc;
     private String status;
     private Date createDate;
-
+    private String carrierCar;
+    private String toStation;
+    private String error;
     private Set<RetrievalOrderDetail> retrievalOrderDetailSet = new HashSet<RetrievalOrderDetail>();
 
     public static final String STATUS_WAIT = "0";
@@ -163,6 +165,33 @@ public class RetrievalOrder {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+    @Basic
+    @Column(name = "CARRIERCAR")
+    public String getCarrierCar() {
+        return carrierCar;
+    }
+
+    public void setCarrierCar(String carrierCar) {
+        this.carrierCar = carrierCar;
+    }
+    @Basic
+    @Column(name = "TOSTATION")
+    public String getToStation() {
+        return toStation;
+    }
+
+    public void setToStation(String toStation) {
+        this.toStation = toStation;
+    }
+    @Basic
+    @Column(name = "ERROR")
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 
     @OneToMany(mappedBy = "retrievalOrder")

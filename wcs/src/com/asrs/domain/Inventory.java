@@ -1,5 +1,8 @@
 package com.asrs.domain;
 
+import com.util.hibernate.HibernateUtil;
+import org.hibernate.Session;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 
@@ -205,4 +208,41 @@ public class Inventory {
     public void setVolumn(BigDecimal volumn) {
         this.volumn = volumn;
     }
+
+    /*
+     * @author：ed_chen
+     * @date：2018/7/15 9:37
+     * @description：根据商品代码和批次号获取仓库拥有数量
+     * @param skuCode
+     * @param lotNum
+     * @return：long
+     */
+    public static long getNumsBySkuCodeAndLotNum(String skuCode,String lotNum) {
+        Session session= HibernateUtil.getCurrentSession();
+        org.hibernate.Query query = session.createQuery("select count(*) as count " +
+                "from Inventory i where i.lotNum=:lotNum and i.skuCode=:skuCode ");
+        query.setParameter("skuCode", skuCode);
+        query.setParameter("lotNum", lotNum);
+        return (long) query.uniqueResult();
+    }
+
+    /*
+     * @author：ed_chen
+     * @date：2018/7/15 9:37
+     * @description：根据商品代码和批次号和巷道获取仓库拥有数量
+     * @param skuCode
+     * @param lotNum
+     * @return：long
+     */
+    public static long getNumsBySkuCodeAndLotNumAndPosition(String skuCode,String lotNum,String position) {
+        Session session=HibernateUtil.getCurrentSession();
+        org.hibernate.Query query = session.createQuery("select count(*) as count " +
+                "from Inventory i where i.lotNum=:lotNum and i.skuCode=:skuCode and " +
+                "i.container.location.position=:position ");
+        query.setParameter("skuCode", skuCode);
+        query.setParameter("lotNum", lotNum);
+        query.setParameter("position", position);
+        return (long) query.uniqueResult();
+    }
+
 }

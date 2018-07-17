@@ -26,16 +26,8 @@ public class Test {
         try{
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            Query query = session.createQuery("from AsrsJob a where a.toStation=:toStation " +
-                    "and a.type=:type and a.status!=:status");
-            query.setParameter("toStation", "MC01");
-            query.setParameter("type", AsrsJobType.PUTAWAY);
-            query.setParameter("status", AsrsJobStatus.DONE);
-            query.setMaxResults(1);
-            AsrsJob asrsJob1 =(AsrsJob) query.uniqueResult();
-            if(asrsJob1!=null){
-                System.out.println(1);
-            }
+            Job job=Job.getByMcKey("4724");
+            System.out.println(11);
             Transaction.commit();
         }catch (Exception e){
             Transaction.rollback();

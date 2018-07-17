@@ -197,6 +197,9 @@ public class TransportOrder extends XMLProcess {
                 asrsJob.setIndicating(false);
                 asrsJob.setWmsMckey(controlArea.getRefId().getReferenceId());
                 asrsJob.setMcKey(controlArea.getRefId().getReferenceId());
+                String mckey =controlArea.getRefId().getReferenceId();
+                Job job=Job.getByMcKey(controlArea.getRefId().getReferenceId());
+                asrsJob.setOrderNo(job.getOrderNo());
                 asrsJob.setBarcode(dataArea.getStUnit().getStUnitID());
                 asrsJob.setStatus(AsrsJobStatus.RUNNING);
                 asrsJob.setStatusDetail(AsrsJobStatusDetail.WAITING);

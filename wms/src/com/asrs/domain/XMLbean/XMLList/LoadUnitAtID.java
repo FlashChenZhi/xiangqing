@@ -333,6 +333,13 @@ public class LoadUnitAtID extends XMLProcess {
         typeList.add(AsrsJobType.RECHARGED);
         typeList.add(AsrsJobType.RECHARGEDOVER);
 
+        boolean flag=true;
+        MCar noGroupNomCar = MCar.getMCarByOtherLevOutKuAsrsJob(po);
+        if(levList.size()!=0 && noGroupNomCar!=null){
+            //存在空闲小车并且存在无小车的母车有任务,分出一辆去做出库任务
+            levList.remove(0);
+            flag=false;
+        }
         Query query = HibernateUtil.getCurrentSession().createSQLQuery(
                 "select count(*) as count, m.lev as lev,m.blockNo from Block m  join AsrsJob a on a.toStation=m.blockNo and a.type=:putType where " +
                         "m.position=:po and m.type=4 and not exists( select 1 from AsrsJob b where (b.toStation=m.blockNo or " +
@@ -343,16 +350,24 @@ public class LoadUnitAtID extends XMLProcess {
 
         List<Map<String,Object>> list =query.list();
         List<Integer> stagingList = new ArrayList<>();
+
         for(int i=0;i<list.size();i++){
             Map<String,Object> map = list.get(i);
             String fromStation = map.get("blockNo").toString();
-            //查找有无出库任务，有出库任务排到无出库任务的后面
-            AsrsJob asrsJob=AsrsJob.getAsrsJobByRetrievalTypeAndFromStation(fromStation);
-            if(asrsJob!=null){
-                stagingList.add((int)map.get("lev"));
+            if(flag){
+                //查找有无出库任务，有出库任务排到无出库任务的后面
+                AsrsJob asrsJob=AsrsJob.getAsrsJobByRetrievalTypeAndFromStation(fromStation);
+                if(asrsJob!=null || noGroupNomCar!=null){
+                    //本层存在出库任务或者其他层存在出库任务，并且没有空闲小车
+                    stagingList.add((int)map.get("lev"));
+                    flag=false;
+                }else{
+                    levList.add((int)map.get("lev"));
+                }
             }else{
                 levList.add((int)map.get("lev"));
             }
+
         }
 
         for(Integer i :stagingList){

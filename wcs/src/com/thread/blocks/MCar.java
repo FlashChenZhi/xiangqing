@@ -1,5 +1,6 @@
 package com.thread.blocks;
 
+import com.asrs.business.consts.AsrsJobType;
 import com.asrs.domain.Location;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.Query;
@@ -169,4 +170,21 @@ public class MCar extends Block {
         return (MCar) query.uniqueResult();
 
     }
+
+    @Transient
+    public static MCar getMCarByOtherLevOutKuAsrsJob(String position) {
+        //查找没有小车并且没有小车正在赶往此母车并且此母车有出库任务 的母车
+        Query query = HibernateUtil.getCurrentSession().createQuery("from MCar m where m.sCarBlockNo is null and " +
+                "m.position=:position and " +
+                "not exists (select 1 from AsrsJob a where a.type=:tp and a.toStation = m.blockNo ) " +
+                "and " +
+                "exists (select 1 from AsrsJob a where a.type =:tp1 and statusDetail = '0' and fromStation=m.blockNo )");
+        query.setString("tp", AsrsJobType.CHANGELEVEL);
+        query.setString("position", position);
+        query.setString("tp1", AsrsJobType.RETRIEVAL);
+        query.setMaxResults(1);
+        MCar toMCar = (MCar) query.uniqueResult();
+        return (MCar) query.uniqueResult();
+    }
+
 }

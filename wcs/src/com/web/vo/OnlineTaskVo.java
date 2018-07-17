@@ -17,6 +17,7 @@ public class OnlineTaskVo {
     private String skuSpec;
     private String skuCode;
     private String generateTime;
+    private String orderNo;
 
     public String getGenerateTime() {
         return generateTime;
@@ -102,5 +103,13 @@ public class OnlineTaskVo {
 
     public void setToStation(String toStation) {
         this.toStation = toStation;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 }

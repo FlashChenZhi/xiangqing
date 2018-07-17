@@ -392,23 +392,21 @@ let AssignsTheStorehouse = React.createClass({
             wrapperCol: {span: 10},
         };
         const commodityCodeProps = getFieldProps('productId', {
-            initialValue:"",
+            initialValue:"1",
         });
         const tierProps = getFieldProps('tier', {
             initialValue:"1",
         });
 
         const commodityStationNoProps = getFieldProps('stationNo', {
-            initialValue:"",
+            initialValue:"1",
         });
         const commodityCodeListSelect =[];
-        commodityCodeListSelect.push(<Option value="">---请选择---</Option>);
         this.state.commodityCodeList.forEach((commodityCode)=>{
             commodityCodeListSelect.push(<Option value={commodityCode.skuCode}>{commodityCode.skuName}</Option>);
         });
 
         const commodityStationNoSelect=[];
-        commodityStationNoSelect.push(<Option value="">---请选择---</Option>);
         this.state.commodityStationNoList.forEach((commodityCode)=>{
             commodityStationNoSelect.push(<Option value={commodityCode.stationNo}>{commodityCode.stationNo}</Option>);
         });
@@ -439,8 +437,6 @@ let AssignsTheStorehouse = React.createClass({
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     id="select" size="large" style={{ width: 200 }}
                                     {...commodityStationNoProps}  >
-                                    {/*{commodityStationNoSelect}*/}
-                                    <Option value="">---请选择---</Option>
                                     <option value={"1"}>出库口一</option>
                                     <option value={"2"}>出库口二</option>
                                     <option value={"3"}>出库口三</option>

@@ -61,17 +61,7 @@ public class Job {
     }
 
 
-    private String finalLoc;
 
-    @Basic
-    @Column(name = "FINALLOC")
-    public String getFinalLoc() {
-        return finalLoc;
-    }
-
-    public void setFinalLoc(String finalLoc) {
-        this.finalLoc = finalLoc;
-    }
     private BigDecimal qty;
 
     @Basic
@@ -181,16 +171,7 @@ public class Job {
         this.lotNum = lotNum;
     }
 
-    private String yl_lot_num;
-    @Basic
-    @Column(name = "YLLOTNUM")
-    public String getYLLOTNUM() {
-        return yl_lot_num;
-    }
 
-    public void setYLLOTNUM(String yl_lot_num) {
-        this.yl_lot_num = yl_lot_num;
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

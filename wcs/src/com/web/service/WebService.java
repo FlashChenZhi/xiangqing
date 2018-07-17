@@ -124,6 +124,7 @@ public class WebService {
                 onlineTaskVo.setToStation(job.getToStation());
                 onlineTaskVo.setFromLocation(job.getFromLocation());
                 onlineTaskVo.setToLocation(job.getToLocation());
+                onlineTaskVo.setOrderNo(job.getOrderNo());
                 if(StringUtils.isNotEmpty(job.getGenerateTime())){
                     SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
                     String generateTime = format.format(job.getGenerateTime());
@@ -579,9 +580,10 @@ public class WebService {
                     throw new Exception("子车有任务，不能执行换层操作");
                 }
 
-                Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level and position=:position");
+                Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level and position=:position and status!=:status");
                 query.setParameter("level", Integer.parseInt(level));
                 query.setParameter("position", sCar.getPosition());
+                query.setParameter("status", SCar.STATUS_CHARGE);
                 query.setMaxResults(1);
                 SCar levlScar = (SCar) query.uniqueResult();
                 if (levlScar != null) {

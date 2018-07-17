@@ -31,7 +31,8 @@ import PlatformSwitch from '../components/InOrOut/PlatformSwitch';
 import FindOutOrInWarehouse from '../components/InOrOut/FindOutOrInWarehouse';
 import FindInventory from '../components/InOrOut/FindInventory';
 import SkuLotNum from '../components/InOrOut/SkuLotNum';
-
+import StockOutODO from '../components/InOrOut/StockOutODO';
+import FindOrderDetail from '../components/InOrOut/FindOrderDetail';
 
 
 class Index extends React.Component {
@@ -65,6 +66,8 @@ class Index extends React.Component {
                     <Route path="/StationStatusSwitch" components={StationStatusSwitch}/>
                     <Route path="/PlatformSwitch" components={PlatformSwitch}/>
                     <Route path="/SkuLotNum" components={SkuLotNum}/>
+                    <Route path="/StockOutODO" components={StockOutODO}/>
+                    <Route path="/FindOrderDetail" components={FindOrderDetail}/>
                     {/*<Route path="/PutInStorage" components={PutInStorage}/>*/}
     <Route path="/FindOutOrInWarehouse" components={FindOutOrInWarehouse}/>
         <Route path="/FindInventory" components={FindInventory}/>

@@ -1,7 +1,13 @@
 package com.wms.domain;
 
+import com.util.hibernate.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: Zhouyue
@@ -204,5 +210,53 @@ public class Inventory {
 
     public void setVolumn(BigDecimal volumn) {
         this.volumn = volumn;
+    }
+
+    /*
+     * @author：ed_chen
+     * @date：2018/7/15 9:37
+     * @description：根据商品代码和批次号获取仓库拥有数量
+     * @param skuCode
+     * @param lotNum
+     * @return：long
+     */
+    public static int getNumsBySkuCodeAndLotNum(String skuCode,String lotNum) {
+        Session session=HibernateUtil.getCurrentSession();
+       org.hibernate.Query query = session.createQuery("select sum(i.qty) as count " +
+               "from Inventory i where i.lotNum=:lotNum and i.skuCode=:skuCode " +
+               "and i.container.reserved=false and not exists (select 1 from Location l where " +
+               "l.bay=i.container.location.bay and l.actualArea=i.container.location.actualArea " +
+               "and l.level =i.container.location.level and l.position=i.container.location.position " +
+               "and  l.seq > i.container.location.seq and l.reserved = true )");
+        query.setParameter("skuCode", skuCode);
+        query.setParameter("lotNum", lotNum);
+        BigDecimal i2 =(BigDecimal) query.uniqueResult();
+        int i = i2==null?0:i2.intValue();
+        return i;
+    }
+
+    /*
+     * @author：ed_chen
+     * @date：2018/7/15 9:37
+     * @description：根据商品代码和批次号和巷道获取仓库拥有数量
+     * @param skuCode
+     * @param lotNum
+     * @return：long
+     */
+    public static int getNumsBySkuCodeAndLotNumAndPosition(String skuCode,String lotNum,String position) {
+        Session session=HibernateUtil.getCurrentSession();
+        org.hibernate.Query query = session.createQuery("select sum(i.qty) as count " +
+                "from Inventory i where i.lotNum=:lotNum and i.skuCode=:skuCode and " +
+                "i.container.location.position=:position and i.container.reserved=false and " +
+                "not exists (select 1 from Location l where " +
+                "l.bay=i.container.location.bay and l.actualArea=i.container.location.actualArea " +
+                "and l.level =i.container.location.level and l.position=i.container.location.position " +
+                "and  l.seq > i.container.location.seq and l.reserved = true ) ");
+        query.setParameter("skuCode", skuCode);
+        query.setParameter("lotNum", lotNum);
+        query.setParameter("position", position);
+        BigDecimal i2 =(BigDecimal) query.uniqueResult();
+        int i = i2==null?0:i2.intValue();
+        return i;
     }
 }

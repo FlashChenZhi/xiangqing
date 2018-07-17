@@ -234,6 +234,7 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
             if (StringUtils.isEmpty(sCar.getMcKey()) && StringUtils.isEmpty(sCar.getReservedMcKey())) {
                 if (StringUtils.isEmpty(sCar.getOnMCar())) {
                     //子车不在母车上，子车有排列层，查找货位是否是aj的源货位，如果一样，取货上车，如果不是，简单接车
+
                     Location sLocation = Location.getByBankBayLevel(sCar.getBank(), sCar.getBay(), sCar.getLevel(), sCar.getPosition());
                     if (sLocation.getLocationNo().equals(aj.getFromLocation())) {
                         mCar.generateMckey(message35.McKey);
@@ -252,14 +253,17 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
             if (StringUtils.isNotEmpty(sCar.getMcKey())) {
                 mCar.generateMckey(message35.McKey);
             } else if (StringUtils.isNotEmpty(sCar.getReservedMcKey())) {
-
                 if (StringUtils.isEmpty(sCar.getOnMCar())) {
-                    //子车不在母车上，子车有排列层，查找货位是否是aj的源货位，如果一样，取货上车，如果不是，简单接车
-                    Location sLocation = Location.getByBankBayLevel(sCar.getBank(), sCar.getBay(), sCar.getLevel(), sCar.getPosition());
-                    if (sLocation.getLocationNo().equals(aj.getFromLocation())) {
-                        mCar.generateMckey(message35.McKey);
-                    } else {
+                    boolean hasJob=findPutawayByLevelOfMcar(false, mCar);
+                    if(!hasJob){
+                        //如果存在已到提升机的入库任务先去接入库任务
+                        //子车不在母车上，子车有排列层，查找货位是否是aj的源货位，如果一样，取货上车，如果不是，简单接车
+                        Location sLocation = Location.getByBankBayLevel(sCar.getBank(), sCar.getBay(), sCar.getLevel(), sCar.getPosition());
+                        if (sLocation.getLocationNo().equals(aj.getFromLocation())) {
+                            mCar.generateMckey(message35.McKey);
+                        } else {
 
+                        }
                     }
 
                 } else {
@@ -412,6 +416,52 @@ public class Msg35ProRetrievalServiceImpl implements Msg35ProcService {
         HibernateUtil.getCurrentSession().save(xmlMessage);
         XMLUtil.sendEnvelope(el);
 
+    }
+
+
+    /*
+     * @author：ed_chen
+     * @date：2018/4/17 15:57
+     * @description：查找母车所在层的 入库任务
+     * @param hasJob
+     * @param mCar
+     * @return：boolean
+     */
+    public boolean findPutawayByLevelOfMcar(boolean hasJob,MCar mCar) {
+        Block block = mCar.getPreBlockHasMckey(AsrsJobType.PUTAWAY);
+        if (block != null) {
+            //如果上一段block有mckey，
+            if (block instanceof Conveyor) {
+                Conveyor conveyor = (Conveyor) block;
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(conveyor.getMcKey())) {
+                    AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                    //如果小车绑定母车的上一节是入库作业，设置小车的reservedmckey
+                    if (asrsJob.getType().equals(AsrsJobType.PUTAWAY) && !asrsJob.getStatus().equals(AsrsJobStatus.DONE)) {
+                        //mCar.setReservedMcKey(block.getMcKey());
+                        hasJob = true;
+                    }
+                }
+            } else if (block instanceof StationBlock) {
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(block.getMcKey())) {
+                    //如果提升机的上一节是入库作业，设置提升机reservedmckey
+                    AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                    if (asrsJob.getType().equals(AsrsJobType.PUTAWAY) && !asrsJob.getStatus().equals(AsrsJobStatus.DONE) ) {
+                        //mCar.setReservedMcKey(block.getMcKey());
+                        hasJob = true;
+                    }
+                }
+            }else if (block instanceof Lift) {
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(block.getMcKey())) {
+                    //如果提升机的上一节是入库作业，设置提升机reservedmckey
+                    AsrsJob asrsJob = AsrsJob.getAsrsJobByMcKey(block.getMcKey());
+                    if (asrsJob.getType().equals(AsrsJobType.PUTAWAY) && !asrsJob.getStatus().equals(AsrsJobStatus.DONE) ) {
+                        //mCar.setReservedMcKey(block.getMcKey());
+                        hasJob = true;
+                    }
+                }
+            }
+        }
+        return hasJob;
     }
 
 }

@@ -91,7 +91,9 @@ public class CreateAsrsJob {
                 asrsJob.setMcKey(Mckey.getNext());
                 asrsJob.setToLocation(scarChargeLocation.getChargeLocation().getLocationNo());
                 asrsJob.setFromStation(toMcar.getBlockNo());
-                Location location = Location.getByLocationNo(sCar.getChargeLocation());
+
+                Location location = scarChargeLocation.getChargeLocation();
+
                 MCar chargeSrm = mCar.getMCarByPosition(location.getPosition(), location.getLevel());
                 asrsJob.setToStation(chargeSrm.getBlockNo());
                 asrsJob.setBarcode(sCar.getBlockNo());
@@ -229,9 +231,10 @@ public class CreateAsrsJob {
             hasJob = true;
             return hasJob;
         }
-        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level  and position =:position");
+        Query query = HibernateUtil.getCurrentSession().createQuery("from SCar where level=:level  and position =:position and status!=:status");
         query.setParameter("level", level);
         query.setParameter("position", sCar.getPosition());
+        query.setParameter("status", SCar.STATUS_CHARGE);
         query.setMaxResults(1);
         SCar levlScar = (SCar) query.uniqueResult();
 

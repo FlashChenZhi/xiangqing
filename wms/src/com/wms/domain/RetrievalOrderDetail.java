@@ -15,6 +15,9 @@ public class RetrievalOrderDetail {
     private String batch;//批次
     private String palletNo;
     private int version;
+    private int createJobNum;
+    private int completeNum;
+    private String position;
 
     private RetrievalOrder retrievalOrder;
 
@@ -90,6 +93,35 @@ public class RetrievalOrderDetail {
 
     public void setPalletNo(String palletNo) {
         this.palletNo = palletNo;
+    }
+
+    @Basic
+    @Column(name = "CREATEJOBNUM")
+    public int getCreateJobNum() {
+        return createJobNum;
+    }
+
+    public void setCreateJobNum(int createJobNum) {
+        this.createJobNum = createJobNum;
+    }
+
+    @Basic
+    @Column(name = "COMPLETENUM")
+    public int getCompleteNum() {
+        return completeNum;
+    }
+
+    public void setCompleteNum(int completeNum) {
+        this.completeNum = completeNum;
+    }
+    @Basic
+    @Column(name = "POSITION")
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     @Override

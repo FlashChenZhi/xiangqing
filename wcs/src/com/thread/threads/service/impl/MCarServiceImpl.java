@@ -93,7 +93,11 @@ public class MCarServiceImpl implements MCarService {
                         }
                     }
                 }else{
-                    if (sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
+                    if (!hasJob) {
+                        //存在小车电量低，将入库任务做完再上车充电
+                        hasJob = findPutawayByLevelOfMcar(hasJob);
+                    }
+                    if (!hasJob && sCar != null && StringUtils.isBlank(mCar.getsCarBlockNo())) {
                         if (StringUtils.isBlank(sCar.getMcKey()) && StringUtils.isBlank(sCar.getReservedMcKey())) {
                             MCarOperator srmOperator = new MCarOperator(mCar, "9999");
                             srmOperator.tryLoadCar();

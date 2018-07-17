@@ -92,6 +92,9 @@ let AsrsJobQuery = React.createClass({
         }, {
             title: '作业类型',
             dataIndex: 'jobType',
+        },{
+            title: '所属订单',
+            dataIndex: 'orderNo',
         }, {
             title: '作业状态',
             dataIndex: 'jobStatus',

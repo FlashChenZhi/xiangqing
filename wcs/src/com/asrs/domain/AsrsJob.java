@@ -262,6 +262,18 @@ public class AsrsJob {
         this.sendReport = sendReport;
     }
 
+    private String orderNo;
+
+    @Basic
+    @Column(name = "ORDER_NO")
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -101,12 +101,13 @@ public class LiftServiceImpl implements LiftService {
             }
         }
 
-        if(!hasJob){
+        /*if(!hasJob){
+            //无任务回原点
             LiftOperator operator = new LiftOperator(lift, "9999");
             Dock dock =Dock.getDockByLevAndLift(lift.getBlockNo(),1);
             if(lift.getLevel()!=1)
             operator.move(dock.getDockNo());
-        }
+        }*/
 
 
 

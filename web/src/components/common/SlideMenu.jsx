@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import {Link} from 'react-router';
 import {Menu, Icon, message} from 'antd';
+import StockOutODO from "../InOrOut/StockOutODO";
 const SubMenu = Menu.SubMenu;
 
 const SlideMenu = React.createClass({
@@ -114,6 +115,16 @@ const SlideMenu = React.createClass({
                         <Menu.Item key='5'>
                             <Link to='AssignsTheStorehouse'>
                                 <Icon type="solution" /><span className="nav-text">定点出库</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='6'>
+                            <Link to='StockOutODO'>
+                                <Icon type="solution" /><span className="nav-text">订单出库</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='7'>
+                            <Link to='FindOrderDetail'>
+                                <Icon type="solution" /><span className="nav-text">订单详情</span>
                             </Link>
                         </Menu.Item>
                     </SubMenu>
