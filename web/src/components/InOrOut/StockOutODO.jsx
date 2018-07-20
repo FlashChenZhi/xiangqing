@@ -40,15 +40,38 @@ let PutInStorage = React.createClass({
             current:1,
             visible: false,
             formRef:"",
+            orderNo:"",
         };
     },
 
     componentDidMount(){
         this.getCommodityCode();
         this.getLotNums();
+        this.getOrderNo();
         //this.getData(1);
     },
-
+    getOrderNo(){
+        reqwest({
+            url: '/wms/master/StockOutODOAction/getOrderNo',
+            dataType: 'json',
+            method: 'post',
+            data: {},
+            success: function (json) {
+                if(json.success){
+                    console.log(json);
+                    console.log(json.res);
+                    this.setState({
+                        orderNo:json.res,
+                    })
+                }else{
+                    message.error("初始化订单号失败！");
+                }
+            }.bind(this),
+            error: function (err) {
+                message.error("初始化订单号失败！");
+            }.bind(this)
+        })
+    },
     getCommodityCode(){
         reqwest({
             url: '/wms/master/FindOutOrInWarehouseAction/getSkuCode',
@@ -160,6 +183,7 @@ let PutInStorage = React.createClass({
                             message.error(json.msg);
                         } else {
                             message.success("设定任务成功！");
+                            window.location.reload();
                         }
                     }.bind(this),
                     error: function (err) {
@@ -336,7 +360,7 @@ let PutInStorage = React.createClass({
             wrapperCol: {span: 14},
         };
         const orderNoProps = getFieldProps('orderNo', {
-            rules: [{ required: true, message: '请输入订单号！' }],
+            initialValue:this.state.orderNo,
         });
         const driverProps = getFieldProps('driver');
         const carProps = getFieldProps('car');

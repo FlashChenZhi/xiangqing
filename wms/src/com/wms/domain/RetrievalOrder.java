@@ -1,5 +1,6 @@
 package com.wms.domain;
 
+import com.asrs.business.consts.RetrievalOrderStatus;
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.annotations.Cascade;
 
@@ -228,6 +229,15 @@ public class RetrievalOrder {
         query.setParameter("orderNo", orderNo);
         query.setMaxResults(1);
         return (RetrievalOrder) query.uniqueResult();
+
+    }
+    @Transient
+    public static long getByStatus() {
+        org.hibernate.Query query = HibernateUtil.getCurrentSession().createQuery("select count(*) as count " +
+                " from RetrievalOrder where status=:status");
+        query.setParameter("status", RetrievalOrderStatus.WAITING);
+
+        return (long) query.uniqueResult();
 
     }
 }

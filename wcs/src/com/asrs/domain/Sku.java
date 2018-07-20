@@ -4,6 +4,8 @@ import com.util.hibernate.HibernateUtil;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by wangfan
@@ -193,6 +195,17 @@ public class Sku {
         result = 31 * result + custName.hashCode();
         result = 31 * result + version;
         return result;
+    }
+
+    private Collection<SkuDetail> _skuDetails = new ArrayList<SkuDetail>();
+
+    @OneToMany(mappedBy = "sku")
+    public Collection<SkuDetail> getSkuDetails() {
+        return _skuDetails;
+    }
+
+    public void setSkuDetails(Collection<SkuDetail> skuDetails) {
+        _skuDetails = skuDetails;
     }
 
     public static Sku getByCode(String skuCode) {

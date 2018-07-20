@@ -26,7 +26,7 @@ public class Test {
         try{
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-            Job job=Job.getByMcKey("4724");
+            Sku sku = Sku.getByCode("1");
             System.out.println(11);
             Transaction.commit();
         }catch (Exception e){

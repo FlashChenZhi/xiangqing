@@ -7,6 +7,7 @@ import com.asrs.message.MessageBuilder;
 import com.asrs.message.MsgException;
 import com.thread.blocks.Block;
 import com.thread.blocks.SCar;
+import com.util.common.LogWriter;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import net.sf.json.JSONObject;
@@ -50,7 +51,7 @@ public class Msg26Proc implements MsgProcess {
                     sCar.setPower(Integer.parseInt(block.getBatteryElectricity()));
                     sCar.setError(block.getErrorCode());
                     System.out.println(block.getErrorCode());
-
+                    LogWriter.writeError(Msg26Proc.class, "Scar:"+sCar.getBlockNo()+";power:"+Integer.parseInt(block.getBatteryElectricity())+";error:"+block.getErrorCode());
                 }
                 Transaction.commit();
             }

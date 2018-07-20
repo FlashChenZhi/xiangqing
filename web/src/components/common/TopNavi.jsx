@@ -124,6 +124,7 @@ export default class TopNavi extends React.Component {
                             </div>
                         </div>
                     </div>
+
                     <UpdatePwdModel visible={updatePwdModelVisible} hideModel={this.hideModel.bind(this)}/>
                 </Col>
             </Row>

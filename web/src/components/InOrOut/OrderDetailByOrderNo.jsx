@@ -1,20 +1,19 @@
 import React from 'react';
-import {Button, Form, Row, Col,Table, Cascader, InputNumber, Input, Select,  Icon, message, Modal, Radio} from 'antd';
+import {Button, Form, Row, Col,Table,Popconfirm , Cascader, InputNumber, Input, Select,  Icon, message, Modal, Radio} from 'antd';
 import {reqwestError} from '../common/Golbal';
 import reqwest from 'reqwest';
 
 const createForm = Form.create;
 const FormItem = Form.Item;
-const columns = [{
-    title: '货品名称',
-    dataIndex: 'skuName',
-}, {
-    title: '出库数量',
-    dataIndex: 'qty',
-},{
-    title: '批号',
-    dataIndex: 'batch',
-}];
+const EditableCell = ({ editable, value, onChange }) => (
+    <div>
+        {editable//EDITABLE
+            ? <Input style={{ margin: '-5px 0' }} value={value} onChange={e => onChange(e.target.value)} />
+            : value
+        }
+    </div>
+);
+let target=null;
 class ChangeLevelModel extends React.Component {
     constructor(props) {
         super(props);
@@ -29,7 +28,7 @@ class ChangeLevelModel extends React.Component {
             toStation:"",
             coustomName:"",
             data:[],
-
+            display:"inline",
         }
     }
 
@@ -48,20 +47,15 @@ class ChangeLevelModel extends React.Component {
         /*if (!!window.ActiveXObject || "ActiveXObject" in window) { //是否ie
             this.remove_ie_header_and_footer();
         }*/
-        document.body.innerHTML='<h3>亲亲山水订单详情</h3><br/>'+document.getElementById('div').innerHTML;
+        this.setState({
+            display:"none",
+        })
+        document.body.innerHTML=document.getElementById('div').innerHTML;
         window.print();
+        window.location.reload();
         //window.print();
     }
-    remove_ie_header_and_footer() {
-        var hkey_path;
-        hkey_path = "HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
-        try {
-            var RegWsh = new ActiveXObject("WScript.Shell");
-            RegWsh.RegWrite(hkey_path + "header", "");
-            RegWsh.RegWrite(hkey_path + "footer", "");
-        } catch (e) {
-        }
-    }
+
 
     showModel(code) {
         let orderNo= encodeURI(code,"utf-8");
@@ -99,10 +93,102 @@ class ChangeLevelModel extends React.Component {
         this.props.hideModel();
 
     }
+    renderColumns(text, record, column){
+        return (
+
+            <EditableCell
+                editable={record.editable}
+                value={text}
+                onChange={value => this.handleChange(value, record.key, column)}
+            />
+        );
+    }
+    /**
+     * 进入更新学生模式
+     * @param key
+     */
+    updateStudent(key){
+        const newData = [...this.state.data];
+        const target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            target.editable = true;
+            this.setState({ data: newData });
+        }
+    }
+    handleChange(value, key, column) {
+        const newData = this.state.data;
+        const target = newData.filter(item => key === item.key)[0];
+        if (target) {
+            target[column] = value;
+            this.setState({ data: newData });
+        }
+    }
+    getRowData(key){
+        this.state.data.forEach((item) => {
+            console.log(item);
+            if(key === item.key){
+                target= item;
+            }
+        } );
+
+    }
+
+    save(key) {
+        const newData = this.state.data;
+
+        this.getRowData(key);
+        console.log(target);
+        if (target) {
+            //复制缓存数据到target
+            //Object.assign(target,  this.state.data.forEach(item => key === item.key));
+            delete target.editable;
+            this.setState({ data: newData });
+        }
+    }
 
     render() {
         const {getFieldProps} = this.props.form;
 
+        const columns = [{
+            title: '序号',
+            dataIndex: 'key',
+        },{
+            title: '货品名称',
+            dataIndex: 'skuName',
+        }, {
+            title: '出库数量',
+            dataIndex: 'qty',
+            render:(text,record)=>{
+                return(
+                    this.renderColumns(text, record, 'qty')
+                )
+            },
+
+        },{
+            title: '批号',
+            dataIndex: 'batch',
+        },{
+            title: '操作',
+            render:(text,record)=>{
+                const {editable }=record;
+                return(
+                    <div className="editable-row-operations">
+                        {
+                            editable?
+                                <span>
+                                         <Button onClick={() => this.save(record.key)}>Save</Button>
+                                         {/* <Popconfirm title="确定取消吗?" onConfirm={() => this.cancel(record.key)}>
+                                            <Button>Cancel</Button>
+                                          </Popconfirm>*/}
+                                    </span>
+                                :
+                                <Button type="primary" style={{display:this.state.display}}  onClick={ () =>this.updateStudent(record.key)}  icon="edit">修改</Button>
+                        }
+                    </div>
+                );
+
+            },
+        }];
         const formItemLayout = {
             labelCol: {span: 5},
             wrapperCol: {span: 16}
@@ -135,8 +221,14 @@ class ChangeLevelModel extends React.Component {
                        confirmLoading={this.state.loading}
                        width="800px"
                 >
+
                 <div id={"div"}>
                     <Form horizontal >
+                        <Row gutter={16}>
+                            <h3 style={{width:'85%',float:'left'}}>亲亲山水订单详情</h3>
+                            <img src="../../../www/images/xiangqinglogo.jsp" width={"15%;"} height={"50px;"} />
+                        </Row>
+                        <br/>
                         <Row gutter={16}>
                             <Col span={12}>
                                 <FormItem
@@ -194,7 +286,7 @@ class ChangeLevelModel extends React.Component {
                         <Table
                             /*loading={this.state.loading}*/
                             columns={columns}
-                            /*rowKey={record => record.index}*/
+                            rowKey={record => record.key}
                             dataSource={this.state.data}
 
                             /*pagination={{

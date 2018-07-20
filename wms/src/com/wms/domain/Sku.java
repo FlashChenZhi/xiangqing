@@ -2,10 +2,13 @@ package com.wms.domain;
 
 import com.util.hibernate.HibernateUtil;
 import org.hibernate.*;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import javax.persistence.Version;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by wangfan
@@ -194,6 +197,20 @@ public class Sku {
         result = 31 * result + version;
         return result;
     }
+
+    private Collection<SkuDetail> _skuDetails = new ArrayList<SkuDetail>();
+
+    @OneToMany(mappedBy = "sku")
+    public Collection<SkuDetail> getSkuDetails() {
+        return _skuDetails;
+    }
+
+    public void setSkuDetails(Collection<SkuDetail> skuDetails) {
+        _skuDetails = skuDetails;
+    }
+
+
+
 
     public static Sku getByCode(String skuCode) {
 

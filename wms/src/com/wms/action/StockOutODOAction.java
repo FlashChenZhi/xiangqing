@@ -41,6 +41,16 @@ public class StockOutODOAction {
     public ReturnObj<List<Map<String,Object>>> findNumBySkuAndLotNum(String skuCode,String lotNum){
         return stockOutODOService.findNumBySkuAndLotNum(skuCode,lotNum);
     }
+
+    /*
+     * @description： 初始化订单号
+     */
+    @RequestMapping(value = "/getOrderNo",method = RequestMethod.POST)
+    @ResponseBody
+    public ReturnObj<String> getOrderNo(){
+        return stockOutODOService.getOrderNo();
+    }
+
     /*
      * @description： 生成订单
      */

@@ -9,6 +9,7 @@ import com.util.hibernate.Transaction;
 import com.wms.domain.RetrievalOrder;
 import com.wms.domain.RetrievalOrderDetail;
 import com.wms.domain.Sku;
+import com.wms.domain.SkuDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -50,7 +51,7 @@ public class FindOrderDetailService {
             Query query = session.createQuery("select r.orderNo as orderNo,r.coustomName as coustomName, " +
                     "r.toStation as toStation, r.toLocation as toLocation,r.carrierCar as carrierCar, " +
                     "r.status as status,r.createDate as createDate from RetrievalOrder r "+(StringUtils.isNotBlank(orderNo)?
-                    " where r.orderNo=:orderNo ":"")).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+                    " where r.orderNo=:orderNo ":"")+" order by r.createDate desc ").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             Query query1 = session.createQuery("select count(*) as count from RetrievalOrder "+(StringUtils.isNotBlank(orderNo)?
                     " where orderNo=:orderNo ":""));
 
@@ -105,7 +106,7 @@ public class FindOrderDetailService {
             outmap.put("1204", "二号出库口");
             outmap.put("1206", "三号出库口");
 
-            Query query = session.createQuery("from RetrievalOrder r where r.orderNo=:orderNo order by r.createDate desc ");
+            Query query = session.createQuery("from RetrievalOrder r where r.orderNo=:orderNo ");
             query.setParameter("orderNo",orderNo );
 
             RetrievalOrder retrievalOrder = (RetrievalOrder)query.uniqueResult();
@@ -120,12 +121,28 @@ public class FindOrderDetailService {
             map.put("toStation", outmap.get(retrievalOrder.getToStation()));
             map.put("coustomName", retrievalOrder.getCoustomName());
             List<Map<String,Object>> mapList=new ArrayList<>();
+            int i=1;
+            int count = 0;
             for(RetrievalOrderDetail retrievalOrderDetail:retrievalOrder.getRetrievalOrderDetailSet()){
                 Map<String ,Object> map2=new HashMap<>();
+                map2.put("key", i);
                 map2.put("skuName", Sku.getByCode(retrievalOrderDetail.getItemCode()).getSkuName());
                 map2.put("qty", retrievalOrderDetail.getQty());
                 map2.put("batch", retrievalOrderDetail.getBatch());
+                count+=retrievalOrderDetail.getQty().intValue();
                 mapList.add(map2);
+                i++;
+            }
+            Sku sku=Sku.getByCode("1");
+            count= (int) Math.ceil((double)count/125);
+            for(SkuDetail skuDetail : sku.getSkuDetails()){
+                Map<String ,Object> map2=new HashMap<>();
+                map2.put("key", i);
+                map2.put("skuName", skuDetail.getSkuDetailName());
+                map2.put("qty", skuDetail.getSkuDetailQty()*count);
+                map2.put("batch", "");
+                mapList.add(map2);
+                i++;
             }
             map.put("data", mapList);
             returnObj.setSuccess(true);

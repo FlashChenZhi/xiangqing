@@ -53,6 +53,7 @@
     <mapping class="com.asrs.domain.JobDetail"/>
     <mapping class="com.asrs.domain.LedMessage"/>
     <mapping class="com.asrs.domain.Sku"/>
+    <mapping class="com.asrs.domain.SkuDetail"/>
     <mapping class="com.asrs.domain.Qty"/>
     <mapping class="com.asrs.domain.ScarChargeLocation"/>
   </session-factory>

@@ -37,6 +37,7 @@
         <mapping class="com.wms.domain.RetrievalOrder"/>
         <mapping class="com.wms.domain.RetrievalResult"/>
         <mapping class="com.wms.domain.Sku"/>
+        <mapping class="com.wms.domain.SkuDetail"/>
         <mapping class="com.wms.domain.StoreResult"/>
         <mapping class="com.wms.domain.blocks.Block"/>
         <mapping class="com.wms.domain.blocks.Crane"/>
