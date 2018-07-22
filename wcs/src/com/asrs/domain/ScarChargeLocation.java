@@ -6,6 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -87,14 +88,15 @@ public class ScarChargeLocation {
                 "and s.status=true and s.receved=false ");
         query.setParameter("scarBlockNo", scarBlockNo);
         List<ScarChargeLocation> scarChargeLocations =query.list();
+        List<ScarChargeLocation> scarChargeLocations2=new ArrayList<>();
         for(int i=0;i<scarChargeLocations.size();i++){
             ScarChargeLocation scarChargeLocation=scarChargeLocations.get(i);
             boolean flag = isScarChargeLocationReceved(scarChargeLocation.getChargeLocation());
-            if(!flag){
-                scarChargeLocations.remove(i);
+            if(flag){
+                scarChargeLocations2.add(scarChargeLocation);
             }
         }
-        return scarChargeLocations;
+        return scarChargeLocations2;
     }
 
     @Transient

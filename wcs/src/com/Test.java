@@ -25,8 +25,7 @@ public class Test {
     public static void main(String[] args) {
         try{
             Transaction.begin();
-            Session session = HibernateUtil.getCurrentSession();
-            Sku sku = Sku.getByCode("1");
+            List<ScarChargeLocation> scarChargeLocationList = ScarChargeLocation.getAbleChargeLocationBySCarBlockNo("SC05");
             System.out.println(11);
             Transaction.commit();
         }catch (Exception e){
