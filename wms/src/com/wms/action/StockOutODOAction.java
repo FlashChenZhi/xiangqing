@@ -25,7 +25,7 @@ public class StockOutODOAction {
     private StockOutODOService stockOutODOService;
 
     /*
-     * @description： 初始化页面商品代码
+     * @description： 查询批次号
      */
     @RequestMapping(value = "/getLotNums",method = RequestMethod.POST)
     @ResponseBody
@@ -34,14 +34,21 @@ public class StockOutODOAction {
     }
 
     /*
-     * @description： 初始化页面商品代码
+     * @description： 根据批次号和货品skucode查询在各个巷道各有几板货
      */
     @RequestMapping(value = "/findNumBySkuAndLotNum",method = RequestMethod.POST)
     @ResponseBody
     public ReturnObj<List<Map<String,Object>>> findNumBySkuAndLotNum(String skuCode,String lotNum){
         return stockOutODOService.findNumBySkuAndLotNum(skuCode,lotNum);
     }
-
+    /*
+     * @description： 初始化车辆信息
+     */
+    @RequestMapping(value = "/getCar",method = RequestMethod.POST)
+    @ResponseBody
+    public ReturnObj<List<Map<String,Object>>> getCar(){
+        return stockOutODOService.getCar();
+    }
     /*
      * @description： 初始化订单号
      */

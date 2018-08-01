@@ -10,6 +10,7 @@ import com.wms.domain.RetrievalOrder;
 import com.wms.domain.RetrievalOrderDetail;
 import com.wms.domain.Sku;
 import com.wms.domain.SkuDetail;
+import com.wms.domain.blocks.ETruck;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -117,7 +118,18 @@ public class FindOrderDetailService {
             map.put("orderNo", retrievalOrder.getOrderNo());
             map.put("toLocation", retrievalOrder.getToLocation());
             map.put("carrierName", retrievalOrder.getCarrierName());
-            map.put("carrierCar", retrievalOrder.getCarrierCar());
+            if(StringUtils.isNumeric(retrievalOrder.getCarrierCar())){
+                ETruck eTruck = ETruck.findETruckByEid(Integer.parseInt(retrievalOrder.getCarrierCar()));
+                if(eTruck!=null){
+                    map.put("carrierCar", eTruck.getMark());
+                }else{
+                    map.put("carrierCar", "");
+                }
+
+            }else{
+                map.put("carrierCar", retrievalOrder.getCarrierCar());
+            }
+
             map.put("toStation", outmap.get(retrievalOrder.getToStation()));
             map.put("coustomName", retrievalOrder.getCoustomName());
             List<Map<String,Object>> mapList=new ArrayList<>();

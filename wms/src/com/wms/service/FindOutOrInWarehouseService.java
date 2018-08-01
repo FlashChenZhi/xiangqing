@@ -60,7 +60,8 @@ public class FindOutOrInWarehouseService {
     /*
      * @description：查找出入库详情
      */
-    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int startIndex, int defaultPageSize, String productId, String beginDate, String endDate,String type){
+    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int startIndex, int defaultPageSize, String productId,
+                                     String beginDate, String endDate,String type,String lotNum){
         PagerReturnObj<List<Map<String,Object>>> returnObj = new PagerReturnObj<List<Map<String,Object>>>();
         try {
             Transaction.begin();
@@ -83,6 +84,10 @@ public class FindOutOrInWarehouseService {
             if (StringUtils.isNotBlank(endDate)) {
                 sb.append("and b.createDate <= :endDate ");
                 sb1.append("and b.createDate <= :endDate ");
+            }
+            if (StringUtils.isNotBlank(lotNum)) {
+                sb.append("and b.lotNum = :lotNum ");
+                sb1.append("and b.lotNum = :lotNum ");
             }
             if (StringUtils.isNotBlank(type) && !"00".equals(type)) {
                 sb.append("and b.type = :type ");
@@ -107,6 +112,10 @@ public class FindOutOrInWarehouseService {
             if (StringUtils.isNotBlank(endDate)) {
                 query.setString("endDate",endDate);
                 query1.setString("endDate",endDate);
+            }
+            if (StringUtils.isNotBlank(lotNum)) {
+                query.setString("lotNum",lotNum);
+                query1.setString("lotNum",lotNum);
             }
             if (StringUtils.isNotBlank(type) && !"00".equals(type)) {
                 query.setString("type",type);

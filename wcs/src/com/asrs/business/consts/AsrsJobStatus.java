@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class AsrsJobStatus
 {
-    public static final String SUSPEND = "0";
+    public static final String WAITING = "0";
     public static final String RUNNING = "1";
     public static final String ACCEPT = "2";
     public static final String PICKING = "3";

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="current_session_context_class">thread</property>
+        <!--<property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>-->
+        <property name="hibernate.connection.driver_class">com.microsoft.jdbc.sqlserver.SQLServerDriver</property>
+        <!--<property name="hibernate.connection.url">jdbc:oracle:thin:@localhost:1521:orcl</property>-->
+
+        <property name="hibernate.connection.url">jdbc:sqlserver://122.115.50.11:1433;DatabaseName=PublicData</property>
+
+        <property name="hibernate.connection.username">xiangqingtest</property>
+        <property name="connection.password">xiangqingtest</property>
+        <!--<property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>-->
+        <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
+        <!--<property name="hibernate.hbm2ddl.auto">update</property>-->
+        <!-- 配置C3P0 -->
+
+        <!-- 最大连接数 -->
+        <property name="hibernate.c3p0.max_size">30</property>
+        <!-- 最小连接数 -->
+        <property name="hibernate.c3p0.min_size">3</property>
+        <!-- 获得连接的超时时间,如果超过这个时间,会抛出异常，单位毫秒 -->
+        <property name="hibernate.c3p0.timeout">30</property>
+        <!-- 当连接池里面的连接用完的时候，C3P0一下获取的新的连接数 -->
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+
+        <!-- 每次都验证连接是否可用 -->
+        <property name="hibernate.c3p0.validate">true</property>
+        <mapping class="com.wms.domain.erp.Truck"/>
+        <mapping class="com.wms.domain.erp.WEInStock"/>
+        <mapping class="com.wms.domain.erp.WEInStockOver"/>
+        <mapping class="com.wms.domain.erp.WEOutStock"/>
+        <mapping class="com.wms.domain.erp.WEOutStockOver"/>
+        <mapping class="com.wms.domain.erp.WESku"/>
+    </session-factory>
+</hibernate-configuration>

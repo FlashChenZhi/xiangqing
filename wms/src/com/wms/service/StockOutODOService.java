@@ -102,6 +102,38 @@ public class StockOutODOService {
         }
         return s;
     }
+
+    /*
+     * @author：ed_chen
+     * @date：2018/7/14 20:54
+     * @description：初始化车辆信息
+     * @param
+     * @return：com.util.common.ReturnObj<java.util.List<java.util.Map<java.lang.String,java.lang.String>>>
+     */
+    public ReturnObj<List<Map<String,Object>>> getCar(){
+        ReturnObj<List<Map<String,Object>>> s = new ReturnObj();
+        try {
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+            Query query = session.createQuery("select e.eId as eid ,e.mark as mark " +
+                    " from ETruck e where e.isDel=0 ").setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+
+            List<Map<String,Object>> retList = query.list();
+
+            s.setSuccess(true);
+            s.setRes(retList);
+            Transaction.commit();
+        } catch (JDBCConnectionException ex) {
+            s.setSuccess(false);
+            s.setMsg(LogMessage.DB_DISCONNECTED.getName());
+        } catch (Exception ex) {
+            Transaction.rollback();
+            s.setSuccess(false);
+            s.setMsg(LogMessage.UNEXPECTED_ERROR.getName());
+        }
+        return s;
+    }
+
     /*
      * @author：ed_chen
      * @date：2018/7/14 20:54

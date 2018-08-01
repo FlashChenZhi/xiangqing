@@ -76,13 +76,14 @@ let OutputArea = React.createClass({
             values.beginDate = null;
             values.endDate = null;
         }
+        console.log(values);
         reqwest({
             url: '/wms/master/FindOutOrInWarehouseAction/findOutOrInWarehouse',
             dataType: 'json',
             method: 'post',
             data: {current:values.currentPage,defaultPageSize:defaultPageSize,
                 productId:values.productId,beginDate:values.beginDate,
-                endDate:values.endDate,type:values.type},
+                endDate:values.endDate,type:values.type,lotNo:values.lotNo},
             success: function (json) {
                 if(json.success){
                     console.log(json.res);
@@ -204,6 +205,12 @@ let OutputArea = React.createClass({
                                         {...commodityCodeProps} >
                                     {commodityCodeListSelect}
                                 </Select>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="商品批次："
+                            >
+                                <Input {...lotNoProps} />
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}

@@ -1,21 +1,23 @@
 import com.asrs.business.consts.AsrsJobType;
 import com.util.common.Const;
+import com.util.hibernate.HibernateERPUtil;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
+import com.util.hibernate.TransactionERP;
 import com.wms.domain.*;
 import com.wms.domain.blocks.Block;
+import com.wms.domain.blocks.ETruck;
 import com.wms.domain.blocks.MCar;
 import com.wms.domain.blocks.SCar;
+import com.wms.domain.erp.Truck;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Cache;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 /**
@@ -24,13 +26,39 @@ import java.util.Map;
 public class Test {
     public static void main(String[] args) {
         try{
+
+            //TransactionERP.begin();
             Transaction.begin();
-            Session session = HibernateUtil.getCurrentSession();
-            int i =249;
-            System.out.println((int) Math.ceil((double)i/125));
+            //Session sessionERP = HibernateERPUtil.getCurrentSession();
+            Session  session = HibernateUtil.getCurrentSession();
+            JobLog jl = new JobLog();
+
+            jl.setContainer("1");
+            jl.setCreateDate(new Date());
+            jl.setCreateUser("1");
+
+                jl.setFromLocation("1");
+
+            jl.setFromStation("1");
+                jl.setToLocation("1");
+                jl.setOrderNo("1");
+            jl.setToStation("1");
+            jl.setType("1");
+                jl.setSkuCode("1");
+                jl.setSkuName("1");
+                jl.setLotNum("1");
+            jl.setStatus("0");
+            session.save(jl);
+
+
+            //TransactionERP.commit();
             Transaction.commit();
+
+
         }catch (Exception e){
+            //TransactionERP.rollback();
             Transaction.rollback();
+
             e.printStackTrace();
         }
 

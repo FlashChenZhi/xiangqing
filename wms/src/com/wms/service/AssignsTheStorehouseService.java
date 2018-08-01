@@ -458,7 +458,7 @@ public class AssignsTheStorehouseService {
             //存入job
             job.setContainer(inventory.getContainer().getBarcode());
             job.setMcKey(mckey);
-            job.setOrderNo("dingdian");
+            job.setOrderNo(Const.dingdian);
             job.setSendReport(false);
             job.setStatus("1");
             job.setToStation(stationNo);

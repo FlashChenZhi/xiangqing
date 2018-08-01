@@ -1,8 +1,14 @@
 package com.wms.domain;
 
+import com.util.hibernate.HibernateERPUtil;
+import com.util.hibernate.HibernateUtil;
+import com.wms.domain.erp.Truck;
+import org.hibernate.Query;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by van on 2018/1/14.
@@ -196,5 +202,11 @@ public class JobLog {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public static List<JobLog> findUnReadJobLog(){
+        Query query = HibernateUtil.getCurrentSession().createQuery("from JobLog where status='0' ");
+        List<JobLog> jobLogList=query.list();
+        return  jobLogList;
     }
 }

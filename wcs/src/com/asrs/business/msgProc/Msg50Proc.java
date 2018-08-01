@@ -72,106 +72,114 @@ public class Msg50Proc implements MsgProcess {
         try {
             Transaction.begin();
             Session session = HibernateUtil.getCurrentSession();
-
+            boolean hasErpJob = true;
             for (Map.Entry<String, Message50.Block> entry : message50.MachineNos.entrySet()) {
                 String blockNo = entry.getKey();
                 StationBlock block1 = StationBlock.getByStationNo(blockNo);
                 if (block1 instanceof StationBlock) {
                     Station station = Station.getStation(((StationBlock) block1).getStationNo());
                     if (AsrsJobType.PUTAWAY.equals(station.getMode()) && "1".equals(entry.getValue().Load)) {
-                        if (StringUtils.isEmpty(block1.getMcKey())) {
-                            Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
-                            if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
-                                //有子车电量不足
+                        //若没有接收到ERP的任务不发55
+                        Job job =Job.getByCreateDate(blockNo);
+                        if(job!=null){
+                            if (StringUtils.isEmpty(block1.getMcKey())) {
+                                Configuration configuration = Configuration.getConfig(Configuration.KEY_RUNMODEL);
+                                if (configuration.getValue().equals(Configuration.MODEL_ONLINE)) {
+                                    //有子车电量不足
 //                            List<SCar> sCars = HibernateUtil.getCurrentSession().createQuery("from SCar where power<30 and wareHouse=:po").setParameter("po", block1.getWareHouse()).list();
 //                            List<AsrsJob> chargeJob = HibernateUtil.getCurrentSession().createQuery("from AsrsJob where type=:tp and wareHouse=:wh").setParameter("tp", AsrsJobType.RECHARGED)
 //                                    .setParameter("wh", block1.getWareHouse()).list();
 
-                                //if (sCars.isEmpty() && chargeJob.isEmpty()) {
-                                for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
-                                    for (Map.Entry<String, String> entry2 : entry1.getValue().entrySet()) {
-                                        if (entry2.getValue().indexOf("???") == -1) {
-                                            Sender sender = new Sender();
-                                            sender.setDivision(XMLConstant.COM_DIVISION);
-                                            Receiver receiver = new Receiver();
-                                            receiver.setDivision(XMLConstant.WMS_DIVISION);
+                                    //if (sCars.isEmpty() && chargeJob.isEmpty()) {
+                                    for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
+                                        for (Map.Entry<String, String> entry2 : entry1.getValue().entrySet()) {
+                                            if (entry2.getValue().indexOf("???") == -1) {
+                                                Sender sender = new Sender();
+                                                sender.setDivision(XMLConstant.COM_DIVISION);
+                                                Receiver receiver = new Receiver();
+                                                receiver.setDivision(XMLConstant.WMS_DIVISION);
 
-                                            ControlArea controlArea = new ControlArea();
-                                            controlArea.setSender(sender);
-                                            controlArea.setReceiver(receiver);
-                                            controlArea.setCreationDateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                                                ControlArea controlArea = new ControlArea();
+                                                controlArea.setSender(sender);
+                                                controlArea.setReceiver(receiver);
+                                                controlArea.setCreationDateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-                                            RefId refId = new RefId();
-                                            refId.setId(999999);
-                                            controlArea.setRefId(refId);
+                                                RefId refId = new RefId();
+                                                refId.setId(999999);
+                                                controlArea.setRefId(refId);
 
-                                            XMLLocation xmlLocation = new XMLLocation();
-                                            xmlLocation.setMHA(station.getStationNo());
+                                                XMLLocation xmlLocation = new XMLLocation();
+                                                xmlLocation.setMHA(station.getStationNo());
 
-                                            List<String> list = new ArrayList<>(3);
-                                            list.add("");
-                                            list.add("");
-                                            list.add("");
-                                            xmlLocation.setRack(list);
+                                                List<String> list = new ArrayList<>(3);
+                                                list.add("");
+                                                list.add("");
+                                                list.add("");
+                                                xmlLocation.setRack(list);
 
-                                            LoadUnitAtIdDA loadUnitAtIdDA = new LoadUnitAtIdDA();
-                                            loadUnitAtIdDA.setXMLLocation(xmlLocation);
-                                            loadUnitAtIdDA.setScanDate(entry2.getValue());
-                                            loadUnitAtIdDA.setLoadType("00");
-                                            loadUnitAtIdDA.setWeight(entry.getValue().weight);
+                                                LoadUnitAtIdDA loadUnitAtIdDA = new LoadUnitAtIdDA();
+                                                loadUnitAtIdDA.setXMLLocation(xmlLocation);
+                                                loadUnitAtIdDA.setScanDate(entry2.getValue());
+                                                loadUnitAtIdDA.setLoadType("00");
+                                                loadUnitAtIdDA.setWeight(entry.getValue().weight);
 
-                                            LoadUnitAtID loadUnitAtID = new LoadUnitAtID();
-                                            loadUnitAtID.setControlArea(controlArea);
-                                            loadUnitAtID.setDataArea(loadUnitAtIdDA);
+                                                LoadUnitAtID loadUnitAtID = new LoadUnitAtID();
+                                                loadUnitAtID.setControlArea(controlArea);
+                                                loadUnitAtID.setDataArea(loadUnitAtIdDA);
 
-                                            Envelope envelope = new Envelope();
-                                            envelope.setLoadUnitAtID(loadUnitAtID);
-                                            XMLMessage xmlMessage = new XMLMessage();
-                                            xmlMessage.setStatus("1");
-                                            xmlMessage.setRecv("WMS");
-                                            xmlMessage.setMessageInfo(XMLUtil.getSendXML(envelope));
-                                            HibernateUtil.getCurrentSession().save(xmlMessage);
-                                            XMLUtil.sendEnvelope(envelope);
+                                                Envelope envelope = new Envelope();
+                                                envelope.setLoadUnitAtID(loadUnitAtID);
+                                                XMLMessage xmlMessage = new XMLMessage();
+                                                xmlMessage.setStatus("1");
+                                                xmlMessage.setRecv("WMS");
+                                                xmlMessage.setMessageInfo(XMLUtil.getSendXML(envelope));
+                                                HibernateUtil.getCurrentSession().save(xmlMessage);
+                                                XMLUtil.sendEnvelope(envelope);
 
-                                            block1.setLoad("1");
-                                        } else {
-                                            SystemLog.error(station.getStationNo() + "NoRead");
-                                            InMessage.error(blockNo,"NoRead");
+                                                block1.setLoad("1");
+                                            } else {
+                                                SystemLog.error(station.getStationNo() + "NoRead");
+                                                InMessage.error(blockNo,"NoRead");
+                                            }
                                         }
                                     }
-                                }
 
 //                            } else {
 //                                SystemLog.error("子车存在充电任务");
 //                                InMessage.error(blockNo,"子车存在充电任务");
 //                            }
-                            } else {
+                                } else {
 
 
-                                Query q = HibernateUtil.getCurrentSession().createQuery("from AsrsJobTest where fromStation=:station order by id asc").setMaxResults(1);
-                                q.setParameter("station", station.getStationNo());
-                                AsrsJobTest test = (AsrsJobTest) q.uniqueResult();
+                                    Query q = HibernateUtil.getCurrentSession().createQuery("from AsrsJobTest where fromStation=:station order by id asc").setMaxResults(1);
+                                    q.setParameter("station", station.getStationNo());
+                                    AsrsJobTest test = (AsrsJobTest) q.uniqueResult();
 
-                                if (test != null) {
-                                    AsrsJob asrsJob = new AsrsJob();
-                                    asrsJob.setType("01");
-                                    asrsJob.setFromStation(block1.getBlockNo());
-                                    asrsJob.setToStation(test.getToStation());
-                                    asrsJob.setToLocation(test.getToLocation());
-                                    asrsJob.setFromLocation(test.getFromLocation());
-                                    asrsJob.setMcKey(StringUtils.leftPad(HibernateUtil.nextSeq("seq_mckey") + "", 4, "0"));
-                                    asrsJob.setStatus("1");
-                                    asrsJob.setStatusDetail("0");
-                                    asrsJob.setWareHouse(block1.getWareHouse());
-                                    block1.setMcKey(asrsJob.getMcKey());
-                                    HibernateUtil.getCurrentSession().save(asrsJob);
-                                    HibernateUtil.getCurrentSession().delete(test);
+                                    if (test != null) {
+                                        AsrsJob asrsJob = new AsrsJob();
+                                        asrsJob.setType("01");
+                                        asrsJob.setFromStation(block1.getBlockNo());
+                                        asrsJob.setToStation(test.getToStation());
+                                        asrsJob.setToLocation(test.getToLocation());
+                                        asrsJob.setFromLocation(test.getFromLocation());
+                                        asrsJob.setMcKey(StringUtils.leftPad(HibernateUtil.nextSeq("seq_mckey") + "", 4, "0"));
+                                        asrsJob.setStatus("1");
+                                        asrsJob.setStatusDetail("0");
+                                        asrsJob.setWareHouse(block1.getWareHouse());
+                                        block1.setMcKey(asrsJob.getMcKey());
+                                        HibernateUtil.getCurrentSession().save(asrsJob);
+                                        HibernateUtil.getCurrentSession().delete(test);
 
+                                    }
                                 }
+                            }else{
+                                System.out.println("入库站台有mckey");
                             }
                         }else{
-                            System.out.println("入库站台有mckey");
+                            hasErpJob=false;
+                            System.out.println("不存在入库任务");
                         }
+
                     } else if (AsrsJobType.RETRIEVAL.equals(station.getMode()) && "0".equals(entry.getValue().Load)) {
 
                         for (Map.Entry<Integer, Map<String, String>> entry1 : entry.getValue().McKeysAndBarcodes.entrySet()) {
@@ -195,8 +203,11 @@ public class Msg50Proc implements MsgProcess {
                     }
                 }
             }
-            //发送55命令
-            sendMessage55(message50);
+            if(hasErpJob){
+                //若没有接收到erp的job任务不生成任务
+                //发送55命令
+                sendMessage55(message50);
+            }
             Transaction.commit();
         } catch (Exception e) {
             LogWriter.error(LoggerType.ERROR,"Msg50错误："+e.getMessage());

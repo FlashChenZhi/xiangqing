@@ -12,6 +12,7 @@ import com.asrs.message.MessageBuilder;
 import com.asrs.xml.util.XMLUtil;
 import com.thread.blocks.Block;
 import com.thread.blocks.Conveyor;
+import com.thread.blocks.Dock;
 import com.util.common.Const;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
@@ -25,8 +26,7 @@ public class Test {
     public static void main(String[] args) {
         try{
             Transaction.begin();
-            List<ScarChargeLocation> scarChargeLocationList = ScarChargeLocation.getAbleChargeLocationBySCarBlockNo("SC05");
-            System.out.println(11);
+            Dock dock = Dock.getDockByLevAndLift("0011", 1);
             Transaction.commit();
         }catch (Exception e){
             Transaction.rollback();

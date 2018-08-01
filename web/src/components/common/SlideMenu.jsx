@@ -2,6 +2,7 @@
 import {Link} from 'react-router';
 import {Menu, Icon, message} from 'antd';
 import StockOutODO from "../InOrOut/StockOutODO";
+import FindERPOrder from "../InOrOut/FindERPOrder";
 const SubMenu = Menu.SubMenu;
 
 const SlideMenu = React.createClass({
@@ -91,11 +92,11 @@ const SlideMenu = React.createClass({
 
                     </SubMenu>
                     <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
-                        <Menu.Item key='1'>
+                        {/*<Menu.Item key='1'>
                             <Link to='SkuLotNum'>
                                 <Icon type="setting"/><span className="nav-text">入库批次管理</span>
                             </Link>
-                        </Menu.Item>
+                        </Menu.Item>*/}
                         <Menu.Item key='2'>
                             <Link to='StationStatusSwitch'>
                                 <Icon type="setting"/><span className="nav-text">出入库状态切换</span>
@@ -125,6 +126,11 @@ const SlideMenu = React.createClass({
                         <Menu.Item key='7'>
                             <Link to='FindOrderDetail'>
                                 <Icon type="solution" /><span className="nav-text">订单详情</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='8'>
+                            <Link to='FindERPOrder'>
+                                <Icon type="solution" /><span className="nav-text">ERP订单详情</span>
                             </Link>
                         </Menu.Item>
                     </SubMenu>

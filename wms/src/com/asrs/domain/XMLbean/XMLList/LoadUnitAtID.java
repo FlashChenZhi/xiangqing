@@ -17,14 +17,11 @@ import com.asrs.domain.XMLbean.XMLList.DataArea.ToLocation;
 import com.asrs.domain.XMLbean.XMLProcess;
 import com.asrs.domain.consts.xmlbean.XMLConstant;
 import com.asrs.xml.util.XMLUtil;
-import com.util.common.Const;
-import com.util.common.LogWriter;
-import com.util.common.LoggerType;
+import com.util.common.*;
 import com.wms.domain.blocks.MCar;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import com.util.common.DateFormat;
 import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
@@ -107,44 +104,24 @@ public class LoadUnitAtID extends XMLProcess {
             String barcode = dataArea.getScanData().replaceAll("_","");
             String stationNo = dataArea.getXMLLocation().getMHA();
             Station station = Station.getNormalStation(stationNo);
-            //ReceiptLpnVo view = GetReceiptLPN.getReceipt(barcode);//与上位交互
 
-            Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
-                    .setString("station",stationNo)
-                    .setString("waiting", AsrsJobStatus.WAITING)
-                    .setMaxResults(1);
-            Job job = (Job) jobQuery.uniqueResult();
+            Job job = Job.getByCreateDate(stationNo);
             if(station!=null && AsrsJobType.PUTAWAY.equals(station.getMode())) {
                 if (job == null) {
-                    job=createJob(stationNo);
+                    System.out.println("不存在ERP的入库任务！");
+                    LogWriter.error(LoggerType.ERROR, "不存在ERP的入库任务！");
+                }else{
+                    barcode=job.getContainer();
+                    //分配货位，并向队列中压入TransportOrder
+                    Location newLocation = getToLocation(stationNo,job,barcode);
+                    job.setToLocation(newLocation);
+                    job.setStatus(AsrsJobStatus.RUNNING);
                 }
-                barcode=job.getContainer();
-                //分配货位，并向队列中压入TransportOrder
-                Location newLocation = getToLocation(stationNo,job,barcode);
-                job.setToLocation(newLocation);
-                job.setStatus(AsrsJobStatus.RUNNING);
+
             }else {
                 System.out.println("入库站台不是正常状态！");
             }
 
-
-
-             /* job = new Job();
-                job.setToLocation(newLocation);
-                job.setMcKey(ri.getReferenceId());
-                job.setStatus("1");
-                job.setFromStation(fromLocation.getMHA());
-                job.setContainer(barcode);
-                job.setType("01");
-                if(view == null || "1101".equals(stationNo)) {
-                    job.setSkuCode(Const.EMPTY_PALLET);
-                    job.setLotNum(Const.EMPTY_PALLET);
-                }else{
-                    job.setSkuCode(view.getSkuID());
-                    job.setLotNum(view.getLotAttr05());
-                }
-                job.setToStation(mCar.getBlockNo());
-                HibernateUtil.getCurrentSession().save(job);*/
             Transaction.commit();
         } catch (Exception e) {
             Transaction.rollback();

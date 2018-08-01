@@ -1,5 +1,6 @@
 package com.asrs.domain;
 
+import com.asrs.business.consts.AsrsJobStatus;
 import com.util.hibernate.HibernateUtil;
 import com.asrs.domain.JobDetail;
 import com.asrs.domain.Location;
@@ -444,6 +445,15 @@ public class Job {
         Query q = session.createQuery(" from Job j where j.container = :container")
                 .setString("container", fromLpnID);
         return (Job) q.uniqueResult();
+
+    }
+
+    public static Job getByCreateDate(String stationNo) {
+        Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
+                .setString("station",stationNo)
+                .setString("waiting", AsrsJobStatus.WAITING)
+                .setMaxResults(1);
+        return (Job) jobQuery.uniqueResult();
 
     }
 }

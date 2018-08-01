@@ -368,6 +368,9 @@ public class Job {
         if (this.getToLocation() != null) {
             jl.setToLocation(this.getToLocation().getLocationNo());
         }
+        if(this.getOrderNo()!=null){
+            jl.setOrderNo(this.getOrderNo());
+        }
         jl.setToStation(this.getToStation());
         jl.setType(this.getType());
         for(JobDetail jd : this._jobDetails){
@@ -376,6 +379,7 @@ public class Job {
             jl.setQty(jd.getInventory().getQty());
             jl.setLotNum(jd.getInventory().getLotNum());
         }
+        jl.setStatus("0");
         session.save(jl);
     }
 
@@ -474,6 +478,15 @@ public class Job {
                 .setString("container", fromLpnID).setString("station",stationNo)
                 .setString("waiting", AsrsJobStatus.WAITING);
         return (Job) q.uniqueResult();
+
+    }
+
+    public static Job getByCreateDate(String stationNo) {
+        Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
+                .setString("station",stationNo)
+                .setString("waiting", AsrsJobStatus.WAITING)
+                .setMaxResults(1);
+        return (Job) jobQuery.uniqueResult();
 
     }
 }

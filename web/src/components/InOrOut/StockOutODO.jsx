@@ -31,6 +31,8 @@ let PutInStorage = React.createClass({
             data:[],
             commodityCodeList:[],//货品代码集合
             commodityCodeFirst:"",//货品代码第一个
+            carList:[],//车辆集合
+            carListFirst:"",//车辆代码第一个
             lotNumList:[],//批次集合
             lotNumListFirst:"",//批次第一个
             total: 0,//表格数据总行数
@@ -48,6 +50,7 @@ let PutInStorage = React.createClass({
         this.getCommodityCode();
         this.getLotNums();
         this.getOrderNo();
+        this.getCar();
         //this.getData(1);
     },
     getOrderNo(){
@@ -72,6 +75,30 @@ let PutInStorage = React.createClass({
             }.bind(this)
         })
     },
+    getCar(){
+        reqwest({
+            url: '/wms/master/StockOutODOAction/getCar',
+            dataType: 'json',
+            method: 'post',
+            data: {},
+            success: function (json) {
+                if(json.success){
+                    console.log(json);
+                    console.log(json.res);
+                    this.setState({
+                        carList:json.res,
+                        carListFirst:json.res[0],
+                    })
+                }else{
+                    message.error("初始化订单号失败！");
+                }
+            }.bind(this),
+            error: function (err) {
+                message.error("初始化订单号失败！");
+            }.bind(this)
+        })
+    },
+
     getCommodityCode(){
         reqwest({
             url: '/wms/master/FindOutOrInWarehouseAction/getSkuCode',
@@ -363,10 +390,15 @@ let PutInStorage = React.createClass({
             initialValue:this.state.orderNo,
         });
         const driverProps = getFieldProps('driver');
-        const carProps = getFieldProps('car');
+        const carProps = getFieldProps('car',{
+            initialValue:this.state.carListFirst.eid,
+        });
         const createPersonProps = getFieldProps('createPerson');
         const placeOfArrivalProps = getFieldProps('placeOfArrival');
-
+        const carListSelect =[];
+        this.state.carList.forEach((commodityCode)=>{
+            carListSelect.push(<Option value={commodityCode.eid}>{commodityCode.mark}</Option>);
+        });
         const CollectionCreateForm = Form.create()(
             class extends React.Component {
                 render() {
@@ -504,8 +536,12 @@ let PutInStorage = React.createClass({
                                 {...formItemLayout}
                                 label="车辆信息："
                             >
-                                <Input style={{width:"300"}}
-                                       {...carProps}   placeholder="请输入车辆信息" />
+                                <Select id="select" size="large" style={{ width: 200 }}
+                                        {...carProps} >
+                                    {carListSelect}
+                                </Select>
+                                {/*<Input style={{width:"300"}}
+                                       {...carProps}   placeholder="请输入车辆信息" />*/}
                             </FormItem>
                         </Col>
                         <Col span={12}>

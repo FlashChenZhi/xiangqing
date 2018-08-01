@@ -32,9 +32,10 @@ public class FindOutOrInWarehouseAction {
      */
     @RequestMapping(value = "/findOutOrInWarehouse",method = RequestMethod.POST)
     @ResponseBody
-    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int current, int defaultPageSize, String productId, String beginDate, String endDate,String type){
+    public PagerReturnObj<List<Map<String,Object>>> findOutOrInWarehouse(int current, int defaultPageSize, String productId,
+                                    String beginDate, String endDate,String type,String lotNo){
         int startIndex = (current-1) * defaultPageSize;
-        return findOutOrInWarehouseService.findOutOrInWarehouse(startIndex,defaultPageSize,productId,beginDate,endDate, type);
+        return findOutOrInWarehouseService.findOutOrInWarehouse(startIndex,defaultPageSize,productId,beginDate,endDate, type,lotNo);
     }
 
     /*

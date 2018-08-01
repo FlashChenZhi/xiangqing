@@ -5,8 +5,10 @@ package com.util.common;
  */
 public enum LoggerType {
     XMLMessageInfo("XMLMessageInfo"),
+    ERROR("SystemError"),
     WMS("WMS_INFO"),
     MessageLog("MessageLog");
+
 
     private String code;
 
