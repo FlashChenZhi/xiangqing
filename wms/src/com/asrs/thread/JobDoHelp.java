@@ -89,6 +89,7 @@ public class JobDoHelp {
      */
     public static void cancelPutaway(String mckey) {
         LogWriter.info(LoggerType.WMS, "强制取消入库任务mckey" + mckey);
+        System.out.println("强制取消入库任务mckey" + mckey);
         Session session = HibernateUtil.getCurrentSession();
         cancelBlockData(mckey);
 

@@ -56,5 +56,6 @@
     <mapping class="com.asrs.domain.SkuDetail"/>
     <mapping class="com.asrs.domain.Qty"/>
     <mapping class="com.asrs.domain.ScarChargeLocation"/>
+    <mapping class="com.asrs.domain.WEConnect"/>
   </session-factory>
 </hibernate-configuration>

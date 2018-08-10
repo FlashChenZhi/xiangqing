@@ -314,9 +314,10 @@ public class CreateAsrsJob {
         SCar sCar=(SCar)block;
         Session session = HibernateUtil.getCurrentSession();
         CreateAsrsJob createAsrsJob = new CreateAsrsJob(sCar);
-        if (!hasJob) {
+        boolean flag=true;
+        if (!hasJob && flag) {
             //查找没有小车并且没有小车正在赶往此母车并且此母车有入库任务 的母车
-            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and " +
+            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and m.groupNo is null and " +
                     "m.position=:position and " +
                     "not exists (select 1 from AsrsJob a where a.type=:tp and a.toStation = m.blockNo ) " +
                     "and " +
@@ -329,12 +330,12 @@ public class CreateAsrsJob {
             MCar toMCar = (MCar) query.uniqueResult();
             if (toMCar != null) {
                 //存在有入库任务的母车，小车换层
-                hasJob = changeLevel(toMCar.getLevel(), hasJob,3);
+                flag = changeLevel(toMCar.getLevel(), flag,3);
             }
         }
-        if (!hasJob) {
+        if (!hasJob && flag) {
             //查找没有小车并且没有小车正在赶往此母车并且此母车有出库任务 的母车
-            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and " +
+            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and m.groupNo is null and " +
                     "m.position=:position and " +
                     "not exists (select 1 from AsrsJob a where a.type=:tp and a.toStation = m.blockNo ) " +
                     "and " +
@@ -346,19 +347,20 @@ public class CreateAsrsJob {
             MCar toMCar = (MCar) query.uniqueResult();
             if (toMCar != null) {
                 //存在有出库任务的母车，小车换层
-                hasJob =changeLevel(toMCar.getLevel(), hasJob,3);
+                flag =changeLevel(toMCar.getLevel(), flag,3);
             }
         }
-        if(!hasJob){
-            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and " +
+        if(!hasJob && flag){
+            Query query = session.createQuery("from MCar m where m.sCarBlockNo is null and m.groupNo is null and " +
                     "m.position=:position and " +
                     "not exists (select 1 from AsrsJob a where a.type=:tp and a.toStation = m.blockNo ) ");
             query.setString("tp", AsrsJobType.CHANGELEVEL);
             query.setString("position", sCar.getPosition());
             query.setMaxResults(1);
             MCar toMCar = (MCar) query.uniqueResult();
-            hasJob = changeLevel(toMCar.getLevel(), hasJob,3);
+            flag = changeLevel(toMCar.getLevel(), flag,3);
         }
+        hasJob =flag;
         return hasJob;
     }
 

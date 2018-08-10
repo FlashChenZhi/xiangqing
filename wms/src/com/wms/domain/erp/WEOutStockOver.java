@@ -20,7 +20,7 @@ public class WEOutStockOver {
     private String locationNo;//库存位置
     private String outType;//出库类型
     private int truckId;//车辆ID
-    private Date createTime;//创建时间
+    private String createTime;//创建时间
     private int status;//读取状态（0未读，1已读）
 
     @Id
@@ -106,11 +106,11 @@ public class WEOutStockOver {
 
     @Column(name = "CREATETIME")
     @Basic
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 

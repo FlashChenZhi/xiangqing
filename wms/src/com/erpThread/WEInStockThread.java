@@ -13,6 +13,7 @@ import com.util.hibernate.TransactionERP;
 import com.wms.domain.*;
 import com.wms.domain.blocks.ETruck;
 import com.wms.domain.erp.Truck;
+import com.wms.domain.erp.WEConnect;
 import com.wms.domain.erp.WEInStock;
 import org.hibernate.Session;
 
@@ -38,31 +39,36 @@ public class WEInStockThread implements Runnable{
                 Session session = HibernateUtil.getCurrentSession();
                 Session sessionERP = HibernateERPUtil.getCurrentSession();
 
-                List<WEInStock> weInStockList = WEInStock.findUnReadWEInStock();
-                if(weInStockList.size()!=0){
-                    for(WEInStock weInStock:weInStockList){
-                        Job job= Job.getByContainer(weInStock.getBarcode());
-                        Container container = Container.getByBarcode(weInStock.getBarcode());
-                        boolean flag=false;
-                        if(job!=null || container != null){
-                            System.out.println("托盘号已存在！");
-                            LogWriter.error(LoggerType.ERROR, "托盘号已存在！");
-                        }else{
-                            String barcode = weInStock.getBarcode();
-                            String skuCode = weInStock.getSkuCode()+"";
-                            String batch= weInStock.getBatch();
-                            String stationNo=weInStock.getLine()==1?"1101":"1102";
-                            batch=batch+"Q"+barcode.substring(13,14);
-                            flag=createJob(stationNo, skuCode, barcode, batch);
-                        }
-                        if(flag){
-                            weInStock.setStatus(1);
-                            sessionERP.saveOrUpdate(weInStock);
-                        }else{
-                            System.out.println("创建入库任务失败！");
-                        }
+                WEConnect weConnect =WEConnect.getById(1);
+                if(weConnect.isConnect()) {
+                    List<WEInStock> weInStockList = WEInStock.findUnReadWEInStock();
+                    if (weInStockList.size() != 0) {
+                        for (WEInStock weInStock : weInStockList) {
+                            Job job = Job.getByContainer(weInStock.getBarcode());
+                            Container container = Container.getByBarcode(weInStock.getBarcode());
+                            boolean flag = false;
+                            if (job != null || container != null) {
+                                System.out.println("托盘号已存在！");
+                                LogWriter.error(LoggerType.ERROR, "托盘号已存在！");
+                            } else {
+                                String barcode = weInStock.getBarcode();
+                                String skuCode = weInStock.getSkuCode() + "";
+                                String batch = weInStock.getBatch();
+                                String stationNo = weInStock.getLine() == 1 ? "1101" : "1102";
+                                batch = batch + "Q" + barcode.substring(14, 15);
+                                flag = createJob(stationNo, skuCode, barcode, batch);
+                            }
+                            if (flag) {
+                                weInStock.setStatus(1);
+                                sessionERP.saveOrUpdate(weInStock);
+                            } else {
+                                System.out.println("创建入库任务失败！");
+                            }
 
+                        }
                     }
+                }else{
+                    System.out.println("WEInStockThread未与app连接！");
                 }
                 Transaction.commit();
                 TransactionERP.commit();
@@ -109,6 +115,7 @@ public class WEInStockThread implements Runnable{
             lotNum=sku.getLotNum();
         }*/
         job.setLotNum(lotNum);
+        job.setBeLongTo("ERP");
         JobDetail jobDetail = new JobDetail();
         session.save(jobDetail);
         jobDetail.setJob(job);

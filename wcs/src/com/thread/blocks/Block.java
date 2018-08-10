@@ -32,6 +32,7 @@ public abstract class Block {
     protected String error;
     private String wareHouse;
     private int version;
+    protected String previousMcKey;
 
     public static final String STATUS_RUN = "1";
     public static final String STATUS_CHARGE = "3";
@@ -136,7 +137,17 @@ public abstract class Block {
         this.wareHouse = wareHouse;
     }
 
-   // private int version;
+    @Basic
+    @Column(name = "PREVIOUSMCKEY")
+    public String getPreviousMcKey() {
+        return previousMcKey;
+    }
+
+    public void setPreviousMcKey(String previousMcKey) {
+        this.previousMcKey = previousMcKey;
+    }
+
+    // private int version;
 
 //    @Version
 //    @Column(name = "VERSION")

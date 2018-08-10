@@ -26,6 +26,7 @@ import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.wms.domain.*;
 import com.wms.domain.blocks.SCar;
+import com.wms.domain.erp.WEConnect;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -105,19 +106,32 @@ public class LoadUnitAtID extends XMLProcess {
             String stationNo = dataArea.getXMLLocation().getMHA();
             Station station = Station.getNormalStation(stationNo);
 
-            Job job = Job.getByCreateDate(stationNo);
+
             if(station!=null && AsrsJobType.PUTAWAY.equals(station.getMode())) {
-                if (job == null) {
-                    System.out.println("不存在ERP的入库任务！");
-                    LogWriter.error(LoggerType.ERROR, "不存在ERP的入库任务！");
+                WEConnect weConnect = WEConnect.getById(1);
+                if(weConnect.isConnect()){
+                    Job job = Job.getByCreateDateByBeLongTo(stationNo,"ERP");
+                    if (job == null) {
+                        System.out.println("不存在ERP的入库任务！");
+                        LogWriter.error(LoggerType.ERROR, "不存在ERP的入库任务！");
+                    }else{
+                        barcode=job.getContainer();
+                        //分配货位，并向队列中压入TransportOrder
+                        Location newLocation = getToLocation(stationNo,job,barcode);
+                        job.setToLocation(newLocation);
+                        job.setStatus(AsrsJobStatus.RUNNING);
+                    }
                 }else{
+                    Job job = Job.getByCreateDate(stationNo);
+                    if (job == null) {
+                        job=createJob(stationNo);
+                    }
                     barcode=job.getContainer();
                     //分配货位，并向队列中压入TransportOrder
                     Location newLocation = getToLocation(stationNo,job,barcode);
                     job.setToLocation(newLocation);
                     job.setStatus(AsrsJobStatus.RUNNING);
                 }
-
             }else {
                 System.out.println("入库站台不是正常状态！");
             }
@@ -293,6 +307,8 @@ public class LoadUnitAtID extends XMLProcess {
         }
         return job;
     }
+
+
 
     /*
      * @author：ed_chen

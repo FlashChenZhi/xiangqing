@@ -165,4 +165,10 @@ public class WebAction {
         HttpMessage httpMessage = webService.getTheSCCar(blockNo);
         return httpMessage;
     }
+    @RequestMapping("deleteData.do")
+    @ResponseBody
+    public HttpMessage deleteData(String blockNo) {
+        HttpMessage httpMessage = webService.deleteData(blockNo);
+        return httpMessage;
+    }
 }

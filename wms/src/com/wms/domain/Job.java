@@ -2,6 +2,7 @@ package com.wms.domain;
 
 import com.asrs.business.consts.AsrsJobStatus;
 import com.util.hibernate.HibernateUtil;
+import com.wms.domain.erp.WEConnect;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
 import org.hibernate.Query;
@@ -288,6 +289,17 @@ public class Job {
         this.orderNo = orderNo;
     }
 
+    private String beLongTo;
+    @Basic
+    @Column(name = "BELONGTO")
+    public String getBeLongTo() {
+        return beLongTo;
+    }
+
+    public void setBeLongTo(String beLongTo) {
+        this.beLongTo = beLongTo;
+    }
+
     public void asrsDone() {
 //        Session session = HibernateUtil.getCurrentSession();
 //
@@ -379,7 +391,14 @@ public class Job {
             jl.setQty(jd.getInventory().getQty());
             jl.setLotNum(jd.getInventory().getLotNum());
         }
-        jl.setStatus("0");
+        WEConnect weConnect = WEConnect.getById(1);
+        if(weConnect.isConnect()){
+            jl.setStatus("0");
+        }else{
+            //未连接app期间的出入库完成信息，不给app
+            jl.setStatus("1");
+        }
+
         session.save(jl);
     }
 
@@ -482,11 +501,22 @@ public class Job {
     }
 
     public static Job getByCreateDate(String stationNo) {
-        Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting order by j.createDate")
+        Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting " +
+                "and j.beLongTo is null order by j.createDate")
                 .setString("station",stationNo)
                 .setString("waiting", AsrsJobStatus.WAITING)
                 .setMaxResults(1);
         return (Job) jobQuery.uniqueResult();
 
     }
+    public static Job getByCreateDateByBeLongTo(String stationNo,String beLongTo) {
+        Query jobQuery = HibernateUtil.getCurrentSession().createQuery("from Job j where j.fromStation = :station and j.status = :waiting " +
+                "and j.beLongTo =:beLongTo order by j.createDate")
+                .setString("station",stationNo)
+                .setString("waiting", AsrsJobStatus.WAITING)
+                .setString("beLongTo", beLongTo)
+                .setMaxResults(1);
+        return (Job) jobQuery.uniqueResult();
+    }
+
 }

@@ -64,5 +64,6 @@
         <mapping class="com.wms.domain.blocks.WcsMessage"/>
         <mapping class="com.wms.domain.blocks.ETruck"/>
         <mapping class="com.wms.domain.blocks.EOutStock"/>
+        <mapping class="com.wms.domain.erp.WEConnect"/>
     </session-factory>
 </hibernate-configuration>

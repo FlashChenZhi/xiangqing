@@ -1,10 +1,10 @@
-﻿import {Button, Form, Table, Pagination, Select, message, Row, Col, Input, DatePicker} from 'antd';
+﻿import {Button, Form, Table,Modal, Pagination, Select, message, Row, Col, Input, DatePicker} from 'antd';
 import React from 'react';
 import reqwest from 'reqwest';
 import {reqwestError, dateFormat} from '../common/Golbal';
 import ChangeLevelModel from './ChangeLevelModel';
 import AddScarModel from './AddScarModel';
-
+const confirm = Modal.confirm;
 const FormItem = Form.Item;
 
 const boolCmp = (b) => {
@@ -80,44 +80,58 @@ let BlockQuery = React.createClass({
     },
 
     onLine(blockNo) {
-        reqwest({
-            url: '/wcs/webService/onLine.do',
-            method: 'POST',
-            data: {blockNo: blockNo},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
-            },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-                this.getTableData(1);
+        confirm({
+            title:'提示',
+            content:'是否确认将此Block运行？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/onLine.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                        this.getTableData(1);
 
-            }
+                    }
+                });
+            },
+            onCancle(){},
         });
     },
 
     offLine(blockNo) {
-        reqwest({
-            url: '/wcs/webService/offLine.do',
-            method: 'POST',
-            data: {blockNo: blockNo},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
-            },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-                this.getTableData(1);
+        confirm({
+            title:'提示',
+            content:'是否确认将此Block切离？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/offLine.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                        this.getTableData(1);
 
-            }
+                    }
+                });
+            },
+            onCancle(){},
         });
     },
 
@@ -141,21 +155,28 @@ let BlockQuery = React.createClass({
     },
 
     cancelWaiting(blockNo) {
-        reqwest({
-            url: '/wcs/webService/cancelWaiting.do',
-            method: 'POST',
-            data: {blockNo: blockNo},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
+        confirm({
+            title:'提示',
+            content:'是否确认将此Block取消等待？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/cancelWaiting.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                    }
+                });
             },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-            }
+            onCancle(){},
         });
     },
 
@@ -179,46 +200,85 @@ let BlockQuery = React.createClass({
     },
 
     recoveryException(blockNo){
-        reqwest({
-            url: '/wcs/webService/recovryException.do',
-            method: 'POST',
-            data: {blockNo: blockNo},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
+        confirm({
+            title:'提示',
+            content:'是否确认解除此block异常？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/recovryException.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                    }
+                });
             },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-            }
+            onCancle(){},
         });
     },
 
     chargeStart(blockNo){
-        reqwest({
-            url: '/wcs/webService/chargeStart.do',
-            method: 'POST',
-            data: {blockNo: blockNo},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
+        confirm({
+            title:'提示',
+            content:'是否开始充电？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/chargeStart.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                    }
+                });
             },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-            }
+            onCancle(){},
         });
     },
 
     chargeFinish(blockNo){
+        confirm({
+            title:'提示',
+            content:'是否结束充电？',
+            onOk() {
+                reqwest({
+                    url: '/wcs/webService/chargeFinish.do',
+                    method: 'POST',
+                    data: {blockNo: blockNo},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                    }
+                });
+            },
+            onCancle(){},
+        });
+    },
+    deleteData(blockNo){
         reqwest({
-            url: '/wcs/webService/chargeFinish.do',
+            url: '/wcs/webService/deleteData.do',
             method: 'POST',
             data: {blockNo: blockNo},
             type: 'json',
@@ -234,7 +294,6 @@ let BlockQuery = React.createClass({
             }
         });
     },
-
     addScar(blockNo){
         this.setState({blockNo: blockNo, addScarModel: true});
     },
@@ -313,6 +372,8 @@ let BlockQuery = React.createClass({
                     <a onClick={this.chargeFinish.bind(this, record.blockNo)}>充电完成</a >
                     &nbsp;&nbsp;||&nbsp;&nbsp;
                     <a onClick={this.recoveryException.bind(this, record.blockNo)}>解除异常</a >
+                    &nbsp;&nbsp;||&nbsp;&nbsp;
+                    <a onClick={this.deleteData.bind(this, record.blockNo)}>清除数据</a >
                     &nbsp;&nbsp;||&nbsp;&nbsp;
                     <a onClick={this.changeLevel.bind(this, record.blockNo)}>换层</a >
                 </span>

@@ -26,32 +26,12 @@ import java.util.*;
 public class Test {
     public static void main(String[] args) {
         try{
-
-            //TransactionERP.begin();
             Transaction.begin();
-            //Session sessionERP = HibernateERPUtil.getCurrentSession();
-            Session  session = HibernateUtil.getCurrentSession();
-            JobLog jl = new JobLog();
+            Session session =HibernateUtil.getCurrentSession();
 
-            jl.setContainer("1");
-            jl.setCreateDate(new Date());
-            jl.setCreateUser("1");
+            Job job = Job.getByCreateDateByBeLongTo("1101","ERP");
+            System.out.println(job);
 
-                jl.setFromLocation("1");
-
-            jl.setFromStation("1");
-                jl.setToLocation("1");
-                jl.setOrderNo("1");
-            jl.setToStation("1");
-            jl.setType("1");
-                jl.setSkuCode("1");
-                jl.setSkuName("1");
-                jl.setLotNum("1");
-            jl.setStatus("0");
-            session.save(jl);
-
-
-            //TransactionERP.commit();
             Transaction.commit();
 
 

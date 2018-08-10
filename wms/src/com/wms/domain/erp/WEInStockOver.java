@@ -15,7 +15,7 @@ public class WEInStockOver {
     private int id;
     private String barcode;//堆垛码
     private String newLocationNo;//最新位置
-    private Date createTime;//创建时间
+    private String createTime;//创建时间
     private String locationNo;//位置
     private int status;//读取状态（0未读，1已读）
 
@@ -62,11 +62,11 @@ public class WEInStockOver {
 
     @Column(name = "CREATETIME")
     @Basic
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 

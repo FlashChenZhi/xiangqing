@@ -1,8 +1,8 @@
-import {Button, Form, Table, Pagination, Select, message, Row, Col, Input, DatePicker} from 'antd';
+import {Button, Form, Table,Modal, Pagination, Select, message, Row, Col, Input, DatePicker} from 'antd';
 import React from 'react';
 import reqwest from 'reqwest';
 import {reqwestError} from '../common/Golbal';
-
+const confirm = Modal.confirm;
 const FormItem = Form.Item;
 
 
@@ -48,24 +48,31 @@ let AsrsJobQuery = React.createClass({
     },
 
     deleteJob(mckey) {
-        reqwest({
-            // url: '/wcs/webService/deleteJob.do',
-            url: '/wms/task/cancelJob',
-            method: 'POST',
-            data: {mckey: mckey},
-            type: 'json',
-            error: err => {
-                message.error('网络异常,请稍后再试');
-            },
-            success: resp => {
-                if (resp.success) {
-                    message.success(resp.msg);
-                } else {
-                    message.error(resp.msg);
-                }
-                this.getTableData(1);
+        confirm({
+            title:'提示',
+            content:'是否确认将此AsrsJob删除？',
+            onOk() {
+                reqwest({
+                    // url: '/wcs/webService/deleteJob.do',
+                    url: '/wms/task/cancelJob',
+                    method: 'POST',
+                    data: {mckey: mckey},
+                    type: 'json',
+                    error: err => {
+                        message.error('网络异常,请稍后再试');
+                    },
+                    success: resp => {
+                        if (resp.success) {
+                            message.success(resp.msg);
+                        } else {
+                            message.error(resp.msg);
+                        }
+                        this.getTableData(1);
 
-            }
+                    }
+                });
+            },
+            onCancle(){},
         });
     },
 

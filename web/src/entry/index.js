@@ -34,7 +34,7 @@ import SkuLotNum from '../components/InOrOut/SkuLotNum';
 import StockOutODO from '../components/InOrOut/StockOutODO';
 import FindOrderDetail from '../components/InOrOut/FindOrderDetail';
 import FindERPOrder from '../components/InOrOut/FindERPOrder';
-
+import AppConnect from '../components/InOrOut/AppConnect';
 
 class Index extends React.Component {
     constructor(props) {
@@ -70,6 +70,7 @@ class Index extends React.Component {
                     <Route path="/StockOutODO" components={StockOutODO}/>
                     <Route path="/FindOrderDetail" components={FindOrderDetail}/>
                     <Route path="/FindERPOrder" components={FindERPOrder}/>
+                    <Route path="/AppConnect" components={AppConnect}/>
     <Route path="/FindOutOrInWarehouse" components={FindOutOrInWarehouse}/>
         <Route path="/FindInventory" components={FindInventory}/>
                 </Route>

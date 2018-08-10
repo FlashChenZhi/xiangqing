@@ -5,6 +5,7 @@ import com.util.hibernate.HibernateUtil;
 import com.util.hibernate.Transaction;
 import com.util.hibernate.TransactionERP;
 import com.wms.domain.blocks.EOutStock;
+import com.wms.domain.erp.WEConnect;
 import com.wms.domain.erp.WEOutStock;
 import org.hibernate.Session;
 
@@ -26,21 +27,26 @@ public class WEOutStockThread implements Runnable {
                 Session session = HibernateUtil.getCurrentSession();
                 Session sessionERP = HibernateERPUtil.getCurrentSession();
 
-                List<WEOutStock> weOutStockList = WEOutStock.findUnReadWEOutStock();
-                if(weOutStockList.size()!=0){
-                    for(WEOutStock weOutStock:weOutStockList){
+                WEConnect weConnect =WEConnect.getById(1);
+                if(weConnect.isConnect()) {
+                    List<WEOutStock> weOutStockList = WEOutStock.findUnReadWEOutStock();
+                    if (weOutStockList.size() != 0) {
+                        for (WEOutStock weOutStock : weOutStockList) {
 
-                        EOutStock eOutStock= new EOutStock();
-                        eOutStock.setCreateTime(weOutStock.getCreateTime());
-                        eOutStock.setPerson(weOutStock.getPerson());
-                        eOutStock.setWareId(weOutStock.getWareId());
-                        eOutStock.setWareNum(weOutStock.getWareNum());
-                        eOutStock.setStatus(weOutStock.getStatus());
-                        session.save(eOutStock);
+                            EOutStock eOutStock = new EOutStock();
+                            eOutStock.setCreateTime(weOutStock.getCreateTime());
+                            eOutStock.setPerson(weOutStock.getPerson());
+                            eOutStock.setWareId(weOutStock.getWareId());
+                            eOutStock.setWareNum(weOutStock.getWareNum());
+                            eOutStock.setStatus(weOutStock.getStatus());
+                            session.save(eOutStock);
 
-                        weOutStock.setStatus(1);
-                        sessionERP.saveOrUpdate(weOutStock);
+                            weOutStock.setStatus(1);
+                            sessionERP.saveOrUpdate(weOutStock);
+                        }
                     }
+                }else{
+                    System.out.println("WEOutStockThread未与app连接！");
                 }
                 Transaction.commit();
                 TransactionERP.commit();

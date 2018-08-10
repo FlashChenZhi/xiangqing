@@ -92,43 +92,48 @@ const SlideMenu = React.createClass({
 
                     </SubMenu>
                     <SubMenu key="11" title={<span><Icon type="setting"/><span>出入库</span></span>}>
-                        {/*<Menu.Item key='1'>
+                        <Menu.Item key='1'>
                             <Link to='SkuLotNum'>
                                 <Icon type="setting"/><span className="nav-text">入库批次管理</span>
                             </Link>
-                        </Menu.Item>*/}
+                        </Menu.Item>
                         <Menu.Item key='2'>
+                            <Link to='AppConnect'>
+                                <Icon type="setting"/><span className="nav-text">App入库连接管理</span>
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key='3'>
                             <Link to='StationStatusSwitch'>
                                 <Icon type="setting"/><span className="nav-text">出入库状态切换</span>
                             </Link>
                         </Menu.Item>
 
-                        <Menu.Item key='3'>
+                        <Menu.Item key='4'>
                             <Link to='FindInventory'>
                                 <Icon type="solution" /><span className="nav-text">库存展示</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='4'>
+                        <Menu.Item key='5'>
                             <Link to='FindOutOrInWarehouse'>
                                 <Icon type="setting"/><span className="nav-text">出入库查询</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='5'>
+                        <Menu.Item key='6'>
                             <Link to='AssignsTheStorehouse'>
                                 <Icon type="solution" /><span className="nav-text">定点出库</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='6'>
+                        <Menu.Item key='7'>
                             <Link to='StockOutODO'>
                                 <Icon type="solution" /><span className="nav-text">订单出库</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='7'>
+                        <Menu.Item key='8'>
                             <Link to='FindOrderDetail'>
                                 <Icon type="solution" /><span className="nav-text">订单详情</span>
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key='8'>
+                        <Menu.Item key='9'>
                             <Link to='FindERPOrder'>
                                 <Icon type="solution" /><span className="nav-text">ERP订单详情</span>
                             </Link>

@@ -1068,6 +1068,24 @@ public class WebService {
         return httpMessage;
     }
 
-
+    public HttpMessage deleteData(String blockNo) {
+        HttpMessage httpMessage = new HttpMessage();
+        try {
+            Transaction.begin();
+            Session session = HibernateUtil.getCurrentSession();
+            Block block = Block.getByBlockNo(blockNo);
+            block.setMcKey(null);
+            block.setReservedMcKey(null);
+            Transaction.commit();
+            httpMessage.setSuccess(true);
+            httpMessage.setMsg("成功");
+        } catch (Exception e) {
+            Transaction.rollback();
+            httpMessage.setSuccess(false);
+            httpMessage.setMsg("出错了。");
+            e.printStackTrace();
+        }
+        return httpMessage;
+    }
 
 }

@@ -172,6 +172,16 @@ public class Job {
         this.lotNum = lotNum;
     }
 
+    private String beLongTo;
+    @Basic
+    @Column(name = "BELONGTO")
+    public String getBeLongTo() {
+        return beLongTo;
+    }
+
+    public void setBeLongTo(String beLongTo) {
+        this.beLongTo = beLongTo;
+    }
 
     @Override
     public boolean equals(Object o) {
