@@ -16,9 +16,9 @@
     <!--<property name="hibernate.hbm2ddl.auto">create</property>-->
     <!-- 配置C3P0 -->
     <!-- 最大连接数 -->
-    <property name="hibernate.c3p0.max_size">30</property>
+    <property name="hibernate.c3p0.max_size">300</property>
     <!-- 最小连接数 -->
-    <property name="hibernate.c3p0.min_size">3</property>
+    <property name="hibernate.c3p0.min_size">30</property>
     <!-- 获得连接的超时时间,如果超过这个时间,会抛出异常，单位毫秒 -->
     <property name="hibernate.c3p0.timeout">30</property>
     <!-- 当连接池里面的连接用完的时候，C3P0一下获取的新的连接数 -->

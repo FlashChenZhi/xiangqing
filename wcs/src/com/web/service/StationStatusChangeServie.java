@@ -2,11 +2,8 @@ package com.web.service;
 import com.asrs.business.consts.StationMode;
 import com.asrs.communication.MessageProxy;
 import com.asrs.domain.Station;
-
-import com.asrs.message.Message03;
 import com.asrs.message.Message40;
 import com.thread.blocks.Conveyor;
-import com.thread.blocks.StationBlock;
 import com.util.common.Const;
 import com.util.common.PagerReturnObj;
 import com.util.hibernate.HibernateUtil;
@@ -17,9 +14,7 @@ import org.hibernate.Session;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Service;
-
 import java.rmi.Naming;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +53,7 @@ public class StationStatusChangeServie {
 
     /**
      * 更新站台状态
-     * @return "0" 启用  "1" 禁用
+     * @return "0" 启用   "1" 禁用
      * 1.查询AsrsJob对象是否存在入库任务
      * 2.没有任务时可切换站台状态
      */

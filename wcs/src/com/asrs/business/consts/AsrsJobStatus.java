@@ -9,8 +9,7 @@ import java.util.Map;
  * Time: 14:19:11
  * Copyright Daifuku Shanghai Ltd.
  */
-public class AsrsJobStatus
-{
+public class AsrsJobStatus {
     public static final String WAITING = "0";
     public static final String RUNNING = "1";
     public static final String ACCEPT = "2";

@@ -63,7 +63,7 @@ public class Msg03Resender {
                                 System.out.println("resendId: " + msg03.getId());
 
                                 //msg03.setLastSendDate(new Date());
-                                /*session.createQuery("update WcsMessage set lastSendDate=:date where id=:id")
+                                /*session.createQuery("update WcsMessage set lastSendDate=:datecd where id=:id")
                                         .setParameter("date", new Date())
                                         .setParameter("id", msg03.getId()).executeUpdate();*/
                             }
